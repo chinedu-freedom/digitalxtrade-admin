@@ -116,18 +116,36 @@ export default function AdminAddTransactionPage() {
                   <SelectTrigger className="h-11 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-medium w-full">
                     <SelectValue placeholder="Select Recipient Group" />
                   </SelectTrigger>
-                  <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
+                  <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg max-h-72">
                     <SelectItem value="Specified users (enter a usernames below)" className="hover:bg-slate-100">
                       Specified users (enter a usernames below)
                     </SelectItem>
                     <SelectItem value="All users" className="hover:bg-slate-100">
                       All users
                     </SelectItem>
-                    <SelectItem value="Active users only" className="hover:bg-slate-100">
-                      Active users only
+                    <SelectItem value="All users which have made a deposit" className="hover:bg-slate-100">
+                      All users which have made a deposit
                     </SelectItem>
-                    <SelectItem value="Banned users only" className="hover:bg-slate-100">
-                      Banned users only
+                    <SelectItem value="All users which have not made a deposit" className="hover:bg-slate-100">
+                      All users which have not made a deposit
+                    </SelectItem>
+                    <SelectItem value="All users which have made a deposit to FOUNDATION PLAN" className="hover:bg-slate-100">
+                      All users which have made a deposit to FOUNDATION PLAN
+                    </SelectItem>
+                    <SelectItem value="All users which have made a deposit to ACCELERATION PLAN" className="hover:bg-slate-100">
+                      All users which have made a deposit to ACCELERATION PLAN
+                    </SelectItem>
+                    <SelectItem value="All users which have made a deposit to STABILITY PLAN" className="hover:bg-slate-100">
+                      All users which have made a deposit to STABILITY PLAN
+                    </SelectItem>
+                    <SelectItem value="All users which have made a deposit to WEALTH PLAN" className="hover:bg-slate-100">
+                      All users which have made a deposit to WEALTH PLAN
+                    </SelectItem>
+                    <SelectItem value="All users which have made a deposit to DIGITALXTRADE MAX PLAN(250% In 48 hours)" className="hover:bg-slate-100">
+                      All users which have made a deposit to DIGITALXTRADE MAX PLAN(250% In 48 hours)
+                    </SelectItem>
+                    <SelectItem value="All users which have made a deposit to DIGITALXTRADE SUPER PLAN(500% In 72 hours)" className="hover:bg-slate-100">
+                      All users which have made a deposit to DIGITALXTRADE SUPER PLAN(500% In 72 hours)
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -167,9 +185,8 @@ export default function AdminAddTransactionPage() {
                   </SelectTrigger>
                   <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
                     <SelectItem value="BITCOIN" className="hover:bg-slate-100">BITCOIN</SelectItem>
-                    <SelectItem value="USDT (TRC20)" className="hover:bg-slate-100">USDT (TRC20)</SelectItem>
-                    <SelectItem value="USDT (BEP20)" className="hover:bg-slate-100">USDT (BEP20)</SelectItem>
-                    <SelectItem value="ETHEREUM" className="hover:bg-slate-100">ETHEREUM</SelectItem>
+                    <SelectItem value="USDT(TRC20)" className="hover:bg-slate-100">USDT(TRC20)</SelectItem>
+                    <SelectItem value="USDT(BEP20)" className="hover:bg-slate-100">USDT(BEP20)</SelectItem>
                     <SelectItem value="LITECOIN" className="hover:bg-slate-100">LITECOIN</SelectItem>
                   </SelectContent>
                 </Select>
@@ -242,12 +259,14 @@ export default function AdminAddTransactionPage() {
                   <SelectTrigger className="h-11 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-medium w-full">
                     <SelectValue placeholder="Select Bonus Deposit Action" />
                   </SelectTrigger>
-                  <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
+                  <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg max-h-72">
                     <SelectItem value="-- Not Deposit --" className="hover:bg-slate-100">-- Not Deposit --</SelectItem>
-                    <SelectItem value="FOUNDATION PLAN (2.0% Daily for 30 Days)" className="hover:bg-slate-100">FOUNDATION PLAN (2.0% Daily for 30 Days)</SelectItem>
-                    <SelectItem value="STABILITY PLAN (2.5% Daily for 30 Days)" className="hover:bg-slate-100">STABILITY PLAN (2.5% Daily for 30 Days)</SelectItem>
-                    <SelectItem value="ACCELERATION PLAN (3.5% Daily for 30 Days)" className="hover:bg-slate-100">ACCELERATION PLAN (3.5% Daily for 30 Days)</SelectItem>
-                    <SelectItem value="WEALTH PLAN (5.0% Daily for 30 Days)" className="hover:bg-slate-100">WEALTH PLAN (5.0% Daily for 30 Days)</SelectItem>
+                    <SelectItem value="FOUNDATION PLAN" className="hover:bg-slate-100">FOUNDATION PLAN</SelectItem>
+                    <SelectItem value="ACCELERATION PLAN" className="hover:bg-slate-100">ACCELERATION PLAN</SelectItem>
+                    <SelectItem value="STABILITY PLAN" className="hover:bg-slate-100">STABILITY PLAN</SelectItem>
+                    <SelectItem value="WEALTH PLAN" className="hover:bg-slate-100">WEALTH PLAN</SelectItem>
+                    <SelectItem value="DIGITALXTRADE MAX PLAN(250% In 48 hours)" className="hover:bg-slate-100">DIGITALXTRADE MAX PLAN(250% In 48 hours)</SelectItem>
+                    <SelectItem value="DIGITALXTRADE SUPER PLAN(500% In 72 hours)" className="hover:bg-slate-100">DIGITALXTRADE SUPER PLAN(500% In 72 hours)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
