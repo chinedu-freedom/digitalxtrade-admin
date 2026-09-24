@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-export default function AdminCookieAliasPage() {
-  redirect('/admin/setting/cookie');
-}
+export { default } from '../setting/cookie/page';
