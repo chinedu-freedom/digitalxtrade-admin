@@ -313,15 +313,6 @@ export default function AdminSidebarLayout({ children }) {
         { label: 'Login History', path: '/admin/reports/logins' },
       ],
     },
-    {
-      label: 'Gift Bonus',
-      icon: Gift,
-      matchPaths: ['/admin/gift-bonus'],
-      submenu: [
-        { label: 'Gift Bonus Codes', path: '/admin/gift-bonus/bonus' },
-        { label: 'Usage History', path: '/admin/gift-bonus/uses-list' },
-      ],
-    },
     { label: 'Manage Referral', path: '/admin/referral', icon: Share2 },
     { label: 'System Setting', path: '/admin/settings', icon: Settings },
     { label: 'Logout', action: 'logout', icon: LogOut },

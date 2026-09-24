@@ -97,10 +97,15 @@ export const AdminAuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('stakelab_admin');
-    localStorage.removeItem('stakelab_admin_token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('stakelab_admin');
+      localStorage.removeItem('stakelab_admin_token');
+      localStorage.removeItem('digital_admin_token');
+      document.cookie = 'stakelab_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = 'digital_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
     setAdmin(null);
-    toast.info('Admin logged out');
+    toast.info('Logged out successfully');
     router.push('/admin/login');
   };
 
