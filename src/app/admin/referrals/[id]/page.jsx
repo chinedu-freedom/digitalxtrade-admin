@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import api from '../../../../lib/api';
 import { Users, UserCheck, ArrowLeft, Loader2, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function AdminUserReferralsDetailPage() {
   const routeParams = useParams();

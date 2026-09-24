@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Eye, EyeOff, ShieldCheck, Loader2, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminVerificationPasswordPage() {

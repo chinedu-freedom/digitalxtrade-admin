@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AdminNavbar from '../../../../components/AdminNavbar';
 import api from '../../../../lib/api';
 import { Mail, Save, Send } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function AdminEmailSettingsPage() {
   const [formData, setFormData] = useState({

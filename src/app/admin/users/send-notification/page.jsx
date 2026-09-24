@@ -5,7 +5,7 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import RichTextEditor from '../../../../components/RichTextEditor';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 import api from '../../../../lib/api';
 

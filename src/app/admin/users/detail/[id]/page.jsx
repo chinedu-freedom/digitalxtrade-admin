@@ -33,7 +33,7 @@ import {
   Gift,
   AlertTriangle,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { countries } from '../../../../../lib/countries';
 
 export default function AdminUserDetailPage() {

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../../components/AdminSidebarLayout';
 import { Check, X, Copy } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function AdminDepositDetailsPage() {
   const routeParams = useParams();

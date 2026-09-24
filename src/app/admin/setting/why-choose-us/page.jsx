@@ -25,7 +25,7 @@ import {
   Wallet,
   Star,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 const availableIcons = [

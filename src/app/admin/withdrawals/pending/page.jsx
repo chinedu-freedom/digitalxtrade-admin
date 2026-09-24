@@ -6,7 +6,7 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Search, Monitor, Copy, Loader2, CheckCircle2, XCircle, Trash2, Landmark, Clock } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminWithdrawalsFilteredPage({

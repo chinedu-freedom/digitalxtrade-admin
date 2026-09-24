@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import RichTextEditor from '../../../../components/RichTextEditor';
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Loader2, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminGdprCookiePage() {

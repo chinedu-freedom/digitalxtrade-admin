@@ -5,7 +5,7 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import RichTextEditor from '../../../../components/RichTextEditor';
 import api from '../../../../lib/api';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function AdminDepositWithdrawalSettingsPage() {
   const [dailyWithdrawLimit, setDailyWithdrawLimit] = useState('0');

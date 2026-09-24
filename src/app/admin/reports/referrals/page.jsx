@@ -352,4 +352,17 @@ export default function AdminReferralCommissionsLogPage() {
                 )}
               </tbody>
             </table>
-          </d
+          </div>
+
+          <Pagination
+            currentPage={1}
+            totalPages={Math.max(1, Math.ceil(filteredCommissions.length / 15))}
+            totalResults={filteredCommissions.length}
+            pageSize={15}
+            onPageChange={(page) => console.log('Page:', page)}
+          />
+        </div>
+      </div>
+    </AdminSidebarLayout>
+  );
+}

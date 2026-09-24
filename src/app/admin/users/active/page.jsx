@@ -5,7 +5,7 @@ import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Search, Loader2, ArrowUpDown, CheckCircle, Ban, AlertTriangle, Trash2, CheckSquare, Users, UserCheck, Wallet, Layers } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminUsersFilteredPage({ title = 'Active Users', filterType = 'active' }) {

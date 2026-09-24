@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import RichTextEditor from '../../../../components/RichTextEditor';
 import { Quote, Plus, Trash2, Save, Star } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminTestimonialsSettingPage() {
