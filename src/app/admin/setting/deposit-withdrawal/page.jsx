@@ -8,12 +8,17 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminDepositWithdrawalSettingsPage() {
-  const [dailyWithdrawLimit, setDailyWithdrawLimit] = useState('0');
-  const [minDeposit, setMinDeposit] = useState('0');
-  const [maxDeposit, setMaxDeposit] = useState('0');
+  const [dailyWithdrawLimit, setDailyWithdrawLimit] = useState('5');
+  const [maxDailyWithdrawalAmount, setMaxDailyWithdrawalAmount] = useState('50000');
+  const [maxDailyBtcWithdrawal, setMaxDailyBtcWithdrawal] = useState('20000');
+  const [maxDailyUsdtWithdrawal, setMaxDailyUsdtWithdrawal] = useState('50000');
+  const [maxDailyEthWithdrawal, setMaxDailyEthWithdrawal] = useState('20000');
+  const [maxDailyLtcWithdrawal, setMaxDailyLtcWithdrawal] = useState('10000');
+  const [minDeposit, setMinDeposit] = useState('10');
+  const [maxDeposit, setMaxDeposit] = useState('1000000');
   const [depositCharge, setDepositCharge] = useState('0');
-  const [minPayout, setMinPayout] = useState('0');
-  const [maxPayout, setMaxPayout] = useState('0');
+  const [minPayout, setMinPayout] = useState('10');
+  const [maxPayout, setMaxPayout] = useState('50000');
   const [payoutCharge, setPayoutCharge] = useState('0');
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,6 +30,11 @@ export default function AdminDepositWithdrawalSettingsPage() {
       if (res.data?.success && res.data?.settings) {
         const s = res.data.settings;
         if (s.dailyWithdrawLimit !== undefined) setDailyWithdrawLimit(String(s.dailyWithdrawLimit));
+        if (s.maxDailyWithdrawalAmount !== undefined) setMaxDailyWithdrawalAmount(String(s.maxDailyWithdrawalAmount));
+        if (s.maxDailyBtcWithdrawal !== undefined) setMaxDailyBtcWithdrawal(String(s.maxDailyBtcWithdrawal));
+        if (s.maxDailyUsdtWithdrawal !== undefined) setMaxDailyUsdtWithdrawal(String(s.maxDailyUsdtWithdrawal));
+        if (s.maxDailyEthWithdrawal !== undefined) setMaxDailyEthWithdrawal(String(s.maxDailyEthWithdrawal));
+        if (s.maxDailyLtcWithdrawal !== undefined) setMaxDailyLtcWithdrawal(String(s.maxDailyLtcWithdrawal));
         if (s.minDeposit !== undefined) setMinDeposit(String(s.minDeposit));
         if (s.maxDeposit !== undefined) setMaxDeposit(String(s.maxDeposit));
         if (s.depositCharge !== undefined) setDepositCharge(String(s.depositCharge));
@@ -44,6 +54,11 @@ export default function AdminDepositWithdrawalSettingsPage() {
       const res = await api.post('/admin/deposit-withdrawal-settings', {
         settings: {
           dailyWithdrawLimit,
+          maxDailyWithdrawalAmount,
+          maxDailyBtcWithdrawal,
+          maxDailyUsdtWithdrawal,
+          maxDailyEthWithdrawal,
+          maxDailyLtcWithdrawal,
           minDeposit,
           maxDeposit,
           depositCharge,
@@ -180,6 +195,99 @@ export default function AdminDepositWithdrawalSettingsPage() {
                   onChange={(e) => setPayoutCharge(e.target.value)}
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans shadow-sm"
                 />
+              </div>
+            </div>
+
+            {/* Maximal Daily Withdrawal Limits Section */}
+            <div className="border-t border-slate-100 pt-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-sans">
+                  Maximal Daily Withdrawal Limits (For All Currencies)
+                </h3>
+                <span className="text-[10px] bg-indigo-50 text-[#5b5bf5] border border-indigo-100 font-bold px-2 py-0.5 rounded-full">
+                  Global Default Limits
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Global Total Daily Max ($) */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5 font-sans">
+                    Total Daily Max ($)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={maxDailyWithdrawalAmount}
+                    onChange={(e) => setMaxDailyWithdrawalAmount(e.target.value)}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+
+                {/* BTC Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-600 mb-1.5 font-sans">
+                    <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold">₿</span>
+                    <span>BTC Daily Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={maxDailyBtcWithdrawal}
+                    onChange={(e) => setMaxDailyBtcWithdrawal(e.target.value)}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+
+                {/* USDT Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-600 mb-1.5 font-sans">
+                    <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">₮</span>
+                    <span>USDT Daily Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={maxDailyUsdtWithdrawal}
+                    onChange={(e) => setMaxDailyUsdtWithdrawal(e.target.value)}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+
+                {/* ETH Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-600 mb-1.5 font-sans">
+                    <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold">Ξ</span>
+                    <span>ETH Daily Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={maxDailyEthWithdrawal}
+                    onChange={(e) => setMaxDailyEthWithdrawal(e.target.value)}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+
+                {/* LTC Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-semibold text-slate-600 mb-1.5 font-sans">
+                    <span className="w-4 h-4 rounded-full bg-slate-500 text-white flex items-center justify-center text-[10px] font-bold">Ł</span>
+                    <span>LTC Daily Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={maxDailyLtcWithdrawal}
+                    onChange={(e) => setMaxDailyLtcWithdrawal(e.target.value)}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
               </div>
             </div>
 

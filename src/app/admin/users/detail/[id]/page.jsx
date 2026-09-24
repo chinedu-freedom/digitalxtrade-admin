@@ -87,6 +87,11 @@ export default function AdminUserDetailPage() {
     emailVerified: true,
     twoFaEnabled: false,
     banned: false,
+    maxDailyWithdrawal: '50000.00',
+    maxDailyBtcWithdrawal: '20000.00',
+    maxDailyUsdtWithdrawal: '50000.00',
+    maxDailyEthWithdrawal: '20000.00',
+    maxDailyLtcWithdrawal: '10000.00',
   });
 
   const [loading, setLoading] = useState(true);
@@ -898,7 +903,105 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
 
-            {/* Row 6: Admin Note */}
+            {/* Row 6: Maximal Daily Withdrawal Limits (For All Currencies) */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-sans flex items-center gap-2">
+                    <span>Maximal Daily Withdrawal Limits</span>
+                    <span className="text-[10px] bg-indigo-100 text-[#5b5bf5] font-bold px-2 py-0.5 rounded-full">
+                      All Currencies
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-sans mt-0.5">
+                    Set custom maximum daily withdrawal allowance per currency for this specific user.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Total Daily Limit ($) */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
+                    Total Daily Limit ($)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={userData.maxDailyWithdrawal || ''}
+                    onChange={(e) => setUserData({ ...userData, maxDailyWithdrawal: e.target.value })}
+                    placeholder="50000.00"
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                {/* BTC Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
+                    <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">₿</span>
+                    <span>BTC Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={userData.maxDailyBtcWithdrawal || ''}
+                    onChange={(e) => setUserData({ ...userData, maxDailyBtcWithdrawal: e.target.value })}
+                    placeholder="20000.00"
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                {/* USDT Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
+                    <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]">₮</span>
+                    <span>USDT Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={userData.maxDailyUsdtWithdrawal || ''}
+                    onChange={(e) => setUserData({ ...userData, maxDailyUsdtWithdrawal: e.target.value })}
+                    placeholder="50000.00"
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                {/* ETH Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
+                    <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">Ξ</span>
+                    <span>ETH Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={userData.maxDailyEthWithdrawal || ''}
+                    onChange={(e) => setUserData({ ...userData, maxDailyEthWithdrawal: e.target.value })}
+                    placeholder="20000.00"
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                {/* LTC Daily Max ($) */}
+                <div>
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
+                    <span className="w-4 h-4 rounded-full bg-slate-500 text-white flex items-center justify-center text-[10px]">Ł</span>
+                    <span>LTC Max ($)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={userData.maxDailyLtcWithdrawal || ''}
+                    onChange={(e) => setUserData({ ...userData, maxDailyLtcWithdrawal: e.target.value })}
+                    placeholder="10000.00"
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 7: Admin Note */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
                 Admin Note
