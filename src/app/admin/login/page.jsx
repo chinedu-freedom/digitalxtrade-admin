@@ -13,7 +13,7 @@ function AdminLoginContent() {
   const searchParams = useSearchParams();
   const { login } = useAdminAuth();
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [keepMeLoggedIn, setKeepMeLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,13 +28,13 @@ function AdminLoginContent() {
     }
   }, [searchParams]);
 
-  // Load remembered username on mount
+  // Load remembered email on mount
   useEffect(() => {
-    const rememberedUsername =
-      localStorage.getItem('rememberedAdminUsername') ||
-      localStorage.getItem('rememberedUsername');
-    if (rememberedUsername) {
-      setUsername(rememberedUsername);
+    const rememberedEmail =
+      localStorage.getItem('rememberedAdminEmail') ||
+      localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
       setKeepMeLoggedIn(true);
     }
   }, []);
@@ -45,15 +45,13 @@ function AdminLoginContent() {
     setSubmitting(true);
 
     if (keepMeLoggedIn) {
-      localStorage.setItem('rememberedAdminUsername', username);
-      localStorage.setItem('rememberedUsername', username);
+      localStorage.setItem('rememberedAdminEmail', email);
     } else {
-      localStorage.removeItem('rememberedAdminUsername');
-      localStorage.removeItem('rememberedUsername');
+      localStorage.removeItem('rememberedAdminEmail');
     }
 
     try {
-      const res = await login(username, password, keepMeLoggedIn);
+      const res = await login(email, password, keepMeLoggedIn);
       if (res && res.success) {
         router.push('/admin/dashboard');
       } else {
@@ -76,10 +74,6 @@ function AdminLoginContent() {
           <div className="w-full max-w-md my-auto">
             {/* Header Title */}
             <div className="mb-8 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0085d0]/10 border border-[#0085d0]/30 text-[#38bdf8] text-xs font-semibold uppercase tracking-wider mb-4">
-                <span className="w-2 h-2 rounded-full bg-[#0085d0] animate-pulse"></span>
-                Admin Portal
-              </div>
               <h1 className="text-3xl font-extrabold text-white mb-2 font-righteous tracking-wide">
                 Admin <span className="text-gradient-stakelab">Login</span>
               </h1>
@@ -95,20 +89,20 @@ function AdminLoginContent() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Username Input */}
+              {/* Admin Email Input */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Admin Username or Email
+                  Admin Email
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={username}
+                  value={email}
                   onChange={(e) => {
-                    setUsername(e.target.value);
+                    setEmail(e.target.value);
                     if (errors.form) setErrors({});
                   }}
-                  placeholder="Admin Username"
+                  placeholder="admin@example.com"
                   className="w-full h-12 bg-[#0c1424] border-0 outline-none focus:outline-none rounded-md px-4 text-white placeholder-slate-500 font-sans text-sm focus:ring-1 focus:ring-[#0085d0] transition-all shadow-inner"
                 />
               </div>
@@ -197,9 +191,7 @@ function AdminLoginContent() {
             {/* Admin Restricted Access Notice */}
             <p className="text-center text-xs text-slate-400 mt-6">
               Restricted to authorized administrators.{' '}
-              <Link href="/admin/contact-support" className="text-[#0085d0] font-bold hover:underline">
-                Contact Support
-              </Link>
+       
             </p>
           </div>
         </div>
