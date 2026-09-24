@@ -260,6 +260,7 @@ export default function AdminSidebarLayout({ children }) {
         { label: 'Banned Users', path: '/admin/users/banned' },
         { label: 'Email Unverified', path: '/admin/users/email-unverified', countBadge: counts.emailUnverified },
         { label: 'All Users', path: '/admin/users' },
+        { label: 'Add Transaction', path: '/admin/users/add-transaction' },
         { label: 'Send Notification', path: '/admin/users/send-notification' },
       ],
     },
