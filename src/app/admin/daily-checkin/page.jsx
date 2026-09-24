@@ -1,5 +1,3 @@
-import AdminDailyCheckinPage from '../extra/daily-checkin/page';
+'use client';
 
-export default function AdminDailyCheckinAliasPage() {
-  return <AdminDailyCheckinPage />;
-}
+export { default } from '../extra/daily-checkin/page';
