@@ -40,12 +40,6 @@ const systemSettingCards = [
     link: '/admin/setting/maintenance',
   },
   {
-    title: 'GDPR Cookie',
-    description: 'Set GDPR Cookie policy if required. It will ask visitor of the system to accept if enabled.',
-    icon: Cookie,
-    link: '/admin/setting/cookie',
-  },
-  {
     title: 'Change Password',
     description: 'Update and change the administrator login password.',
     icon: Shield,
@@ -58,52 +52,10 @@ const systemSettingCards = [
     link: '/admin/setting/verification-password',
   },
   {
-    title: 'System Feature Modules',
-    description: 'Enable or disable Gamification features (Tasks, Spin Wheel, Daily Check-In, Gift Bonus).',
-    icon: Sliders,
-    link: '/admin/setting/system-features',
-  },
-  {
-    title: 'Contact & Support Links',
-    description: 'Configure official Telegram, WhatsApp, and community support links.',
-    icon: Share2,
-    link: '/admin/setting/contact-support',
-  },
-  {
     title: 'Deposit & Withdrawal Settings',
     description: 'Configure deposit and payout limits, charges, and recharge/withdraw notices.',
     icon: CreditCard,
     link: '/admin/setting/deposit-withdrawal',
-  },
-  {
-    title: 'How It Works Section',
-    description: 'Configure the process steps displayed on the homepage How It Works section.',
-    icon: Layout,
-    link: '/admin/setting/how-it-works',
-  },
-  {
-    title: 'Client Testimonials',
-    description: 'Manage user reviews and testimonials displayed in the homepage carousel.',
-    icon: FileText,
-    link: '/admin/setting/testimonials',
-  },
-  {
-    title: 'Latest Announcements',
-    description: 'Create and edit announcement posts displayed on the homepage news section.',
-    icon: Bell,
-    link: '/admin/setting/announcements',
-  },
-  {
-    title: 'Exchange Partners',
-    description: 'Configure supported cryptocurrency exchange partners (Binance, Bybit, MEXC, HTX, etc.).',
-    icon: Globe,
-    link: '/admin/setting/partners',
-  },
-  {
-    title: 'Why Choose Us Section',
-    description: 'Configure advantages, icons, and features displayed in the Why Choose StakeLab section.',
-    icon: Sliders,
-    link: '/admin/setting/why-choose-us',
   },
 ];
 
