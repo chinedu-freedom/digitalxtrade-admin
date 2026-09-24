@@ -54,8 +54,17 @@ export const AdminAuthProvider = ({ children }) => {
         toast.success('Admin login successful!');
         router.push('/admin/dashboard');
         return { success: true };
+      } else {
+        const msg = res.data?.message || 'Invalid username or password';
+        toast.error(msg);
+        return { success: false, message: msg };
       }
     } catch (err) {
+      if (err.response?.data?.message) {
+        const msg = err.response.data.message;
+        toast.error(msg);
+        return { success: false, message: msg };
+      }
       // Fallback for seamless local admin login if server is starting/offline
       console.warn('Backend API connection warning, using admin session fallback:', err?.message);
       setAdmin(MOCK_ADMIN);
