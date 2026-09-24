@@ -306,6 +306,7 @@ export default function AdminSidebarLayout({ children }) {
       submenu: [
         { label: 'Transaction History', path: '/admin/reports/transactions' },
         { label: 'Staking History', path: '/admin/reports/staking' },
+        { label: 'Referral Commissions', path: '/admin/reports/referrals' },
         { label: 'Login History', path: '/admin/reports/logins' },
       ],
     },

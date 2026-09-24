@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../components/AdminSidebarLayout';
 import { CalendarCheck, Save, Loader2, Award } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../lib/api';
 
 export default function AdminDailyCheckInPage() {

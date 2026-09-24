@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { CalendarCheck, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 const mockCheckinLogs = [
   {

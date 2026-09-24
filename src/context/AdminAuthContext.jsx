@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const AdminAuthContext = createContext();

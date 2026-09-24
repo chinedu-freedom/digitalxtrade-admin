@@ -1,8 +1,10 @@
 import './globals.css';
 import { Inter, Righteous } from 'next/font/google';
 import Script from 'next/script';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AdminAuthProvider } from '../context/AdminAuthContext';
-import { Toaster } from 'sonner';
+import FaviconGuard from '../components/FaviconGuard';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -32,8 +34,6 @@ export const metadata = {
   },
 };
 
-import FaviconGuard from '../components/FaviconGuard';
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${righteous.variable}`}>
@@ -42,7 +42,18 @@ export default function RootLayout({ children }) {
         <FaviconGuard />
         <AdminAuthProvider>
           {children}
-          <Toaster position="top-right" closeButton />
+          <ToastContainer
+            position="top-right"
+            autoClose={4000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
         </AdminAuthProvider>
       </body>
     </html>

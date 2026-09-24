@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
 import { Undo2, Loader2, Plus, Trash2, Layers } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminCreatePlanPage() {
