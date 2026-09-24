@@ -259,7 +259,6 @@ export default function AdminSidebarLayout({ children }) {
       submenu: [
         { label: 'Active Users', path: '/admin/users/active' },
         { label: 'Banned Users', path: '/admin/users/banned' },
-        { label: 'Email Unverified', path: '/admin/users/email-unverified', countBadge: counts.emailUnverified },
         { label: 'All Users', path: '/admin/users' },
         { label: 'Add Transaction', path: '/admin/users/add-transaction' },
         { label: 'Send Notification', path: '/admin/users/send-notification' },
@@ -288,18 +287,6 @@ export default function AdminSidebarLayout({ children }) {
         { label: 'Approved Withdrawals', path: '/admin/withdrawals/approved' },
         { label: 'Rejected Withdrawals', path: '/admin/withdrawals/rejected' },
         { label: 'All Withdrawals', path: '/admin/withdrawals' },
-      ],
-    },
-    {
-      label: 'Support Ticket',
-      icon: LifeBuoy,
-      badge: '!',
-      matchPaths: ['/admin/tickets', '/admin/ticket'],
-      submenu: [
-        { label: 'Pending Ticket', path: '/admin/tickets/pending', countBadge: counts.pendingTickets },
-        { label: 'Closed Ticket', path: '/admin/tickets/closed' },
-        { label: 'Answered Ticket', path: '/admin/tickets/answered' },
-        { label: 'All Ticket', path: '/admin/tickets' },
       ],
     },
     {
