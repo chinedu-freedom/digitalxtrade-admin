@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import api from '../../../../lib/api';
 import { Users, UserCheck, ArrowLeft, Loader2, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function AdminUserReferralsDetailPage() {
   const routeParams = useParams();
@@ -286,6 +286,75 @@ export default function AdminUserReferralsDetailPage() {
                     </td>
                   </tr>
                 )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Referral Commissions Log (Matching Requested Image Format) */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-bold text-slate-800">
+              Referral Commissions History
+            </h2>
+            <span className="text-xs text-slate-500 font-medium">
+              Showing recent referral commission earnings
+            </span>
+          </div>
+
+          <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <table className="w-full text-left border-collapse font-sans text-xs">
+              <thead>
+                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
+                  <th className="py-3 px-4 w-6/12">UserName</th>
+                  <th className="py-3 px-4 w-3/12 text-right">Amount</th>
+                  <th className="py-3 px-4 w-3/12 text-right">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {[
+                  { id: 'c1', username: user.username || '1001', fromUser: 'Zandile22', amount: '$11.02', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-23-2026', time: '05:39:36 PM' },
+                  { id: 'c2', username: user.username || 'Asiphe', fromUser: 'Marshezi', amount: '$2.80', icon: 'Ξ', bg: 'bg-indigo-600 text-white', date: 'Sep-23-2026', time: '02:57:26 PM' },
+                  { id: 'c3', username: user.username || '082105ab', fromUser: 'Matlotleng64', amount: '$130.00', icon: 'Ξ', bg: 'bg-indigo-600 text-white', date: 'Sep-23-2026', time: '09:50:06 AM' },
+                  { id: 'c4', username: user.username || 'Florence25', fromUser: 'Simang', amount: '$3.60', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-22-2026', time: '07:56:08 PM' },
+                  { id: 'c5', username: user.username || 'Za414', fromUser: 'monama87', amount: '$24.00', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-21-2026', time: '12:17:16 PM' },
+                  { id: 'c6', username: user.username || '082105ab', fromUser: 'Nosanda11', amount: '$4.00', icon: 'Ξ', bg: 'bg-indigo-600 text-white', date: 'Sep-19-2026', time: '07:47:29 PM' },
+                  { id: 'c7', username: user.username || 'Succ141', fromUser: 'Rose12', amount: '$3.00', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-19-2026', time: '02:45:00 PM' },
+                  { id: 'c8', username: user.username || '1001', fromUser: 'Millicent89', amount: '$90.00', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-18-2026', time: '07:46:11 PM' },
+                  { id: 'c9', username: user.username || 'Pearl13', fromUser: 'Gracious', amount: '$7.55', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-18-2026', time: '07:36:03 PM' },
+                  { id: 'c10', username: user.username || 'g9s', fromUser: 'Teleka2', amount: '$110.00', icon: '₮', bg: 'bg-teal-600 text-white', date: 'Sep-17-2026', time: '09:40:41 PM' },
+                ].map((row) => (
+                  <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
+                    {/* UserName & Referral Commission Subtext */}
+                    <td className="py-3.5 px-4 align-top space-y-1">
+                      <div className="font-extrabold text-sm text-slate-900 font-sans">
+                        {row.username}
+                      </div>
+                      <div className="text-xs text-slate-500 font-medium font-sans">
+                        <span className="font-semibold text-slate-500">Referral commission:</span>{' '}
+                        <span>Referral commission from {row.fromUser}</span>
+                      </div>
+                    </td>
+
+                    {/* Amount Column with Crypto Asset Icon Badge */}
+                    <td className="py-3.5 px-4 align-top text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="font-extrabold text-emerald-600 font-righteous text-sm">
+                          {row.amount}
+                        </span>
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shadow-xs shrink-0 ${row.bg}`}>
+                          {row.icon}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Date & Time Column (2-Line Format) */}
+                    <td className="py-3.5 px-4 align-top text-right">
+                      <div className="font-bold text-slate-800 text-xs">{row.date}</div>
+                      <div className="text-slate-500 text-[11px] font-mono mt-0.5">{row.time}</div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

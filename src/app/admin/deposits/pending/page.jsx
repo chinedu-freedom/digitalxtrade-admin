@@ -289,18 +289,22 @@ export default function AdminDepositsFilteredPage({
         {/* Deposits Table */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-xs font-sans">
               <thead>
                 <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
-                  <th className="py-3.5 px-6 w-6/12">UserName</th>
-                  <th className="py-3.5 px-6 w-3/12 text-right">Amount</th>
-                  <th className="py-3.5 px-6 w-3/12 text-right">Date</th>
+                  <th className="py-3.5 px-4">UserName</th>
+                  <th className="py-3.5 px-4 text-center">Date</th>
+                  <th className="py-3.5 px-4">Plan</th>
+                  <th className="py-3.5 px-4 text-right">Amount</th>
+                  <th className="py-3.5 px-4">Transaction Details</th>
+                  <th className="py-3.5 px-4 text-center">Currency</th>
+                  <th className="py-3.5 px-4 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
+                    <td colSpan={7} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading deposit logs</span>
                         <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
@@ -309,20 +313,24 @@ export default function AdminDepositsFilteredPage({
                   </tr>
                 ) : filteredDeposits.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
-                      No external deposit processings found
+                    <td colSpan={7} className="py-12 text-center text-slate-400 font-semibold">
+                      No deposit requests found in this category
                     </td>
                   </tr>
                 ) : (
                   filteredDeposits.map((d) => {
-                    const userName = d.user?.username || d.user?.full_name || 'Zandile22';
-                    const userIdVal = d.user_id || d.user?.id;
-                    const gatewayName = (d.gateway_code || d.payment_method || 'USDT(TRC20)').toUpperCase();
-                    const netAmt = parseFloat(d.amount || 147.00);
+                    const userName = d.user?.username || d.username || 'Mpumi';
+                    const fullName = d.user?.full_name || d.fullName || d.user?.name || userName;
+                    const userIdVal = d.user_id || d.user?.id || 'usr_101';
+                    const planTitle = d.plan || d.plan_title || d.plan_name || 'FOUNDATION PLAN';
+                    const trxId = d.trx || d.transaction_id || '';
+                    const registeredUser = d.registered_username || d.registered_user || (d.username ? `${d.username} (R6X9N4T8)` : '');
+                    const netAmt = parseFloat(d.amount || 500.00);
 
+                    const gatewayName = (d.gateway_code || d.payment_method || d.currency || 'USDT').toUpperCase();
                     let assetIcon = '₮';
                     let assetBg = 'bg-teal-600 text-white';
-                    if (gatewayName.includes('BEP20')) {
+                    if (gatewayName.includes('ETH') || gatewayName.includes('BEP20')) {
                       assetIcon = 'Ξ';
                       assetBg = 'bg-indigo-600 text-white';
                     } else if (gatewayName.includes('BTC')) {
@@ -333,39 +341,65 @@ export default function AdminDepositsFilteredPage({
                       assetBg = 'bg-slate-400 text-white';
                     }
 
-                    const { dateStr, timeStr } = formatDateTwoLines(d.created_at);
+                    const { dateStr, timeStr } = formatDateTwoLines(d.created_at || d.date);
 
                     return (
                       <tr key={d.id} className="hover:bg-slate-50/80 transition-colors">
                         {/* UserName Column */}
-                        <td className="py-4 px-6 align-top space-y-1">
+                        <td className="py-4 px-4 align-top space-y-0.5">
                           <div className="font-extrabold text-sm text-slate-900">
                             <Link href={`/admin/users/detail/${userIdVal}`} className="hover:text-indigo-600 transition-colors">
                               {userName}
                             </Link>
                           </div>
-                          <div className="text-xs text-slate-500 font-medium">
-                            <span className="font-semibold text-slate-700">Transfer from external processings:</span>{' '}
-                            <span>{gatewayName} transfer received</span>
+                          <div className="text-slate-500 font-medium text-xs">
+                            {fullName}
                           </div>
                         </td>
 
-                        {/* Amount Column with Crypto Asset Icon Badge */}
-                        <td className="py-4 px-6 align-top text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <span className="font-bold font-righteous text-emerald-600 text-sm">
-                              ${netAmt.toFixed(2)}
-                            </span>
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-xs shrink-0 ${assetBg}`}>
+                        {/* Date & Time Column (2-Line Format) */}
+                        <td className="py-4 px-4 align-top text-center">
+                          <div className="font-bold text-slate-800 text-xs">{dateStr}</div>
+                          <div className="text-slate-500 text-[11px] font-mono mt-0.5">{timeStr}</div>
+                        </td>
+
+                        {/* Plan Column */}
+                        <td className="py-4 px-4 align-top font-bold text-slate-800 text-xs uppercase max-w-[200px]">
+                          {planTitle}
+                        </td>
+
+                        {/* Amount Column */}
+                        <td className="py-4 px-4 align-top text-right font-bold font-righteous text-slate-900 text-sm">
+                          ${netAmt.toFixed(2)}
+                        </td>
+
+                        {/* Transaction Details Column */}
+                        <td className="py-4 px-4 align-top text-xs space-y-1 max-w-[320px]">
+                          <div className="text-slate-800 font-medium font-mono break-all">
+                            <span className="font-bold text-slate-700 font-sans">Transaction ID::</span> {trxId}
+                          </div>
+                          <div className="text-slate-800 font-medium font-sans">
+                            <span className="font-bold text-slate-700">Registered Username::</span> {registeredUser}
+                          </div>
+                        </td>
+
+                        {/* Currency Icon Badge Column */}
+                        <td className="py-4 px-4 align-top text-center">
+                          <div className="flex items-center justify-center">
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-xs ${assetBg}`}>
                               {assetIcon}
                             </span>
                           </div>
                         </td>
 
-                        {/* Date & Time Column (2-Line Format) */}
-                        <td className="py-4 px-6 align-top text-right">
-                          <div className="font-bold text-slate-800 text-xs">{dateStr}</div>
-                          <div className="text-slate-500 text-[11px] font-mono mt-0.5">{timeStr}</div>
+                        {/* Action Column with Green DETAILS Button */}
+                        <td className="py-4 px-4 align-top text-center">
+                          <Link
+                            href={`/admin/deposit/details/${d.id}`}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase px-3 py-1.5 rounded-md inline-block transition-all shadow-sm cursor-pointer"
+                          >
+                            DETAILS
+                          </Link>
                         </td>
                       </tr>
                     );

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { Eye, EyeOff } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 function AdminResetPasswordContent() {
   const router = useRouter();

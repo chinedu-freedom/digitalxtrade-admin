@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Gift, Plus, Copy, Trash2, X, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminGiftBonusPage() {

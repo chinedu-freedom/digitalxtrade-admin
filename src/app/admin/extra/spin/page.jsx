@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Sparkles, Save, RotateCw } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 const mockSpinLogs = [
   {

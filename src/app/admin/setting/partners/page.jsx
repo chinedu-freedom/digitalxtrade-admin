@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Globe, Plus, Trash2, Save, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 const PARTNER_LOGOS = {

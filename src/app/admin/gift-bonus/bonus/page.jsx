@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Gift, Plus, Search, Trash2, Calendar, Users, Loader2, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 import ConfirmModal from '../../../../components/ConfirmModal';

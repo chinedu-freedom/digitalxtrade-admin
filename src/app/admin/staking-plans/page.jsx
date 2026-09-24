@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../components/AdminSidebarLayout';
 import { Plus, Edit, EyeOff, CheckCircle2, BarChart2, X, Trash2, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../lib/api';
 
 import ConfirmModal from '../../../components/ConfirmModal';

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../components/AdminSidebarLayout';
 import { Disc, Save, Loader2, Coins, Edit2, Plus, Trash2, Award } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../lib/api';
 import ConfirmModal from '../../../components/ConfirmModal';
 

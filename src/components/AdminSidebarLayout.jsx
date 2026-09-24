@@ -260,6 +260,7 @@ export default function AdminSidebarLayout({ children }) {
         { label: 'Banned Users', path: '/admin/users/banned' },
         { label: 'Email Unverified', path: '/admin/users/email-unverified', countBadge: counts.emailUnverified },
         { label: 'All Users', path: '/admin/users' },
+        { label: 'Add Transaction', path: '/admin/users/add-transaction' },
         { label: 'Send Notification', path: '/admin/users/send-notification' },
       ],
     },
@@ -306,6 +307,7 @@ export default function AdminSidebarLayout({ children }) {
       submenu: [
         { label: 'Transaction History', path: '/admin/reports/transactions' },
         { label: 'Staking History', path: '/admin/reports/staking' },
+        { label: 'Referral Commissions', path: '/admin/reports/referrals' },
         { label: 'Login History', path: '/admin/reports/logins' },
       ],
     },

@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../../components/AdminSidebarLayout';
 import RichTextEditor from '../../../../../components/RichTextEditor';
 import { ArrowLeft, Plus, X, Trash2, Reply, Paperclip, Loader2, Eye, Download, FileText, RotateCcw } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../../lib/api';
 
 export default function AdminTicketViewPage() {

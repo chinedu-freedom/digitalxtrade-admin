@@ -5,7 +5,7 @@ import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Search, Loader2, ArrowUpDown, CheckCircle, Ban, AlertTriangle, Trash2, CheckSquare, Users, UserCheck, Wallet, Layers } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminUsersFilteredPage({ title = 'Active Users', filterType = 'active' }) {
@@ -262,9 +262,17 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
 
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-xl font-bold text-slate-800 tracking-wide">
-            {title}
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold text-slate-800 tracking-wide">
+              {title}
+            </h1>
+            <Link
+              href="/admin/users/add-transaction"
+              className="bg-[#5b5bf5] hover:bg-indigo-600 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg transition-all shadow-xs flex items-center gap-1.5"
+            >
+              + ADD TRANSACTION
+            </Link>
+          </div>
 
           {/* Controls: Search Bar & Sorting Dropdown */}
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">

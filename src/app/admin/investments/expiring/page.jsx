@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Clock, User, Wallet, Loader2, ArrowUpRight, Search, Filter } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function ExpiringInvestmentsPage() {

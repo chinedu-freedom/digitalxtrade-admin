@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Sliders, Gift, ClipboardList, CalendarCheck, Disc, Save, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminSystemFeaturesPage() {
