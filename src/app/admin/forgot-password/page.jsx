@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 export default function AdminForgotPasswordPage() {
   const router = useRouter();
   const { requestPasswordReset } = useAdminAuth();
-  const [email, setEmail] = useState('admin@stakelab.io');
+  const [email, setEmail] = useState('admin@digitalxtrade.com');
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -72,7 +72,7 @@ export default function AdminForgotPasswordPage() {
                     setEmail(e.target.value);
                     if (errors.form) setErrors({});
                   }}
-                  placeholder="admin@stakelab.io"
+                  placeholder="admin@digitalxtrade.com"
                   className="w-full h-12 bg-[#0c1424] border-0 outline-none focus:outline-none rounded-md px-4 text-white placeholder-slate-500 font-sans text-sm focus:ring-1 focus:ring-[#0085d0] transition-all shadow-inner"
                 />
               </div>

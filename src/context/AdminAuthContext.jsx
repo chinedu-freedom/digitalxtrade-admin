@@ -11,7 +11,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/a
 const MOCK_ADMIN = {
   id: 1,
   name: 'Super Admin',
-  email: 'admin@stakelab.io',
+  email: 'admin@digitalxtrade.com',
   username: 'admin',
   role: 'Super Administrator',
   avatar: '/logo.jpeg'

@@ -56,7 +56,7 @@ export default function AdminNavbar() {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <span className="hidden sm:inline text-xs text-slate-400 font-mono">{admin?.email || 'admin@everstake.cx'}</span>
+          <span className="hidden sm:inline text-xs text-slate-400 font-mono">{admin?.email || 'admin@digitalxtrade.com'}</span>
           <button
             onClick={logout}
             className="p-2.5 rounded-xl bg-slate-800 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all border border-slate-700"
