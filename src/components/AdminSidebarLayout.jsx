@@ -243,11 +243,12 @@ export default function AdminSidebarLayout({ children }) {
     {
       label: 'Manage Investments',
       icon: Coins,
-      matchPaths: ['/admin/staking-plans', '/admin/investments', '/admin/plan'],
+      matchPaths: ['/admin/staking-plans', '/admin/investments', '/admin/plan', '/admin/setting/earning-holidays'],
       submenu: [
         { label: 'Investment Plans', path: '/admin/staking-plans' },
         { label: 'Expiring Investments', path: '/admin/investments/expiring' },
         { label: 'All Investment Logs', path: '/admin/reports/staking' },
+        { label: 'Earning Holidays', path: '/admin/setting/earning-holidays' },
       ],
     },
     {
@@ -262,6 +263,7 @@ export default function AdminSidebarLayout({ children }) {
         { label: 'All Users', path: '/admin/users' },
         { label: 'Add Transaction', path: '/admin/users/add-transaction' },
         { label: 'Send Notification', path: '/admin/users/send-notification' },
+        { label: 'User Notices', path: '/admin/users/notices' },
       ],
     },
     {
