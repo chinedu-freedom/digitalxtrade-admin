@@ -35,6 +35,7 @@ import {
   PlusCircle,
   Layers,
   LifeBuoy,
+  Coins,
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -62,6 +63,73 @@ export default function AdminDashboardPage() {
     totalStaked: 0,
     todaysStaking: 0,
     activeStakingCount: 0,
+    totalSystemEarnings: -637813.75,
+    totalMembersFundsAdded: 590689.39,
+    totalUsersBalance: 533570822.62,
+    currentDeposits: 307684025.95,
+    totalReferralCommissions: 7771910.56,
+    cryptoBreakdown: [
+      {
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        color: 'text-amber-500 bg-amber-50 border-amber-200',
+        badgeBg: 'bg-amber-500 text-white',
+        icon: '₿',
+        systemEarnings: 0.00,
+        membersFundsAdded: 0.00,
+        usersBalance: 0.00,
+        totalDeposits: 0.00,
+        currentDeposits: 0.00,
+        referralCommissions: 0.00,
+        totalWithdrawals: 0.00,
+        pendingWithdrawals: 0.00,
+      },
+      {
+        symbol: 'USDT',
+        name: 'Tether TRC20',
+        color: 'text-emerald-500 bg-emerald-50 border-emerald-200',
+        badgeBg: 'bg-emerald-500 text-white',
+        icon: '₮',
+        systemEarnings: -224979.56,
+        membersFundsAdded: 336475.50,
+        usersBalance: 533154082.11,
+        totalDeposits: 382132953.54,
+        currentDeposits: 307663320.81,
+        referralCommissions: 7765110.55,
+        totalWithdrawals: 561455.06,
+        pendingWithdrawals: 13741.50,
+      },
+      {
+        symbol: 'ETH',
+        name: 'Ethereum',
+        color: 'text-indigo-500 bg-indigo-50 border-indigo-200',
+        badgeBg: 'bg-indigo-500 text-white',
+        icon: 'Ξ',
+        systemEarnings: -412834.19,
+        membersFundsAdded: 254213.89,
+        usersBalance: 416740.50,
+        totalDeposits: 169419.36,
+        currentDeposits: 20705.14,
+        referralCommissions: 6800.01,
+        totalWithdrawals: 667048.08,
+        pendingWithdrawals: 1000.00,
+      },
+      {
+        symbol: 'LTC',
+        name: 'Litecoin',
+        color: 'text-slate-500 bg-slate-50 border-slate-200',
+        badgeBg: 'bg-slate-500 text-white',
+        icon: 'Ł',
+        systemEarnings: 0.00,
+        membersFundsAdded: 0.00,
+        usersBalance: 0.00,
+        totalDeposits: 0.00,
+        currentDeposits: 0.00,
+        referralCommissions: 0.00,
+        totalWithdrawals: 0.00,
+        pendingWithdrawals: 0.00,
+      },
+    ],
   });
 
   const [loading, setLoading] = useState(true);
@@ -182,6 +250,109 @@ export default function AdminDashboardPage() {
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
           </Link>
+        </div>
+
+        {/* System Financial Overview & Multi-Currency Breakdown Matrix */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-800 font-sans flex items-center gap-2">
+                <Coins className="w-5 h-5 text-[#5b5bf5]" /> System Financial & Asset Breakdown
+              </h2>
+              <p className="text-xs text-slate-500 font-sans">
+                Real-time breakdown of earnings, member funds, active deposits, balances, and payouts per asset
+              </p>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 self-start sm:self-auto">
+              ● Financial Health Live
+            </span>
+          </div>
+
+          <div className="overflow-x-auto w-full">
+            <table className="w-full min-w-[950px] text-left border-collapse font-sans text-xs">
+              <thead>
+                <tr className="bg-amber-100/80 border-b border-amber-200 text-amber-950 font-bold uppercase tracking-wider whitespace-nowrap">
+                  <th className="py-3 px-4">Asset</th>
+                  <th className="py-3 px-4 text-right">Total System Earnings</th>
+                  <th className="py-3 px-4 text-right">Total Members' Funds Added</th>
+                  <th className="py-3 px-4 text-right">Total Users' Balance</th>
+                  <th className="py-3 px-4 text-right">Total Deposits</th>
+                  <th className="py-3 px-4 text-right">Current Deposits</th>
+                  <th className="py-3 px-4 text-right">Total Referral Commissions</th>
+                  <th className="py-3 px-4 text-right">Total Withdrawals</th>
+                  <th className="py-3 px-4 text-right">Pending Withdrawals</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium">
+                {Array.isArray(stats.cryptoBreakdown) && stats.cryptoBreakdown.map((item) => (
+                  <tr key={item.symbol} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3.5 px-4 flex items-center gap-2.5 whitespace-nowrap">
+                      <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-sm ${item.badgeBg}`}>
+                        {item.icon}
+                      </span>
+                      <div>
+                        <div className="font-bold text-slate-800">{item.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{item.symbol}</div>
+                      </div>
+                    </td>
+                    <td className={`py-3.5 px-4 text-right font-mono font-bold whitespace-nowrap ${item.systemEarnings < 0 ? 'text-red-600' : 'text-slate-700'}`}>
+                      ${Number(item.systemEarnings || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">
+                      ${Number(item.membersFundsAdded || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-800 whitespace-nowrap">
+                      ${Number(item.usersBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">
+                      ${Number(item.totalDeposits || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-purple-700 whitespace-nowrap">
+                      ${Number(item.currentDeposits || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-amber-600 whitespace-nowrap">
+                      ${Number(item.referralCommissions || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-red-600 whitespace-nowrap">
+                      ${Number(item.totalWithdrawals || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-red-600 whitespace-nowrap">
+                      ${Number(item.pendingWithdrawals || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-amber-100/90 border-t-2 border-amber-300 font-bold text-xs text-amber-950">
+                  <td className="py-3.5 px-4 uppercase tracking-wider">Total Summary</td>
+                  <td className={`py-3.5 px-4 text-right font-mono ${stats.totalSystemEarnings < 0 ? 'text-red-600' : 'text-slate-900'}`}>
+                    ${Number(stats.totalSystemEarnings || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-emerald-700">
+                    ${Number(stats.totalMembersFundsAdded || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-slate-900">
+                    ${Number(stats.totalUsersBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-emerald-700">
+                    ${Number((stats.cryptoBreakdown || []).reduce((acc, c) => acc + (c.totalDeposits || 0), 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-purple-800">
+                    ${Number(stats.currentDeposits || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-amber-800">
+                    ${Number(stats.totalReferralCommissions || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-red-600">
+                    ${Number((stats.cryptoBreakdown || []).reduce((acc, c) => acc + (c.totalWithdrawals || 0), 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-mono text-red-600">
+                    ${Number((stats.cryptoBreakdown || []).reduce((acc, c) => acc + (c.pendingWithdrawals || 0), 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
 
         {/* Middle Large Cards Grid (Deposits Summary & Withdrawals Summary Full Width) */}
@@ -462,6 +633,14 @@ export default function AdminDashboardPage() {
                     <Wallet className="w-4 h-4 text-slate-400" /> Pending Withdrawals ({stats.pendingWithdrawals})
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                </button>
+              </Link>
+              <Link href="/admin/investments/expiring" className="block w-full">
+                <button className="w-full flex items-center justify-between bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer">
+                  <span className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-amber-600" /> Expiring Investments
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-amber-600" />
                 </button>
               </Link>
               <Link href="/admin/plan/manage" className="block w-full">

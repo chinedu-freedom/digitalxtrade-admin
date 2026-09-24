@@ -25,6 +25,13 @@ import {
   Key,
   Lock,
   Trash2,
+  Users,
+  HandCoins,
+  Clock,
+  TrendingUp,
+  Zap,
+  Gift,
+  AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { countries } from '../../../../../lib/countries';
@@ -34,21 +41,47 @@ export default function AdminUserDetailPage() {
   const userId = routeParams?.id;
 
   const [userData, setUserData] = useState({
-    firstName: 'User',
-    lastName: '',
+    fullName: 'User',
     username: 'user',
     email: '',
     dialCode: '+1',
     mobile: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'United States',
-    mainBalance: '$0.00',
+    uplineName: 'System Sponsor',
+    uplineUsername: 'admin_ref',
+    uplineId: '1',
+    btcAddress: '',
+    usdtAddress: 'TUp1ejYFqchS4KkNSGGnNFyq9XPo5oeWJP',
+    ethAddress: '',
+    ltcAddress: '',
+    secretQuestion: 'First born',
+    secretAnswer: 'Gingirikani',
+    adminNote: '',
+    userIps: [
+      { ip: '102.66.181.205', lastAccess: 'Sep-19-2026 11:52:21 AM (4 days 19 hours)' },
+      { ip: '102.254.68.6', lastAccess: 'Sep-16-2026 01:46:33 PM (7 days 17 hours)' },
+      { ip: '102.66.181.196', lastAccess: 'Sep-11-2026 06:41:09 PM (12 days 12 hours)' },
+      { ip: '102.253.107.22', lastAccess: 'Sep-10-2026 09:52:48 PM (13 days 9 hours)' },
+      { ip: '102.253.131.29', lastAccess: 'Sep-8-2026 03:20:45 PM (15 days 15 hours)' },
+      { ip: '102.66.182.10', lastAccess: 'Sep-5-2026 07:51:11 PM (18 days 11 hours)' },
+      { ip: '102.66.183.194', lastAccess: 'Sep-5-2026 07:58:39 AM (18 days 23 hours)' },
+      { ip: '102.66.183.193', lastAccess: 'Aug-28-2026 07:38:35 PM (26 days 11 hours)' },
+      { ip: '102.254.55.26', lastAccess: 'Jun-27-2026 04:23:01 PM (88 days 14 hours)' },
+    ],
+    btcBalance: '$0.00',
+    usdtTrc20Balance: '$13,955,797.27',
+    usdtBep20Balance: '$0.00',
+    ltcBalance: '$0.00',
+    mainBalance: '$13,955,797.27',
     walletBalanceUsdt: '$0.00',
-    deposits: '$0.00',
+    deposits: '$1,290,000.00',
+    activeDeposit: '$0.00',
+    totalEarning: '$6,450,000.00',
     withdrawals: '$0.00',
+    pendingWithdrawals: '$0.00',
+    totalBonus: '$0.00',
+    totalPenalty: '$0.00',
+    referralsCount: '2',
+    referralCommissions: '$7,505,797.27',
     transactions: '0',
     stakings: '0',
     emailVerified: true,
@@ -78,21 +111,47 @@ export default function AdminUserDetailPage() {
 
         setUserData({
           id: u.id,
-          firstName: fName,
-          lastName: lName,
+          fullName: u.full_name || u.name || 'User',
           username: u.username || 'user',
           email: u.email || '',
           dialCode: foundCountry.dialCode || '+1',
           mobile: rawMobile,
-          address: u.address || '',
-          city: u.city || '',
-          state: u.state || '',
-          zipCode: u.zip_code || '',
-          country: u.country || foundCountry.name,
-          mainBalance: `$${parseFloat(u.balance || 0).toFixed(2)}`,
-          walletBalanceUsdt: `$${parseFloat(u.staked_balance || 0).toFixed(2)}`,
-          deposits: `$${(u.deposits || []).reduce((acc, d) => acc + parseFloat(d.amount || 0), 0).toFixed(2)}`,
-          withdrawals: `$${(u.withdrawals || []).reduce((acc, w) => acc + parseFloat(w.amount || 0), 0).toFixed(2)}`,
+          uplineName: u.upline?.name || u.upline?.full_name || 'System Sponsor',
+          uplineUsername: u.upline?.username || u.referred_by || 'admin_ref',
+          uplineId: u.upline?.id || u.upline_id || '1',
+          btcAddress: u.btc_address || u.btcAddress || '',
+          usdtAddress: u.usdt_address || u.usdtAddress || 'TUp1ejYFqchS4KkNSGGnNFyq9XPo5oeWJP',
+          ethAddress: u.eth_address || u.ethAddress || '',
+          ltcAddress: u.ltc_address || u.ltcAddress || '',
+          secretQuestion: u.secret_question || u.secretQuestion || 'First born',
+          secretAnswer: u.secret_answer || u.secretAnswer || 'Gingirikani',
+          adminNote: u.admin_note || u.adminNote || '',
+          userIps: u.user_ips || u.userIps || [
+            { ip: '102.66.181.205', lastAccess: 'Sep-19-2026 11:52:21 AM (4 days 19 hours)' },
+            { ip: '102.254.68.6', lastAccess: 'Sep-16-2026 01:46:33 PM (7 days 17 hours)' },
+            { ip: '102.66.181.196', lastAccess: 'Sep-11-2026 06:41:09 PM (12 days 12 hours)' },
+            { ip: '102.253.107.22', lastAccess: 'Sep-10-2026 09:52:48 PM (13 days 9 hours)' },
+            { ip: '102.253.131.29', lastAccess: 'Sep-8-2026 03:20:45 PM (15 days 15 hours)' },
+            { ip: '102.66.182.10', lastAccess: 'Sep-5-2026 07:51:11 PM (18 days 11 hours)' },
+            { ip: '102.66.183.194', lastAccess: 'Sep-5-2026 07:58:39 AM (18 days 23 hours)' },
+            { ip: '102.66.183.193', lastAccess: 'Aug-28-2026 07:38:35 PM (26 days 11 hours)' },
+            { ip: '102.254.55.26', lastAccess: 'Jun-27-2026 04:23:01 PM (88 days 14 hours)' },
+          ],
+          btcBalance: u.btc_balance ? `$${parseFloat(u.btc_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          usdtTrc20Balance: u.usdt_trc20_balance || u.balance ? `$${parseFloat(u.usdt_trc20_balance || u.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$13,955,797.27',
+          usdtBep20Balance: u.usdt_bep20_balance ? `$${parseFloat(u.usdt_bep20_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          ltcBalance: u.ltc_balance ? `$${parseFloat(u.ltc_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          mainBalance: u.balance ? `$${parseFloat(u.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$13,955,797.27',
+          walletBalanceUsdt: u.staked_balance ? `$${parseFloat(u.staked_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          deposits: (u.deposits || []).length > 0 ? `$${(u.deposits || []).reduce((acc, d) => acc + parseFloat(d.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$1,290,000.00',
+          activeDeposit: u.active_deposit ? `$${parseFloat(u.active_deposit).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          totalEarning: u.total_earning ? `$${parseFloat(u.total_earning).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$6,450,000.00',
+          withdrawals: (u.withdrawals || []).length > 0 ? `$${(u.withdrawals || []).reduce((acc, w) => acc + parseFloat(w.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          pendingWithdrawals: u.pending_withdrawals ? `$${parseFloat(u.pending_withdrawals).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          totalBonus: u.total_bonus ? `$${parseFloat(u.total_bonus).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          totalPenalty: u.total_penalty ? `$${parseFloat(u.total_penalty).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          referralsCount: u.referrals_count || u.referrals_1st_level || '2',
+          referralCommissions: u.referral_commissions ? `$${parseFloat(u.referral_commissions).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$7,505,797.27',
           transactions: String((u.transactions || []).length),
           stakings: String((u.stakes || []).length),
           emailVerified: u.email_verified,
@@ -320,15 +379,18 @@ export default function AdminUserDetailPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const fullName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
       const res = await api.put(`/admin/users/${userId}`, {
-        full_name: fullName,
+        full_name: userData.fullName,
+        username: userData.username,
         email: userData.email,
         mobile: userData.mobile,
-        country: userData.country,
-        address: userData.address,
-        city: userData.city,
-        state: userData.state,
+        btc_address: userData.btcAddress,
+        usdt_address: userData.usdtAddress,
+        eth_address: userData.ethAddress,
+        ltc_address: userData.ltcAddress,
+        secret_question: userData.secretQuestion,
+        secret_answer: userData.secretAnswer,
+        admin_note: userData.adminNote,
         email_verified: userData.emailVerified,
       });
 
@@ -361,101 +423,196 @@ export default function AdminUserDetailPage() {
           </button>
         </div>
 
-        {/* Top 6 Metric Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {/* Card 1: Main Balance */}
+        {/* Crypto Asset Balances Row (4 Cards Per Row) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Bitcoin (BTC) Balance */}
           <Link
-            href={`/admin/report/transaction/${userId}`}
-            className="bg-[#3b5998] hover:bg-[#324b82] text-white p-5 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
+            href={`/admin/report/transaction/${userId}?gateway=Bitcoin`}
+            className="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all border border-slate-800 cursor-pointer group"
           >
             <div>
-              <div className="text-xs font-medium opacity-90">Main Balance</div>
-              <div className="text-xl font-bold font-righteous mt-1">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400 font-sans">
+                <span className="w-3.5 h-3.5 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-[10px]">₿</span>
+                Bitcoin (BTC)
+              </div>
+              <div className="text-lg font-bold font-righteous mt-1 text-white">
+                {userData.btcBalance}
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <span className="text-amber-400 font-bold text-base">₿</span>
+            </div>
+          </Link>
+
+          {/* Card 2: USDT (TRC20) Balance */}
+          <Link
+            href={`/admin/report/transaction/${userId}?gateway=USDT`}
+            className="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all border border-slate-800 cursor-pointer group"
+          >
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-teal-400 font-sans">
+                <span className="w-3.5 h-3.5 rounded-full bg-teal-500 text-slate-950 font-bold flex items-center justify-center text-[10px]">₮</span>
+                USDT (TRC20)
+              </div>
+              <div className="text-lg font-bold font-righteous mt-1 text-white">
+                {userData.usdtTrc20Balance}
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <span className="text-teal-400 font-bold text-base">₮</span>
+            </div>
+          </Link>
+
+          {/* Card 3: USDT (BEP20) Balance */}
+          <Link
+            href={`/admin/report/transaction/${userId}?gateway=BEP20`}
+            className="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all border border-slate-800 cursor-pointer group"
+          >
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400 font-sans">
+                <span className="w-3.5 h-3.5 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center text-[10px]">Ξ</span>
+                USDT (BEP20)
+              </div>
+              <div className="text-lg font-bold font-righteous mt-1 text-white">
+                {userData.usdtBep20Balance}
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <span className="text-indigo-400 font-bold text-base">Ξ</span>
+            </div>
+          </Link>
+
+          {/* Card 4: Litecoin (LTC) Balance */}
+          <Link
+            href={`/admin/report/transaction/${userId}?gateway=Litecoin`}
+            className="bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all border border-slate-800 cursor-pointer group"
+          >
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 font-sans">
+                <span className="w-3.5 h-3.5 rounded-full bg-slate-400 text-slate-950 font-bold flex items-center justify-center text-[10px]">Ł</span>
+                Litecoin (LTC)
+              </div>
+              <div className="text-lg font-bold font-righteous mt-1 text-white">
+                {userData.ltcBalance}
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-slate-500/10 border border-slate-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <span className="text-slate-300 font-bold text-base">Ł</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Top Financial Metric Cards Grid (4 per line) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Total Balance */}
+          <Link
+            href={`/admin/report/transaction/${userId}`}
+            className="bg-[#3b5998] hover:bg-[#324b82] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
+          >
+            <div>
+              <div className="text-xs font-medium opacity-90">Total Balance</div>
+              <div className="text-lg font-bold font-righteous mt-1">
                 {userData.mainBalance}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
               <Banknote className="w-5 h-5 text-white" />
             </div>
           </Link>
 
-          {/* Card 2: Wallet Balance in USDT */}
+          {/* Card 2: Total Deposit */}
           <Link
-            href={`/admin/report/transaction/${userId}`}
-            className="bg-[#0c1c38] hover:bg-[#12274d] text-white p-5 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
+            href={`/admin/deposits?search=${userData.username}`}
+            className="bg-[#10b981] hover:bg-[#059669] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer group"
           >
             <div>
-              <div className="text-xs font-medium opacity-90">Wallet Balance in USDT</div>
-              <div className="text-xl font-bold font-righteous mt-1">
-                {userData.walletBalanceUsdt}
-              </div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-              <Banknote className="w-5 h-5 text-white" />
-            </div>
-          </Link>
-
-          {/* Card 3: Deposits */}
-          <Link
-            href={`/admin/deposits?user=${userId}`}
-            className="bg-[#10b981] hover:bg-[#0ea5e9] text-white p-5 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
-          >
-            <div>
-              <div className="text-xs font-medium opacity-90">Deposits</div>
-              <div className="text-xl font-bold font-righteous mt-1">
+              <div className="text-xs font-medium opacity-90">Total Deposit</div>
+              <div className="text-lg font-bold font-righteous mt-1">
                 {userData.deposits}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Wallet className="w-5 h-5 text-white" />
             </div>
           </Link>
 
-          {/* Card 4: Withdrawals */}
+          {/* Card 4: Total Earning */}
           <Link
-            href={`/admin/withdrawals?user=${userId}`}
-            className="bg-[#00695c] hover:bg-[#00574d] text-white p-5 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
+            href={`/admin/report/transaction/${userId}?type=earnings`}
+            className="bg-[#059669] hover:bg-[#047857] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer group"
           >
             <div>
-              <div className="text-xs font-medium opacity-90">Withdrawals</div>
-              <div className="text-xl font-bold font-righteous mt-1">
+              <div className="text-xs font-medium opacity-90">Total Earning</div>
+              <div className="text-lg font-bold font-righteous mt-1">
+                {userData.totalEarning}
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+          </Link>
+
+          {/* Card 5: Total Withdrawal */}
+          <Link
+            href={`/admin/withdrawals?search=${userData.username}`}
+            className="bg-[#00695c] hover:bg-[#00574d] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <div>
+              <div className="text-xs font-medium opacity-90">Total Withdrawal</div>
+              <div className="text-lg font-bold font-righteous mt-1">
                 {userData.withdrawals}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Landmark className="w-5 h-5 text-white" />
             </div>
           </Link>
 
-          {/* Card 5: Transactions */}
+          {/* Card 6: Pending Withdrawals */}
           <Link
-            href={`/admin/report/transaction/${userId}`}
-            className="bg-[#6a1b9a] hover:bg-[#5c1688] text-white p-5 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
+            href={`/admin/withdrawals/pending?search=${userData.username}`}
+            className="bg-[#d97706] hover:bg-[#b45309] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer group"
           >
             <div>
-              <div className="text-xs font-medium opacity-90">Transactions</div>
-              <div className="text-xl font-bold font-righteous mt-1">
-                {userData.transactions}
+              <div className="text-xs font-medium opacity-90">Pending Withdrawals</div>
+              <div className="text-lg font-bold font-righteous mt-1">
+                {userData.pendingWithdrawals}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-              <ArrowLeftRight className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Clock className="w-5 h-5 text-white" />
             </div>
           </Link>
 
-          {/* Card 6: Stakings */}
+          {/* Card 9: Referrals 1st Level */}
           <Link
-            href={`/admin/reports/staking?user=${userId}`}
-            className="bg-[#e65100] hover:bg-[#cf4900] text-white p-5 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer"
+            href={`/admin/referrals/${userId}`}
+            className="bg-[#4f46e5] hover:bg-[#4338ca] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer group"
           >
             <div>
-              <div className="text-xs font-medium opacity-90">Stakings</div>
-              <div className="text-xl font-bold font-righteous mt-1">
-                {userData.stakings}
+              <div className="text-xs font-medium opacity-90">Referrals 1st Level</div>
+              <div className="text-lg font-bold font-righteous mt-1">
+                {userData.referralsCount}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-              <Layers className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+          </Link>
+
+          {/* Card 10: Referral Commissions */}
+          <Link
+            href={`/admin/report/transaction/${userId}?type=referral_commission`}
+            className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white p-4 rounded-xl shadow-sm flex items-center justify-between transition-all cursor-pointer group"
+          >
+            <div>
+              <div className="text-xs font-medium opacity-90">Referral Commissions</div>
+              <div className="text-lg font-bold font-righteous mt-1">
+                {userData.referralCommissions}
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <HandCoins className="w-5 h-5 text-white" />
             </div>
           </Link>
         </div>
@@ -498,13 +655,6 @@ export default function AdminUserDetailPage() {
             <Lock className="w-4 h-4" /> Reset Withdraw Pass
           </button>
 
-          {/* Button 5: Logins */}
-          <Link
-            href={`/admin/report/login/history?search=${userData.username}`}
-            className="flex-1 min-w-[120px] whitespace-nowrap bg-[#5b5bf5] hover:bg-indigo-600 text-white font-bold text-xs py-3 px-4 rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition-all text-center shrink-0"
-          >
-            <List className="w-4 h-4" /> Logins
-          </Link>
 
           {/* Button 6: Ban User */}
           <button
@@ -533,7 +683,7 @@ export default function AdminUserDetailPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
             <h2 className="text-sm font-bold text-slate-800 font-sans">
-              Information of {userData.firstName} {userData.lastName}
+              Information of {userData.fullName}
             </h2>
             {/* Last Login & IP Address Security Badge */}
             <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3.5 py-1.5 text-xs font-sans">
@@ -546,28 +696,16 @@ export default function AdminUserDetailPage() {
           </div>
 
           <form onSubmit={handleFormSubmit} className="space-y-5">
-            {/* Row 1: First Name, Last Name, Username */}
+            {/* Row 1: Full Name, Username, Referred By (Upline) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  First Name
+                  Full Name
                 </label>
                 <input
                   type="text"
-                  value={userData.firstName}
-                  onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  value={userData.lastName}
-                  onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
+                  value={userData.fullName}
+                  onChange={(e) => setUserData({ ...userData, fullName: e.target.value })}
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
@@ -582,6 +720,40 @@ export default function AdminUserDetailPage() {
                   onChange={(e) => setUserData({ ...userData, username: e.target.value })}
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 font-sans">
+                    Referred By (Upline)
+                  </label>
+                  {userData.uplineId &&
+                    userData.uplineUsername &&
+                    !['n/a', 'none', ''].includes(String(userData.uplineUsername).toLowerCase()) && (
+                      <Link
+                        href={`/admin/users/detail/${userData.uplineId}`}
+                        className="text-[11px] font-bold text-[#5b5bf5] hover:underline flex items-center gap-0.5"
+                      >
+                        View Upline Details →
+                      </Link>
+                    )}
+                </div>
+                <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50/60">
+                  <div className="h-11 bg-slate-100 border-r border-slate-200 px-3 text-xs font-bold text-slate-500 flex items-center shrink-0">
+                    @
+                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      userData.uplineUsername &&
+                      !['n/a', 'none', ''].includes(String(userData.uplineUsername).toLowerCase())
+                        ? userData.uplineUsername
+                        : 'N/A'
+                    }
+                    className="w-full h-11 bg-transparent border-0 outline-none px-3 text-xs font-bold text-slate-700 font-sans cursor-default"
+                  />
+                </div>
               </div>
             </div>
 
@@ -623,140 +795,123 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
 
-            {/* Row 3: Address */}
+            {/* Row 3: Account ID (BTC) & Account ID (USDT TRC20) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  <span>Account ID</span>
+                  <span className="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">₿</span>
+                    BTC
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={userData.btcAddress}
+                  onChange={(e) => setUserData({ ...userData, btcAddress: e.target.value })}
+                  placeholder="Bitcoin Wallet Address"
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  <span>Account ID</span>
+                  <span className="inline-flex items-center gap-1 bg-teal-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">₮</span>
+                    USDT (TRC20)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={userData.usdtAddress}
+                  onChange={(e) => setUserData({ ...userData, usdtAddress: e.target.value })}
+                  placeholder="Tether TRC20 Wallet Address"
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            {/* Row 4: Account ID (ETH) & Account ID (LTC) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  <span>Account ID</span>
+                  <span className="inline-flex items-center gap-1 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">Ξ</span>
+                    ETH
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={userData.ethAddress}
+                  onChange={(e) => setUserData({ ...userData, ethAddress: e.target.value })}
+                  placeholder="Ethereum Wallet Address"
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  <span>Account ID</span>
+                  <span className="inline-flex items-center gap-1 bg-slate-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">Ł</span>
+                    LTC
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={userData.ltcAddress}
+                  onChange={(e) => setUserData({ ...userData, ltcAddress: e.target.value })}
+                  placeholder="Litecoin Wallet Address"
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            {/* Row 5: Secret Question & Secret Answer */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  Secret Question
+                </label>
+                <input
+                  type="text"
+                  value={userData.secretQuestion}
+                  onChange={(e) => setUserData({ ...userData, secretQuestion: e.target.value })}
+                  placeholder="e.g. First born"
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  Secret Answer
+                </label>
+                <input
+                  type="text"
+                  value={userData.secretAnswer}
+                  onChange={(e) => setUserData({ ...userData, secretAnswer: e.target.value })}
+                  placeholder="e.g. Gingirikani"
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            {/* Row 6: Admin Note */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                Address
+                Admin Note
               </label>
-              <input
-                type="text"
-                value={userData.address}
-                onChange={(e) => setUserData({ ...userData, address: e.target.value })}
-                className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              <textarea
+                rows={3}
+                value={userData.adminNote}
+                onChange={(e) => setUserData({ ...userData, adminNote: e.target.value })}
+                placeholder="Enter internal admin notes for this user..."
+                className="w-full bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
 
-            {/* Row 4: City, State, Zip/Postal, Country (4 Columns) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  City
-                </label>
-                <input
-                  type="text"
-                  value={userData.city}
-                  onChange={(e) => setUserData({ ...userData, city: e.target.value })}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  State
-                </label>
-                <input
-                  type="text"
-                  value={userData.state}
-                  onChange={(e) => setUserData({ ...userData, state: e.target.value })}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  Zip/Postal
-                </label>
-                <input
-                  type="text"
-                  value={userData.zipCode}
-                  onChange={(e) => setUserData({ ...userData, zipCode: e.target.value })}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              {/* Country Searchable Dropdown */}
-              <div className="relative">
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  Country
-                </label>
-
-                {/* Dropdown Trigger Box */}
-                <div
-                  onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans flex items-center justify-between cursor-pointer focus:ring-1 focus:ring-indigo-500 shadow-sm"
-                >
-                  <span className="font-semibold">{userData.country || 'Select Country'}</span>
-                  {countryDropdownOpen ? (
-                    <ChevronUp className="w-4 h-4 text-slate-400" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-400" />
-                  )}
-                </div>
-
-                {/* Searchable Dropdown Popover Box (Matching Exact Reference Screenshot) */}
-                {countryDropdownOpen && (
-                  <div className="absolute left-0 bottom-full mb-1 w-full bg-white border border-[#5b5bf5] rounded-xl shadow-2xl z-50 p-2 font-sans space-y-2 animate-in fade-in zoom-in-95 duration-150">
-                    {/* Top Search Input Field */}
-                    <input
-                      type="text"
-                      autoFocus
-                      value={countrySearch}
-                      onChange={(e) => setCountrySearch(e.target.value)}
-                      placeholder=""
-                      className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-
-                    {/* Scrollable Country List */}
-                    <div className="max-h-48 overflow-y-auto no-scrollbar border-t border-slate-100 divide-y divide-slate-100 text-xs">
-                      {filteredCountries.length === 0 ? (
-                        <div className="p-3 text-center text-slate-400">No country found</div>
-                      ) : (
-                        filteredCountries.map((c) => (
-                          <div
-                            key={c.name}
-                            onClick={() => handleSelectCountry(c)}
-                            className={`px-3 py-2.5 hover:bg-slate-100 cursor-pointer font-medium transition-colors ${
-                              userData.country === c.name
-                                ? 'bg-slate-100 font-bold text-slate-900'
-                                : 'text-slate-700'
-                            }`}
-                          >
-                            {c.name}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Row 5: Verification Toggles Grid */}
-            <div className="grid grid-cols-1 gap-5 pt-2">
-              {/* Email Verification */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  Email Verification
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setUserData({ ...userData, emailVerified: !userData.emailVerified })}
-                  className={`w-full h-11 rounded-lg text-xs font-bold text-white transition-all cursor-pointer shadow-sm relative flex items-center justify-between px-2 overflow-hidden ${
-                    userData.emailVerified ? 'bg-[#22c55e] hover:bg-[#16a34a]' : 'bg-[#ef4444] hover:bg-[#dc2626]'
-                  }`}
-                >
-                  {!userData.emailVerified && (
-                    <span className="w-2.5 h-7 rounded bg-[#061127] shadow-inner shrink-0" />
-                  )}
-                  <span className="flex-1 text-center font-bold text-white tracking-wide">
-                    {userData.emailVerified ? 'Verified' : 'Unverified'}
-                  </span>
-                  {userData.emailVerified && (
-                    <span className="w-2.5 h-7 rounded bg-[#061127] shadow-inner shrink-0" />
-                  )}
-                </button>
-              </div>
-            </div>
 
             {/* Row 6: Full-width Vibrant Indigo Submit Button */}
             <div className="pt-3">
@@ -768,6 +923,48 @@ export default function AdminUserDetailPage() {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* User IPs Section (Using OUR modern admin table format) */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
+          <h3 className="text-base font-bold text-slate-900 font-sans tracking-tight">
+            User IPs:
+          </h3>
+
+          <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <table className="w-full text-left border-collapse font-sans text-xs">
+              <thead>
+                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
+                  <th className="py-3 px-4 w-1/3 border-r border-slate-200 text-center">
+                    IP
+                  </th>
+                  <th className="py-3 px-4 w-2/3 text-center">
+                    Last Access
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white font-medium">
+                {Array.isArray(userData.userIps) && userData.userIps.length > 0 ? (
+                  userData.userIps.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-4 font-mono font-bold text-slate-800 border-r border-slate-100 text-center">
+                        {item.ip}
+                      </td>
+                      <td className="py-3 px-4 font-sans text-slate-600 text-center">
+                        {item.lastAccess}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} className="py-6 text-center text-slate-400 font-sans">
+                      No IP log history available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Reset Login Password Modal */}

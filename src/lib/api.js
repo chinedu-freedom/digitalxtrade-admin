@@ -40,6 +40,73 @@ export const api = {
             approvedWithdrawalsCount: 310,
             rejectedWithdrawals: 8,
             pendingTickets: 4,
+            totalSystemEarnings: 637813.75,
+            totalMembersFundsAdded: 590689.39,
+            totalUsersBalance: 533570822.62,
+            currentDeposits: 307684025.95,
+            totalReferralCommissions: 7771910.56,
+            cryptoBreakdown: [
+              {
+                symbol: 'BTC',
+                name: 'Bitcoin',
+                color: 'text-amber-500 bg-amber-50 border-amber-200',
+                badgeBg: 'bg-amber-500',
+                icon: '₿',
+                systemEarnings: 0.00,
+                membersFundsAdded: 0.00,
+                usersBalance: 0.00,
+                totalDeposits: 0.00,
+                currentDeposits: 0.00,
+                referralCommissions: 0.00,
+                totalWithdrawals: 0.00,
+                pendingWithdrawals: 0.00,
+              },
+              {
+                symbol: 'USDT',
+                name: 'Tether TRC20',
+                color: 'text-emerald-500 bg-emerald-50 border-emerald-200',
+                badgeBg: 'bg-emerald-500',
+                icon: '₮',
+                systemEarnings: -224979.56,
+                membersFundsAdded: 336475.50,
+                usersBalance: 533154082.11,
+                totalDeposits: 382132953.54,
+                currentDeposits: 307663320.81,
+                referralCommissions: 7765110.55,
+                totalWithdrawals: 561455.06,
+                pendingWithdrawals: 13741.50,
+              },
+              {
+                symbol: 'ETH',
+                name: 'Ethereum',
+                color: 'text-indigo-500 bg-indigo-50 border-indigo-200',
+                badgeBg: 'bg-indigo-500',
+                icon: 'Ξ',
+                systemEarnings: -412834.19,
+                membersFundsAdded: 254213.89,
+                usersBalance: 416740.50,
+                totalDeposits: 169419.36,
+                currentDeposits: 20705.14,
+                referralCommissions: 6800.01,
+                totalWithdrawals: 667048.08,
+                pendingWithdrawals: 1000.00,
+              },
+              {
+                symbol: 'LTC',
+                name: 'Litecoin',
+                color: 'text-slate-500 bg-slate-50 border-slate-200',
+                badgeBg: 'bg-slate-500',
+                icon: 'Ł',
+                systemEarnings: 0.00,
+                membersFundsAdded: 0.00,
+                usersBalance: 0.00,
+                totalDeposits: 0.00,
+                currentDeposits: 0.00,
+                referralCommissions: 0.00,
+                totalWithdrawals: 0.00,
+                pendingWithdrawals: 0.00,
+              },
+            ]
           }
         }
       };
@@ -67,6 +134,27 @@ export const api = {
           logins: [],
           stakes: [
             { id: 's1', amount: '500.00', plan: { title: 'Pro Yield' }, user: { username: 'alex_j' } },
+          ]
+        }
+      };
+    }
+
+    // Expiring Investments / Deposits
+    if (url.includes('/admin/investments/expiring') || url.includes('/admin/expiring-deposits')) {
+      return {
+        data: {
+          success: true,
+          items: [
+            { id: 'exp_1', username: 'Hisasiwile', userId: 'usr_101', plan: 'FOUNDATION PLAN (30)', amount: 4999.00, currency: 'USDT', currencySymbol: '₮', expiresText: '8 hours', expiresSeconds: 28800 },
+            { id: 'exp_2', username: 'Nana59', userId: 'usr_102', plan: 'FOUNDATION PLAN (30)', amount: 987.00, currency: 'ETH', currencySymbol: 'Ξ', expiresText: '11 hours', expiresSeconds: 39600 },
+            { id: 'exp_3', username: 'Hisasiwile', userId: 'usr_101', plan: 'FOUNDATION PLAN (30)', amount: 4999.00, currency: 'USDT', currencySymbol: '₮', expiresText: '19 hours', expiresSeconds: 68400 },
+            { id: 'exp_4', username: 'Jerry', userId: 'usr_103', plan: 'FOUNDATION PLAN (30)', amount: 69.00, currency: 'USDT', currencySymbol: '₮', expiresText: '20 hours', expiresSeconds: 72000 },
+            { id: 'exp_5', username: 'Nokubonga85', userId: 'usr_104', plan: 'FOUNDATION PLAN (30)', amount: 40.00, currency: 'ETH', currencySymbol: 'Ξ', expiresText: '1 day 4 hours', expiresSeconds: 100800 },
+            { id: 'exp_6', username: 'Tiana77', userId: 'usr_105', plan: 'STABILITY PLAN (30)', amount: 10048.00, currency: 'ETH', currencySymbol: 'Ξ', expiresText: '1 day 8 hours', expiresSeconds: 115200 },
+            { id: 'exp_7', username: 'Shia690', userId: 'usr_106', plan: 'ACCELERATION PLAN (30)', amount: 8010.00, currency: 'USDT', currencySymbol: '₮', expiresText: '2 days 11 hours', expiresSeconds: 212400 },
+            { id: 'exp_8', username: 'Nomonde', userId: 'usr_107', plan: 'FOUNDATION PLAN (30)', amount: 40.00, currency: 'USDT', currencySymbol: '₮', expiresText: '2 days 16 hours', expiresSeconds: 230400 },
+            { id: 'exp_9', username: 'Hisasiwile', userId: 'usr_101', plan: 'WEALTH PLAN (30)', amount: 7635700.00, currency: 'USDT', currencySymbol: '₮', expiresText: '3 days 11 hours', expiresSeconds: 298800 },
+            { id: 'exp_10', username: 'Phindile84', userId: 'usr_108', plan: 'FOUNDATION PLAN (30)', amount: 48.00, currency: 'ETH', currencySymbol: 'Ξ', expiresText: '6 days', expiresSeconds: 518400 },
           ]
         }
       };

@@ -37,12 +37,7 @@ import FaviconGuard from '../components/FaviconGuard';
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${righteous.variable}`}>
-      <head>
-        <Script
-          src="https://www.google.com/recaptcha/api.js?render=explicit"
-          strategy="afterInteractive"
-        />
-      </head>
+      <head />
       <body className={`${inter.className} bg-[#07193b] text-slate-100 antialiased min-h-screen font-sans`}>
         <FaviconGuard />
         <AdminAuthProvider>

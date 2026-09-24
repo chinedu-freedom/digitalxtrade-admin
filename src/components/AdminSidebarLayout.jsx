@@ -240,7 +240,16 @@ export default function AdminSidebarLayout({ children }) {
 
   const navItems = [
     { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-    { label: 'Investment Plans', path: '/admin/staking-plans', icon: Coins },
+    {
+      label: 'Manage Investments',
+      icon: Coins,
+      matchPaths: ['/admin/staking-plans', '/admin/investments', '/admin/plan'],
+      submenu: [
+        { label: 'Investment Plans', path: '/admin/staking-plans' },
+        { label: 'Expiring Investments', path: '/admin/investments/expiring' },
+        { label: 'All Investment Logs', path: '/admin/reports/staking' },
+      ],
+    },
     {
       label: 'Manage Users',
       icon: Users,

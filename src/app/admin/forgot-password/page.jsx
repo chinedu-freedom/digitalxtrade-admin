@@ -5,31 +5,23 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { toast } from 'sonner';
-import GoogleReCaptcha from '../../../components/GoogleReCaptcha';
 
 export default function AdminForgotPasswordPage() {
   const router = useRouter();
   const { requestPasswordReset } = useAdminAuth();
   const [email, setEmail] = useState('admin@stakelab.io');
   const [submitting, setSubmitting] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState('');
   const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
 
-    if (!captchaToken) {
-      setErrors({ captcha: 'Please verify the reCAPTCHA checkbox before proceeding.' });
-      return;
-    }
-
     setSubmitting(true);
 
     try {
       const res = await requestPasswordReset(email);
       if (res && res.success) {
-        // toast.success('Password reset OTP has been sent to admin email.'); // Handled in AdminAuthContext hook
         setTimeout(() => {
           router.push(`/admin/verify-otp?email=${encodeURIComponent(email)}`);
         }, 1000);
@@ -81,40 +73,35 @@ export default function AdminForgotPasswordPage() {
                     if (errors.form) setErrors({});
                   }}
                   placeholder="admin@stakelab.io"
-                  className="w-full h-12 bg-[#0c1424] border-0 outline-none focus:outline-none rounded-md px-4 text-white placeholder-slate-500 font-sans text-sm focus:ring-1 focus:ring-[#ff0044] transition-all shadow-inner"
+                  className="w-full h-12 bg-[#0c1424] border-0 outline-none focus:outline-none rounded-md px-4 text-white placeholder-slate-500 font-sans text-sm focus:ring-1 focus:ring-[#0085d0] transition-all shadow-inner"
                 />
-              </div>
-
-              {/* Official Google reCAPTCHA v2 Component */}
-              <div className="pt-1">
-                <GoogleReCaptcha
-                  onVerify={(token) => {
-                    setCaptchaToken(token);
-                    if (errors.captcha) setErrors((prev) => ({ ...prev, captcha: '' }));
-                  }}
-                />
-                {errors.captcha && (
-                  <p className="text-red-400 text-xs mt-1.5 font-medium">{errors.captcha}</p>
-                )}
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full btn-stakelab py-3 rounded-md text-white font-righteous text-sm tracking-wider uppercase font-bold transition-all shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+                className="w-full btn-stakelab py-3 rounded-md text-white font-righteous text-sm tracking-wider uppercase font-bold transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
               >
                 {submitting ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" viewBox="0 0 24 24">
-                    <path d="M0 0h24v24H0z" fill="none" />
-                    <rect width="6" height="14" x="1" y="4" fill="currentColor">
-                      <animate id="SVG9ovaHbIP" fill="freeze" attributeName="opacity" begin="0;SVGa89dAd4w.end-0.25s" dur="0.75s" values="1;.2" />
+                    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="1">
+                      <animate id="SVG7WybndBt" fill="freeze" attributeName="x" begin="0;SVGo3aOUHlJ.end" dur="0.2s" values="1;13"/>
+                      <animate id="SVGVoKldbWM" fill="freeze" attributeName="y" begin="SVGFpk9ncYc.end" dur="0.2s" values="1;13"/>
+                      <animate id="SVGKsXgPbui" fill="freeze" attributeName="x" begin="SVGaI8owdNK.end" dur="0.2s" values="13;1"/>
+                      <animate id="SVG7JzAfdGT" fill="freeze" attributeName="y" begin="SVG28A4To9L.end" dur="0.2s" values="13;1"/>
                     </rect>
-                    <rect width="6" height="14" x="9" y="4" fill="currentColor" opacity=".4">
-                      <animate fill="freeze" attributeName="opacity" begin="SVG9ovaHbIP.begin+0.15s" dur="0.75s" values="1;.2" />
+                    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="1">
+                      <animate id="SVGUiS2jeZq" fill="freeze" attributeName="y" begin="SVG7WybndBt.end" dur="0.2s" values="13;1"/>
+                      <animate id="SVGU0vu2GEM" fill="freeze" attributeName="x" begin="SVGVoKldbWM.end" dur="0.2s" values="1;13"/>
+                      <animate id="SVGOIboFeLf" fill="freeze" attributeName="y" begin="SVGKsXgPbui.end" dur="0.2s" values="13;1"/>
+                      <animate id="SVG14lAaeuv" fill="freeze" attributeName="x" begin="SVG7JzAfdGT.end" dur="0.2s" values="13;1"/>
                     </rect>
-                    <rect width="6" height="14" x="17" y="4" fill="currentColor" opacity=".3">
-                      <animate id="SVGa89dAd4w" fill="freeze" attributeName="opacity" begin="SVG9ovaHbIP.begin+0.3s" dur="0.75s" values="1;.2" />
+                    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="1">
+                      <animate id="SVGFpk9ncYc" fill="freeze" attributeName="x" begin="SVGUiS2jeZq.end" dur="0.2s" values="13;1"/>
+                      <animate id="SVGaI8owdNK" fill="freeze" attributeName="y" begin="SVGU0vu2GEM.end" dur="0.2s" values="13;1"/>
+                      <animate id="SVG28A4To9L" fill="freeze" attributeName="x" begin="SVGOIboFeLf.end" dur="0.2s" values="13;1"/>
+                      <animate id="SVGo3aOUHlJ" fill="freeze" attributeName="y" begin="SVG14lAaeuv.end" dur="0.2s" values="13;1"/>
                     </rect>
                   </svg>
                 ) : (
@@ -126,19 +113,19 @@ export default function AdminForgotPasswordPage() {
             {/* Back to Login Link */}
             <p className="text-center text-xs text-slate-400 mt-6">
               Remembered your password?{' '}
-              <Link href="/admin/login" className="text-[#ff0044] font-bold hover:underline">
+              <Link href="/admin/login" className="text-[#0085d0] font-bold hover:underline">
                 Login
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Right Side: Auth Illustration Graphic (50% Equal Split - Local File Cropped) */}
-        <div className="hidden lg:block w-1/2 h-full relative overflow-hidden bg-[#07193b]">
+        {/* Right Side: Auth Brand Panel */}
+        <div className="hidden lg:flex w-1/2 h-full items-center justify-center bg-[#030919] relative overflow-hidden p-6 xl:p-10">
           <img
-            src="/auth-bg.png"
-            alt="StakeLab Admin Illustration"
-            className="w-full h-full object-cover object-center scale-135 transform transition-transform duration-700"
+            src="/logo.jpeg"
+            alt="DigitalXTrade Logo"
+            className="w-full max-w-xl xl:max-w-2xl max-h-[85vh] object-contain drop-shadow-2xl"
           />
         </div>
       </div>

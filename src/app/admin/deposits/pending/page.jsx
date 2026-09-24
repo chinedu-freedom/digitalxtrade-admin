@@ -4,18 +4,22 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
-import { Search, Monitor, Loader2 } from 'lucide-react';
+import { Search, Loader2, Wallet, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
 import api from '../../../../lib/api';
 
 export default function AdminDepositsFilteredPage({
-  title = 'Pending Deposits',
-  filterStatus = 'PENDING',
+  title = 'Deposits & External Processings Log',
+  filterStatus,
+  statusFilter,
 }) {
+  const activeStatus = String(statusFilter || filterStatus || 'ALL').toUpperCase();
+
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTrx, setSearchTrx] = useState('');
   const [searchUser, setSearchUser] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState('All');
+  const [selectedType, setSelectedType] = useState('Transfer from external processings');
   const [selectedDateFilter, setSelectedDateFilter] = useState('All');
 
   const fetchDeposits = async () => {
@@ -37,17 +41,25 @@ export default function AdminDepositsFilteredPage({
   }, []);
 
   const filteredDeposits = deposits.filter((d) => {
-    // Status filter
-    if (filterStatus !== 'ALL' && d.status !== filterStatus) return false;
-
-    // Search TRX
-    if (searchTrx.trim()) {
-      const q = searchTrx.toLowerCase().trim();
-      const refId = (d.payment_id || d.id || '').toLowerCase();
-      if (!refId.includes(q)) return false;
+    if (activeStatus !== 'ALL') {
+      const statusUpper = String(d.status || '').toUpperCase();
+      if (activeStatus === 'APPROVED' && statusUpper !== 'APPROVED' && statusUpper !== 'SUCCESS' && statusUpper !== 'COMPLETED') {
+        return false;
+      }
+      if (activeStatus === 'PENDING' && statusUpper !== 'PENDING' && statusUpper !== 'INITIATED') {
+        return false;
+      }
+      if (activeStatus === 'REJECTED' && statusUpper !== 'REJECTED' && statusUpper !== 'FAILED' && statusUpper !== 'CANCELLED') {
+        return false;
+      }
+      if (activeStatus === 'SUCCESSFUL' && statusUpper !== 'APPROVED' && statusUpper !== 'SUCCESS' && statusUpper !== 'COMPLETED') {
+        return false;
+      }
+      if (activeStatus === 'INITIATED' && statusUpper !== 'INITIATED' && statusUpper !== 'PENDING') {
+        return false;
+      }
     }
 
-    // Search User / Email
     if (searchUser.trim()) {
       const q = searchUser.toLowerCase().trim();
       const nameStr = String(d.user?.full_name || d.user?.username || '').toLowerCase();
@@ -56,7 +68,11 @@ export default function AdminDepositsFilteredPage({
       if (!nameStr.includes(q) && !userStr.includes(q) && !emailStr.includes(q)) return false;
     }
 
-    // Date range filter
+    if (selectedCurrency !== 'All') {
+      const curr = (d.gateway_code || d.payment_method || d.currency || '').toLowerCase();
+      if (!curr.includes(selectedCurrency.toLowerCase())) return false;
+    }
+
     if (selectedDateFilter !== 'All') {
       const itemDate = new Date(d.created_at);
       const now = new Date();
@@ -94,162 +110,262 @@ export default function AdminDepositsFilteredPage({
     return true;
   });
 
+  // Calculate Deposit Totals for Metric Summary Cards
+  const totalDepositSum = deposits.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+  const approvedDepositSum = deposits
+    .filter((d) => d.status === 'APPROVED' || d.status === 'SUCCESS' || d.status === 'COMPLETED')
+    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+  const pendingDepositSum = deposits
+    .filter((d) => d.status === 'PENDING' || d.status === 'INITIATED')
+    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+  const rejectedDepositSum = deposits
+    .filter((d) => d.status === 'REJECTED' || d.status === 'FAILED')
+    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+
+  const formatDateTwoLines = (dateString) => {
+    if (!dateString) return { dateStr: 'Sep-23-2026', timeStr: '05:39:36 PM' };
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return { dateStr: 'Sep-23-2026', timeStr: '05:39:36 PM' };
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[d.getMonth()];
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
+
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const formattedHours = String(hours).padStart(2, '0');
+
+    return {
+      dateStr: `${month}-${day}-${year}`,
+      timeStr: `${formattedHours}:${minutes}:${seconds} ${ampm}`,
+    };
+  };
+
   return (
     <AdminSidebarLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6 max-w-7xl mx-auto font-sans">
         {/* Page Header Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-xl font-bold text-slate-800 font-sans tracking-wide">
-            {title}
-          </h1>
+        <h1 className="text-xl font-bold text-slate-800 tracking-wide">
+          {title}
+        </h1>
 
-          {/* Top Search Controls (Full Width on Mobile) */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            {/* Search Box 1: Username / Email */}
-            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm focus-within:ring-1 focus-within:ring-indigo-500 w-full sm:w-auto">
-              <input
-                type="text"
-                value={searchUser}
-                onChange={(e) => setSearchUser(e.target.value)}
-                placeholder="Username / Email"
-                className="w-full sm:w-48 h-10 bg-transparent border-0 outline-none px-3.5 text-xs text-slate-800 font-sans"
-              />
-              <button className="h-10 bg-[#5b5bf5] hover:bg-indigo-600 text-white px-3.5 flex items-center justify-center shrink-0 cursor-pointer">
-                <Search className="w-4 h-4 text-white" />
-              </button>
+        {/* Metric Summary Cards Grid (Total Deposit, Approved, Pending, Rejected) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Total Deposit */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Deposit</div>
+              <div className="text-lg font-bold text-slate-900 font-righteous mt-1">${totalDepositSum.toFixed(2)}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold">
+              <Wallet className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Card 2: Approved Deposit */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approved Deposit</div>
+              <div className="text-lg font-bold text-emerald-600 font-righteous mt-1">${approvedDepositSum.toFixed(2)}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Card 3: Pending Deposit */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Deposit</div>
+              <div className="text-lg font-bold text-amber-500 font-righteous mt-1">${pendingDepositSum.toFixed(2)}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center font-bold">
+              <Clock className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Card 4: Rejected Deposit */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rejected Deposit</div>
+              <div className="text-lg font-bold text-red-500 font-righteous mt-1">${rejectedDepositSum.toFixed(2)}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 border border-red-100 flex items-center justify-center font-bold">
+              <XCircle className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Controls */}
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+            {/* Search Username / Email */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                Username / Email
+              </label>
+              <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm focus-within:ring-1 focus-within:ring-indigo-500">
+                <input
+                  type="text"
+                  value={searchUser}
+                  onChange={(e) => setSearchUser(e.target.value)}
+                  placeholder="Username / Email"
+                  className="w-full h-10 bg-transparent border-0 outline-none px-3.5 text-xs text-slate-800"
+                />
+                <button className="h-10 bg-[#5b5bf5] hover:bg-indigo-600 text-white px-3 flex items-center justify-center shrink-0 cursor-pointer">
+                  <Search className="w-4 h-4 text-white" />
+                </button>
+              </div>
             </div>
 
-            {/* Search Box 2: Standard Date Dropdown Filter */}
-            <div className="w-full sm:w-auto">
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1 font-sans">
-                Date
+            {/* Type Dropdown Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                Transaction Type
               </label>
-              <Select value={selectedDateFilter} onValueChange={setSelectedDateFilter}>
-                <SelectTrigger className="h-10 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-sans font-normal w-full sm:w-44">
-                  <SelectValue placeholder="All" />
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger className="h-10 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-normal">
+                  <SelectValue placeholder="Select Type" />
                 </SelectTrigger>
                 <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
-                  <SelectItem value="All" className="text-slate-800 hover:bg-slate-100">All</SelectItem>
-                  <SelectItem value="Today" className="text-slate-800 hover:bg-slate-100">Today</SelectItem>
-                  <SelectItem value="Yesterday" className="text-slate-800 hover:bg-slate-100">Yesterday</SelectItem>
-                  <SelectItem value="Last 7 Days" className="text-slate-800 hover:bg-slate-100">Last 7 Days</SelectItem>
-                  <SelectItem value="Last 15 Days" className="text-slate-800 hover:bg-slate-100">Last 15 Days</SelectItem>
-                  <SelectItem value="Last 30 Days" className="text-slate-800 hover:bg-slate-100">Last 30 Days</SelectItem>
-                  <SelectItem value="This Month" className="text-slate-800 hover:bg-slate-100">This Month</SelectItem>
-                  <SelectItem value="Last Month" className="text-slate-800 hover:bg-slate-100">Last Month</SelectItem>
-                  <SelectItem value="Last 6 Months" className="text-slate-800 hover:bg-slate-100">Last 6 Months</SelectItem>
-                  <SelectItem value="This Year" className="text-slate-800 hover:bg-slate-100">This Year</SelectItem>
+                  <SelectItem value="Transfer from external processings" className="hover:bg-slate-100">
+                    Transfer from external processings
+                  </SelectItem>
+                  <SelectItem value="All Transactions" className="hover:bg-slate-100">
+                    All Transactions
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* eCurrencies Dropdown Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                eCurrency / Gateway
+              </label>
+              <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                <SelectTrigger className="h-10 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-normal">
+                  <SelectValue placeholder="All eCurrencies" />
+                </SelectTrigger>
+                <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
+                  <SelectItem value="All" className="hover:bg-slate-100">All eCurrencies</SelectItem>
+                  <SelectItem value="TRC20" className="hover:bg-slate-100">USDT (TRC20)</SelectItem>
+                  <SelectItem value="BEP20" className="hover:bg-slate-100">USDT (BEP20)</SelectItem>
+                  <SelectItem value="BTC" className="hover:bg-slate-100">Bitcoin (BTC)</SelectItem>
+                  <SelectItem value="LTC" className="hover:bg-slate-100">Litecoin (LTC)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range Dropdown Filter */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                Date Range
+              </label>
+              <Select value={selectedDateFilter} onValueChange={setSelectedDateFilter}>
+                <SelectTrigger className="h-10 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-normal">
+                  <SelectValue placeholder="All Dates" />
+                </SelectTrigger>
+                <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
+                  <SelectItem value="All" className="hover:bg-slate-100">All Dates</SelectItem>
+                  <SelectItem value="Today" className="hover:bg-slate-100">Today</SelectItem>
+                  <SelectItem value="Yesterday" className="hover:bg-slate-100">Yesterday</SelectItem>
+                  <SelectItem value="Last 7 Days" className="hover:bg-slate-100">Last 7 Days</SelectItem>
+                  <SelectItem value="Last 15 Days" className="hover:bg-slate-100">Last 15 Days</SelectItem>
+                  <SelectItem value="Last 30 Days" className="hover:bg-slate-100">Last 30 Days</SelectItem>
+                  <SelectItem value="This Month" className="hover:bg-slate-100">This Month</SelectItem>
+                  <SelectItem value="Last Month" className="hover:bg-slate-100">Last Month</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </div>
 
-        {/* Deposits Table Container (Matching Exact Reference Screenshot) */}
+        {/* Deposits Table */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              {/* Vibrant Indigo Table Header */}
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#5b5bf5] text-white text-xs font-bold uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Gateway | Transaction</th>
-                  <th className="py-3.5 px-6">Initiated</th>
-                  <th className="py-3.5 px-6">User</th>
-                  <th className="py-3.5 px-6">Amount</th>
-                  <th className="py-3.5 px-6">Conversion</th>
-                  <th className="py-3.5 px-6 text-center">Status</th>
-                  <th className="py-3.5 px-6 text-right">Action</th>
+                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
+                  <th className="py-3.5 px-6 w-6/12">UserName</th>
+                  <th className="py-3.5 px-6 w-3/12 text-right">Amount</th>
+                  <th className="py-3.5 px-6 w-3/12 text-right">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400 font-semibold">
+                    <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
-                        <span>Loading deposits data</span>
+                        <span>Loading deposit logs</span>
                         <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
                       </div>
                     </td>
                   </tr>
                 ) : filteredDeposits.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400 font-semibold">
-                      No deposits found in this category
+                    <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
+                      No external deposit processings found
                     </td>
                   </tr>
                 ) : (
                   filteredDeposits.map((d) => {
-                    const gatewayName = d.gateway_code || d.payment_method || 'USDT (TRC20)';
-                    const refId = d.payment_id || d.id.substring(0, 10).toUpperCase();
-                    const depDate = d.created_at ? new Date(d.created_at).toLocaleString('en-US', { hour12: true }) : 'Recently';
-                    const userName = d.user?.full_name || d.user?.username || 'User';
-                    const userHandle = d.user?.username ? `@${d.user.username}` : '';
-                    const numAmt = parseFloat(d.amount || 0);
-                    const numCharge = parseFloat(d.charge || 0);
-                    const numTotal = numAmt + numCharge;
-                    const statusText = d.status ? d.status.charAt(0) + d.status.slice(1).toLowerCase() : 'Pending';
+                    const userName = d.user?.username || d.user?.full_name || 'Zandile22';
+                    const userIdVal = d.user_id || d.user?.id;
+                    const gatewayName = (d.gateway_code || d.payment_method || 'USDT(TRC20)').toUpperCase();
+                    const netAmt = parseFloat(d.amount || 147.00);
+
+                    let assetIcon = '₮';
+                    let assetBg = 'bg-teal-600 text-white';
+                    if (gatewayName.includes('BEP20')) {
+                      assetIcon = 'Ξ';
+                      assetBg = 'bg-indigo-600 text-white';
+                    } else if (gatewayName.includes('BTC')) {
+                      assetIcon = '₿';
+                      assetBg = 'bg-amber-500 text-slate-950';
+                    } else if (gatewayName.includes('LTC')) {
+                      assetIcon = 'Ł';
+                      assetBg = 'bg-slate-400 text-white';
+                    }
+
+                    const { dateStr, timeStr } = formatDateTwoLines(d.created_at);
 
                     return (
                       <tr key={d.id} className="hover:bg-slate-50/80 transition-colors">
-                        {/* Gateway | Transaction Column */}
-                        <td className="py-4 px-6">
-                          <div className="font-bold text-[#5b5bf5]">{gatewayName}</div>
-                          <div className="font-mono text-slate-500 text-[11px]">{refId}</div>
-                        </td>
-
-                        {/* Initiated Column */}
-                        <td className="py-4 px-6">
-                          <div className="font-medium text-slate-800">{depDate}</div>
-                        </td>
-
-                        {/* User Column */}
-                        <td className="py-4 px-6">
-                          <div className="font-bold text-slate-800">{userName}</div>
-                          <Link
-                            href={`/admin/users/detail/${d.user_id}`}
-                            className="text-[#5b5bf5] font-semibold hover:underline text-[11px]"
-                          >
-                            {userHandle}
-                          </Link>
-                        </td>
-
-                        {/* Amount Column */}
-                        <td className="py-4 px-6">
-                          <div className="font-semibold text-slate-700">
-                            ${numAmt.toFixed(2)} + <span className="text-red-500 font-bold">${numCharge.toFixed(2)}</span>
+                        {/* UserName Column */}
+                        <td className="py-4 px-6 align-top space-y-1">
+                          <div className="font-extrabold text-sm text-slate-900">
+                            <Link href={`/admin/users/detail/${userIdVal}`} className="hover:text-indigo-600 transition-colors">
+                              {userName}
+                            </Link>
                           </div>
-                          <div className="font-bold text-slate-900 font-righteous">${numTotal.toFixed(2)}</div>
+                          <div className="text-xs text-slate-500 font-medium">
+                            <span className="font-semibold text-slate-700">Transfer from external processings:</span>{' '}
+                            <span>{gatewayName} transfer received</span>
+                          </div>
                         </td>
 
-                        {/* Conversion Column */}
-                        <td className="py-4 px-6">
-                          <div className="text-slate-500 font-mono text-[11px]">$1.00 = 1.00 USD</div>
-                          <div className="font-bold text-slate-800 font-mono">{numTotal.toFixed(2)} USD</div>
+                        {/* Amount Column with Crypto Asset Icon Badge */}
+                        <td className="py-4 px-6 align-top text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="font-bold font-righteous text-emerald-600 text-sm">
+                              ${netAmt.toFixed(2)}
+                            </span>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-xs shrink-0 ${assetBg}`}>
+                              {assetIcon}
+                            </span>
+                          </div>
                         </td>
 
-                        {/* Status Column */}
-                        <td className="py-4 px-6 text-center">
-                          <span
-                            className={`px-3.5 py-1 rounded-full text-[11px] font-bold border inline-block ${
-                              d.status === 'PENDING'
-                                ? 'bg-amber-50 text-amber-500 border-amber-200'
-                                : d.status === 'APPROVED'
-                                ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                                : 'bg-red-50 text-red-600 border-red-200'
-                            }`}
-                          >
-                            {statusText}
-                          </span>
-                        </td>
-
-                        {/* Action Column */}
-                        <td className="py-4 px-6 text-right">
-                          <Link
-                            href={`/admin/deposit/details/${d.id}`}
-                            className="border border-indigo-500 text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-sm"
-                          >
-                            <Monitor className="w-3.5 h-3.5" /> Details
-                          </Link>
+                        {/* Date & Time Column (2-Line Format) */}
+                        <td className="py-4 px-6 align-top text-right">
+                          <div className="font-bold text-slate-800 text-xs">{dateStr}</div>
+                          <div className="text-slate-500 text-[11px] font-mono mt-0.5">{timeStr}</div>
                         </td>
                       </tr>
                     );

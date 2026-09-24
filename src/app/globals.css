@@ -30,6 +30,11 @@ input[type=number] {
   appearance: textfield !important;
 }
 
+/* Hide textarea resize handles globally */
+textarea {
+  resize: none !important;
+}
+
 /* Globally Hide Scrollbars (Vertical & Horizontal) Across All Browsers & Operating Systems */
 * {
   -ms-overflow-style: none !important;  /* IE & Edge */
@@ -63,18 +68,19 @@ input[type=number] {
   }
 
   .text-gradient-stakelab {
-    background: linear-gradient(135deg, #ff0044 0%, #fe780b 100%);
+    background: linear-gradient(135deg, #38bdf8 0%, #0085d0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .btn-stakelab {
-    background: linear-gradient(135deg, #ff0044 0%, #fe780b 100%);
+    background: linear-gradient(135deg, #0085d0 0%, #00529b 100%);
     color: #ffffff;
     transition: all 0.2s ease-in-out;
   }
   .btn-stakelab:hover {
-    opacity: 0.92;
+    background: linear-gradient(135deg, #0072ce 0%, #003e75 100%);
+    opacity: 0.95;
     transform: translateY(-1px);
   }
 }
