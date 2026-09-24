@@ -76,11 +76,15 @@ function AdminLoginContent() {
           <div className="w-full max-w-md my-auto">
             {/* Header Title */}
             <div className="mb-8 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0085d0]/10 border border-[#0085d0]/30 text-[#38bdf8] text-xs font-semibold uppercase tracking-wider mb-4">
+                <span className="w-2 h-2 rounded-full bg-[#0085d0] animate-pulse"></span>
+                Admin Portal
+              </div>
               <h1 className="text-3xl font-extrabold text-white mb-2 font-righteous tracking-wide">
-                Welcome <span className="text-gradient-stakelab">back</span>
+                Admin <span className="text-gradient-stakelab">Login</span>
               </h1>
               <p className="text-slate-400 text-sm">
-                Login to your account to continue
+                Sign in with your administrator credentials to continue
               </p>
             </div>
 
@@ -94,7 +98,7 @@ function AdminLoginContent() {
               {/* Username Input */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Username
+                  Admin Username or Email
                 </label>
                 <input
                   type="text"
@@ -104,7 +108,7 @@ function AdminLoginContent() {
                     setUsername(e.target.value);
                     if (errors.form) setErrors({});
                   }}
-                  placeholder="Username"
+                  placeholder="Admin Username"
                   className="w-full h-12 bg-[#0c1424] border-0 outline-none focus:outline-none rounded-md px-4 text-white placeholder-slate-500 font-sans text-sm focus:ring-1 focus:ring-[#0085d0] transition-all shadow-inner"
                 />
               </div>
@@ -112,7 +116,7 @@ function AdminLoginContent() {
               {/* Password Input */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Password
+                  Admin Password
                 </label>
                 <div className="relative">
                   <input
@@ -146,7 +150,7 @@ function AdminLoginContent() {
                     id="keepMeLoggedIn"
                     className="w-4 h-4 rounded border-[#1c2844] bg-[#0c1424] text-[#0085d0] focus:ring-0 accent-[#0085d0] cursor-pointer"
                   />
-                  <span className="text-xs text-slate-300 font-medium">Remember me</span>
+                  <span className="text-xs text-slate-300 font-medium">Remember admin</span>
                 </label>
 
                 <Link
@@ -185,16 +189,16 @@ function AdminLoginContent() {
                     </rect>
                   </svg>
                 ) : (
-                  'Login'
+                  'Login to Admin'
                 )}
               </button>
             </form>
 
-            {/* Sign Up Link */}
+            {/* Admin Restricted Access Notice */}
             <p className="text-center text-xs text-slate-400 mt-6">
-              Don’t have an account?{' '}
-              <Link href="/register" className="text-[#0085d0] font-bold hover:underline">
-                Sign up
+              Restricted to authorized administrators.{' '}
+              <Link href="/admin/contact-support" className="text-[#0085d0] font-bold hover:underline">
+                Contact Support
               </Link>
             </p>
           </div>
