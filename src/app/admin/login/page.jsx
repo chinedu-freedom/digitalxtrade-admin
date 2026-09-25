@@ -144,7 +144,7 @@ function AdminLoginContent() {
                     id="keepMeLoggedIn"
                     className="w-4 h-4 rounded border-[#1c2844] bg-[#0c1424] text-[#0085d0] focus:ring-0 accent-[#0085d0] cursor-pointer"
                   />
-                  <span className="text-xs text-slate-300 font-medium">Remember admin</span>
+                  <span className="text-xs text-slate-300 font-medium">Remember me </span>
                 </label>
 
                 <Link

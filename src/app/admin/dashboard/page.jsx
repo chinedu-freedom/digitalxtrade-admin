@@ -151,16 +151,133 @@ export default function AdminDashboardPage() {
   ];
 
   useEffect(() => {
-    setLoading(true);
-    api
-      .get('/admin/stats')
-      .then((res) => {
-        if (res.data.success && res.data.stats) {
-          setStats((prev) => ({ ...prev, ...res.data.stats }));
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        // 1. Primary stats endpoint
+        let primaryStats = {};
+        try {
+          const statsRes = await api.get('/admin/stats');
+          if (statsRes.data?.success) {
+            primaryStats = statsRes.data.stats || statsRes.data.data || statsRes.data;
+          } else if (statsRes.data) {
+            primaryStats = statsRes.data;
+          }
+        } catch (err) {
+          try {
+            const dashRes = await api.get('/admin/dashboard');
+            if (dashRes.data?.success) {
+              primaryStats = dashRes.data.stats || dashRes.data.data || dashRes.data;
+            }
+          } catch (e) {}
         }
-      })
-      .catch(() => null)
-      .finally(() => setLoading(false));
+
+        // 2. Fetch real resource data for comprehensive calculations
+        const [usersRes, depositsRes, withdrawalsRes, plansRes] = await Promise.allSettled([
+          api.get('/admin/users'),
+          api.get('/admin/deposits'),
+          api.get('/admin/withdrawals'),
+          api.get('/admin/staking-plans'),
+        ]);
+
+        let totalUsersCount = primaryStats.totalUsers || 0;
+        let activeUsersCount = primaryStats.activeUsers || 0;
+        let todayUsersCount = primaryStats.todayUsers || 0;
+        let totalUsersBalanceVal = primaryStats.totalUsersBalance || 0;
+
+        if (usersRes.status === 'fulfilled' && usersRes.value.data) {
+          const usersList = usersRes.value.data.users || (Array.isArray(usersRes.value.data) ? usersRes.value.data : []);
+          if (usersList.length > 0) {
+            totalUsersCount = usersList.length;
+            activeUsersCount = usersList.filter((u) => u.status === 'active' || u.active || !u.banned).length;
+            const todayStr = new Date().toDateString();
+            todayUsersCount = usersList.filter((u) => u.created_at && new Date(u.created_at).toDateString() === todayStr).length;
+            const calculatedBalance = usersList.reduce((acc, u) => acc + (parseFloat(u.balance || u.mainBalance || u.usdt_balance || 0) || 0), 0);
+            if (calculatedBalance > 0) totalUsersBalanceVal = calculatedBalance;
+          }
+        }
+
+        let totalDepSum = primaryStats.totalDeposited || 0;
+        let todaysDepSum = primaryStats.todaysDeposit || 0;
+        let pendingDepCount = primaryStats.pendingDeposits || 0;
+        let pendingDepSum = primaryStats.pendingDepositsSum || 0;
+        let rejectedDepCount = primaryStats.rejectedDeposits || 0;
+
+        if (depositsRes.status === 'fulfilled' && depositsRes.value.data) {
+          const depList = depositsRes.value.data.deposits || (Array.isArray(depositsRes.value.data) ? depositsRes.value.data : []);
+          if (depList.length > 0) {
+            const approvedDeps = depList.filter((d) => (d.status || '').toLowerCase() === 'approved' || (d.status || '').toLowerCase() === 'successful' || (d.status || '').toLowerCase() === 'completed');
+            totalDepSum = approvedDeps.reduce((acc, d) => acc + (parseFloat(d.amount || 0) || 0), 0);
+            const todayStr = new Date().toDateString();
+            todaysDepSum = approvedDeps.filter((d) => d.created_at && new Date(d.created_at).toDateString() === todayStr).reduce((acc, d) => acc + (parseFloat(d.amount || 0) || 0), 0);
+
+            const pendingDeps = depList.filter((d) => (d.status || '').toLowerCase() === 'pending' || (d.status || '').toLowerCase() === 'initiated');
+            pendingDepCount = pendingDeps.length;
+            pendingDepSum = pendingDeps.reduce((acc, d) => acc + (parseFloat(d.amount || 0) || 0), 0);
+
+            const rejectedDeps = depList.filter((d) => (d.status || '').toLowerCase() === 'rejected' || (d.status || '').toLowerCase() === 'failed');
+            rejectedDepCount = rejectedDeps.length;
+          }
+        }
+
+        let totalWithdrawnSum = primaryStats.totalWithdrawn || 0;
+        let todaysWithdrawalSum = primaryStats.todaysWithdrawal || 0;
+        let pendingWithCount = primaryStats.pendingWithdrawals || 0;
+        let pendingWithSum = primaryStats.pendingWithdrawalsSum || 0;
+        let rejectedWithCount = primaryStats.rejectedWithdrawals || 0;
+
+        if (withdrawalsRes.status === 'fulfilled' && withdrawalsRes.value.data) {
+          const withList = withdrawalsRes.value.data.withdrawals || (Array.isArray(withdrawalsRes.value.data) ? withdrawalsRes.value.data : []);
+          if (withList.length > 0) {
+            const approvedWiths = withList.filter((w) => (w.status || '').toLowerCase() === 'approved' || (w.status || '').toLowerCase() === 'successful' || (w.status || '').toLowerCase() === 'completed');
+            totalWithdrawnSum = approvedWiths.reduce((acc, w) => acc + (parseFloat(w.amount || 0) || 0), 0);
+            const todayStr = new Date().toDateString();
+            todaysWithdrawalSum = approvedWiths.filter((w) => w.created_at && new Date(w.created_at).toDateString() === todayStr).reduce((acc, w) => acc + (parseFloat(w.amount || 0) || 0), 0);
+
+            const pendingWiths = withList.filter((w) => (w.status || '').toLowerCase() === 'pending' || (w.status || '').toLowerCase() === 'initiated');
+            pendingWithCount = pendingWiths.length;
+            pendingWithSum = pendingWiths.reduce((acc, w) => acc + (parseFloat(w.amount || 0) || 0), 0);
+
+            const rejectedWiths = withList.filter((w) => (w.status || '').toLowerCase() === 'rejected' || (w.status || '').toLowerCase() === 'failed');
+            rejectedWithCount = rejectedWiths.length;
+          }
+        }
+
+        let activePackagesCount = primaryStats.investmentPackages || primaryStats.activeStakingCount || 0;
+        if (plansRes.status === 'fulfilled' && plansRes.value.data) {
+          const plansList = plansRes.value.data.plans || plansRes.value.data.stakingPlans || (Array.isArray(plansRes.value.data) ? plansRes.value.data : []);
+          if (plansList.length > 0) {
+            activePackagesCount = plansList.length;
+          }
+        }
+
+        setStats((prev) => ({
+          ...prev,
+          ...primaryStats,
+          totalUsers: totalUsersCount || prev.totalUsers,
+          activeUsers: activeUsersCount || prev.activeUsers,
+          todayUsers: todayUsersCount || prev.todayUsers,
+          investmentPackages: activePackagesCount || prev.investmentPackages || 6,
+          totalUsersBalance: totalUsersBalanceVal || prev.totalUsersBalance,
+          totalDeposited: totalDepSum || prev.totalDeposited,
+          todaysDeposit: todaysDepSum || prev.todaysDeposit,
+          pendingDeposits: pendingDepCount,
+          pendingDepositsSum: pendingDepSum || prev.pendingDepositsSum,
+          rejectedDeposits: rejectedDepCount,
+          totalWithdrawn: totalWithdrawnSum || prev.totalWithdrawn,
+          todaysWithdrawal: todaysWithdrawalSum || prev.todaysWithdrawal,
+          pendingWithdrawals: pendingWithCount,
+          pendingWithdrawalsSum: pendingWithSum || prev.pendingWithdrawalsSum,
+          rejectedWithdrawals: rejectedWithCount,
+        }));
+      } catch (err) {
+        console.error('Failed to wire up dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
   return (
