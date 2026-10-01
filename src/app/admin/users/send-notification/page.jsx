@@ -73,7 +73,6 @@ export default function AdminSendNotificationPage() {
                   <SelectItem value="All Users">All Users</SelectItem>
                   <SelectItem value="Active Users">Active Users</SelectItem>
                   <SelectItem value="Banned Users">Banned Users</SelectItem>
-                  <SelectItem value="Email Unverified">Email Unverified Users</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../../components/PageLoader';
 import RichTextEditor from '../../../../../components/RichTextEditor';
 import { ArrowLeft, Plus, X, Trash2, Reply, Paperclip, Loader2, Eye, Download, FileText, RotateCcw } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -201,6 +202,10 @@ export default function AdminTicketViewPage() {
   };
 
   const isClosed = ticketStatus === 'CLOSED' || ticketStatus === 'Closed';
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>

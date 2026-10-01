@@ -5,32 +5,7 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Search } from 'lucide-react';
 
-const mockNotificationHistory = [
-  {
-    id: '1',
-    user: 'All Users',
-    subject: 'System Upgrade Maintenance Completed',
-    sentAt: '2026-08-18 10:00 AM',
-    sender: 'Super Admin',
-    status: 'Sent',
-  },
-  {
-    id: '2',
-    user: 'Active Users',
-    subject: 'New Golden Staking Plan Rewards Live!',
-    sentAt: '2026-08-14 02:30 PM',
-    sender: 'Super Admin',
-    status: 'Sent',
-  },
-  {
-    id: '3',
-    user: 'Email Unverified',
-    subject: 'Please Verify Your Account Email Address',
-    sentAt: '2026-08-01 09:15 AM',
-    sender: 'Super Admin',
-    status: 'Sent',
-  },
-];
+const mockNotificationHistory = [];
 
 export default function AdminNotificationHistoryPage() {
   const [search, setSearch] = useState('');

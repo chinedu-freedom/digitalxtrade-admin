@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
 import { Search, Loader2, Layers, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
@@ -116,13 +117,22 @@ export default function AdminStakingHistoryPage() {
     };
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto font-sans">
-        {/* Page Header Title */}
-        <h1 className="text-xl font-bold text-slate-800 tracking-wide">
-          Staking & Investment Plan History
-        </h1>
+        {/* Page Header Bar */}
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 tracking-wide">
+            Staking & Investment Plan History
+          </h1>
+          <p className="text-xs text-slate-500 font-sans mt-0.5">
+            Live database logs of all active and completed investments.
+          </p>
+        </div>
 
         {/* Metric Summary Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -239,7 +249,7 @@ export default function AdminStakingHistoryPage() {
                     <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading investment plan activity</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
@@ -258,7 +268,7 @@ export default function AdminStakingHistoryPage() {
                     const isReturn = log.type === 'RETURN' || log.status === 'COMPLETED' || log.status === 'MATURE';
                     const amountVal = parseFloat(log.amount || 134.00);
 
-                    const gatewayStr = (log.currency || 'USDT').toUpperCase();
+                    const gatewayStr = (`${log.currency || ''} ${log.description || ''}`).toUpperCase();
                     let assetIcon = '₮';
                     let assetBg = 'bg-teal-600 text-white';
                     if (gatewayStr.includes('BEP20') || gatewayStr.includes('ETH')) {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import api from '../lib/api';
 import {
@@ -50,8 +50,15 @@ const renderFormattedBrandName = (name) => {
 
 export default function AdminSidebarLayout({ children }) {
   const pathname = usePathname();
-  const { admin, logout } = useAdminAuth();
+  const router = useRouter();
+  const { admin, logout, loading } = useAdminAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !admin) {
+      router.push('/admin/login');
+    }
+  }, [loading, admin, router]);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState({ unreadCount: 0, tickets: [], deposits: [], withdrawals: [], signups: [], logins: [], stakes: [] });
@@ -240,6 +247,19 @@ export default function AdminSidebarLayout({ children }) {
 
   const navItems = [
     { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+
+    {
+      label: 'Manage Users',
+      icon: Users,
+      matchPaths: ['/admin/users'],
+      submenu: [
+        { label: 'All Users', path: '/admin/users' },
+        { label: 'Active Users', path: '/admin/users/active' },
+        { label: 'Banned Users', path: '/admin/users/banned' },
+        { label: 'Send Notification', path: '/admin/users/send-notification' },
+        { label: 'User Notices', path: '/admin/users/notices' },
+      ],
+    },
     {
       label: 'Manage Investments',
       icon: Coins,
@@ -252,26 +272,11 @@ export default function AdminSidebarLayout({ children }) {
       ],
     },
     {
-      label: 'Manage Users',
-      icon: Users,
-      badge: '!',
-      matchPaths: ['/admin/users'],
-      submenu: [
-        { label: 'Active Users', path: '/admin/users/active' },
-        { label: 'Banned Users', path: '/admin/users/banned' },
-        { label: 'All Users', path: '/admin/users' },
-        { label: 'Add Transaction', path: '/admin/users/add-transaction' },
-        { label: 'Send Notification', path: '/admin/users/send-notification' },
-        { label: 'User Notices', path: '/admin/users/notices' },
-      ],
-    },
-    {
       label: 'Deposits',
       icon: ArrowDownLeft,
-      badge: '!',
       matchPaths: ['/admin/deposits', '/admin/deposit'],
       submenu: [
-        { label: 'Pending Deposits', path: '/admin/deposits/pending', countBadge: counts.pendingDeposits },
+        { label: 'Pending Deposits', path: '/admin/deposits/pending' },
         { label: 'Approved Deposits', path: '/admin/deposits/approved' },
         { label: 'Rejected Deposits', path: '/admin/deposits/rejected' },
         { label: 'All Deposits', path: '/admin/deposits' },
@@ -280,10 +285,9 @@ export default function AdminSidebarLayout({ children }) {
     {
       label: 'Withdrawals',
       icon: ArrowUpRight,
-      badge: '!',
       matchPaths: ['/admin/withdrawals', '/admin/withdraw'],
       submenu: [
-        { label: 'Pending Withdrawals', path: '/admin/withdrawals/pending', countBadge: counts.pendingWithdrawals },
+        { label: 'Pending Withdrawals', path: '/admin/withdrawals/pending' },
         { label: 'Approved Withdrawals', path: '/admin/withdrawals/approved' },
         { label: 'Rejected Withdrawals', path: '/admin/withdrawals/rejected' },
         { label: 'All Withdrawals', path: '/admin/withdrawals' },
@@ -372,11 +376,6 @@ export default function AdminSidebarLayout({ children }) {
                       <div className="flex items-center gap-3">
                         <Icon className="w-4 h-4 text-slate-400" />
                         <span>{item.label}</span>
-                        {item.badge && (
-                          <span className="w-5 h-5 rounded-md bg-[#ffaa00] text-slate-900 font-black text-[11px] flex items-center justify-center shadow-sm ml-auto">
-                            {item.badge}
-                          </span>
-                        )}
                       </div>
                       <ChevronDown
                         className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ml-2 ${
@@ -405,11 +404,6 @@ export default function AdminSidebarLayout({ children }) {
                                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                                 <span>{sub.label}</span>
                               </div>
-                              {sub.countBadge && (
-                                <span className="bg-[#38bdf8] text-white text-[11px] font-extrabold px-2 py-0.5 rounded shadow-sm">
-                                  {sub.countBadge}
-                                </span>
-                              )}
                             </Link>
                           );
                         })}

@@ -6,32 +6,7 @@ import Pagination from '../../../../components/Pagination';
 import { CheckSquare, Plus, Edit, Trash2, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-const mockTasksList = [
-  {
-    id: '1',
-    title: 'Join Telegram Official Channel',
-    reward: '$5.00 USDT',
-    link: 'https://t.me/stakelab_official',
-    completions: '412 users',
-    status: 'Active',
-  },
-  {
-    id: '2',
-    title: 'Follow Twitter / X Page',
-    reward: '$3.00 USDT',
-    link: 'https://x.com/stakelab_app',
-    completions: '280 users',
-    status: 'Active',
-  },
-  {
-    id: '3',
-    title: 'Deposit First $50',
-    reward: '$10.00 USDT',
-    link: 'https://stakelab.app/deposit',
-    completions: '195 users',
-    status: 'Active',
-  },
-];
+const mockTasksList = [];
 
 export default function AdminTasksPage() {
   const [tasks, setTasks] = useState(mockTasksList);

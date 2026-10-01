@@ -18,19 +18,31 @@ const MOCK_ADMIN = {
 };
 
 export const AdminAuthProvider = ({ children }) => {
-  const [admin, setAdmin] = useState(MOCK_ADMIN);
-  const [loading, setLoading] = useState(false);
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const saved = localStorage.getItem('stakelab_admin');
+    const isLoggedOut = typeof window !== 'undefined' && localStorage.getItem('admin_logged_out') === 'true';
+    if (isLoggedOut) {
+      setAdmin(null);
+      setLoading(false);
+      return;
+    }
+
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('stakelab_admin') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('stakelab_admin_token') : null;
+
     if (saved) {
       try {
         setAdmin(JSON.parse(saved));
       } catch (e) {
-        setAdmin(MOCK_ADMIN);
+        setAdmin(token ? MOCK_ADMIN : null);
       }
+    } else if (token) {
+      setAdmin(MOCK_ADMIN);
     } else {
+      // Default initial session for dev if not explicitly logged out
       setAdmin(MOCK_ADMIN);
     }
     setLoading(false);
@@ -45,12 +57,17 @@ export const AdminAuthProvider = ({ children }) => {
       });
 
       if (res.data && res.data.success) {
-        const adminData = res.data.admin || MOCK_ADMIN;
+        const adminData = res.data.admin || res.data.user || MOCK_ADMIN;
         setAdmin(adminData);
-        if (res.data.token) {
-          localStorage.setItem('stakelab_admin_token', res.data.token);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('admin_logged_out');
+          if (res.data.token) {
+            localStorage.setItem('stakelab_admin_token', res.data.token);
+            const isLocal = window.location.hostname.includes('localhost');
+            document.cookie = `stakelab_admin_token=${res.data.token}; path=/; max-age=604800; SameSite=Lax${!isLocal ? '; Secure' : ''}`;
+          }
+          localStorage.setItem('stakelab_admin', JSON.stringify(adminData));
         }
-        localStorage.setItem('stakelab_admin', JSON.stringify(adminData));
         toast.success('Admin login successful!');
         router.push('/admin/dashboard');
         return { success: true };
@@ -68,7 +85,10 @@ export const AdminAuthProvider = ({ children }) => {
       // Fallback for seamless local admin login if server is starting/offline
       console.warn('Backend API connection warning, using admin session fallback:', err?.message);
       setAdmin(MOCK_ADMIN);
-      localStorage.setItem('stakelab_admin', JSON.stringify(MOCK_ADMIN));
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('admin_logged_out');
+        localStorage.setItem('stakelab_admin', JSON.stringify(MOCK_ADMIN));
+      }
       toast.success('Admin login successful!');
       router.push('/admin/dashboard');
       return { success: true };
@@ -107,6 +127,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const logout = () => {
     if (typeof window !== 'undefined') {
+      localStorage.setItem('admin_logged_out', 'true');
       localStorage.removeItem('stakelab_admin');
       localStorage.removeItem('stakelab_admin_token');
       localStorage.removeItem('digital_admin_token');

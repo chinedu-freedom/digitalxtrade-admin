@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
-import { Loader2, Receipt, ArrowUpRight, ArrowDownRight, Scale } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
 import api from '../../../../lib/api';
 
@@ -88,15 +89,6 @@ export default function AdminTransactionLogsPage({ userId = null }) {
     return true;
   });
 
-  // Calculate Transaction Totals for Summary Metric Cards
-  const totalTxVolume = transactions.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-  const totalCreditSum = transactions
-    .filter((t) => !['WITHDRAWAL', 'ADMIN_DEBIT', 'STAKE', 'DEBIT'].includes((t.type || '').toUpperCase()))
-    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-  const totalDebitSum = transactions
-    .filter((t) => ['WITHDRAWAL', 'ADMIN_DEBIT', 'STAKE', 'DEBIT'].includes((t.type || '').toUpperCase()))
-    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-  const netTxVolume = totalCreditSum - totalDebitSum;
 
   const formatDateTwoLines = (dateString) => {
     if (!dateString) return { dateStr: 'Sep-22-2026', timeStr: '05:38:36 PM' };
@@ -122,6 +114,10 @@ export default function AdminTransactionLogsPage({ userId = null }) {
     };
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto font-sans">
@@ -130,52 +126,6 @@ export default function AdminTransactionLogsPage({ userId = null }) {
           Transaction Logs
         </h1>
 
-        {/* Summary Metric Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Volume */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Volume</div>
-              <div className="text-lg font-bold text-slate-900 font-righteous mt-1">${totalTxVolume.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center font-bold">
-              <Receipt className="w-5 h-5" />
-            </div>
-          </div>
-
-          {/* Card 2: Total Credit */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Credit (+)</div>
-              <div className="text-lg font-bold text-emerald-600 font-righteous mt-1">${totalCreditSum.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold">
-              <ArrowUpRight className="w-5 h-5" />
-            </div>
-          </div>
-
-          {/* Card 3: Total Debit */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Debit (-)</div>
-              <div className="text-lg font-bold text-red-500 font-righteous mt-1">${totalDebitSum.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 border border-red-100 flex items-center justify-center font-bold">
-              <ArrowDownRight className="w-5 h-5" />
-            </div>
-          </div>
-
-          {/* Card 4: Net Flow */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Net Flow</div>
-              <div className="text-lg font-bold text-[#5b5bf5] font-righteous mt-1">${netTxVolume.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-[#5b5bf5] border border-indigo-100 flex items-center justify-center font-bold">
-              <Scale className="w-5 h-5" />
-            </div>
-          </div>
-        </div>
 
         {/* Filter Bar Controls */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
@@ -242,37 +192,42 @@ export default function AdminTransactionLogsPage({ userId = null }) {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse font-sans text-xs">
               <thead>
-                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
-                  <th className="py-3.5 px-6 w-6/12">User & Description</th>
-                  <th className="py-3.5 px-6 w-3/12 text-right">Amount</th>
+                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                  <th className="py-3.5 px-6 w-5/12">User & Description</th>
+                  <th className="py-3.5 px-6 w-2/12 text-right">Amount</th>
+                  <th className="py-3.5 px-6 w-2/12 text-center">Status</th>
                   <th className="py-3.5 px-6 w-3/12 text-right">Date & Time</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs text-slate-700 font-sans">
                 {loading ? (
                   <tr>
-                    <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
+                    <td colSpan={4} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading transactions data</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
                 ) : filteredTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
+                    <td colSpan={4} className="py-12 text-center text-slate-400 font-semibold">
                       Data not found
                     </td>
                   </tr>
                 ) : (
                   filteredTransactions.map((trx) => {
-                    const userName = trx.user?.username || trx.user?.full_name || 'Nspecial';
-                    const userIdVal = trx.user?.id || trx.user_id;
+                    const userName = trx.user?.username || trx.user?.full_name || trx.username || 'User';
+                    const userIdVal = trx.user?.id || trx.user_id || trx.userId;
                     const rawType = (trx.type || '').toUpperCase();
                     const isPositive = !['WITHDRAWAL', 'ADMIN_DEBIT', 'STAKE', 'DEBIT'].includes(rawType);
 
                     let prefixLabel = 'Earning';
-                    if (rawType.includes('DEPOSIT') || rawType.includes('CREDIT')) {
+                    if (rawType === 'ADMIN_CREDIT') {
+                      prefixLabel = 'Admin Credit';
+                    } else if (rawType === 'ADMIN_DEBIT') {
+                      prefixLabel = 'Admin Debit';
+                    } else if (rawType.includes('DEPOSIT') || rawType.includes('CREDIT')) {
                       prefixLabel = 'Deposit';
                     } else if (rawType.includes('WITHDRAW') || rawType.includes('DEBIT')) {
                       prefixLabel = 'Withdrawal';
@@ -284,26 +239,81 @@ export default function AdminTransactionLogsPage({ userId = null }) {
                       prefixLabel = 'Details';
                     }
 
-                    const descText = (trx.description || 'Earning from deposit $50.00 - 2.80% %')
+                    const descText = (trx.description || 'Transaction processed successfully')
                       .replace(/OxaPay\s*/gi, '')
                       .trim();
 
-                    const gatewayStr = (trx.gateway || trx.currency || 'ETH').toUpperCase();
-                    let assetIcon = 'Ξ';
-                    let assetBg = 'bg-indigo-600 text-white';
-                    if (gatewayStr.includes('BTC') || gatewayStr.includes('BITCOIN')) {
-                      assetIcon = '₿';
-                      assetBg = 'bg-amber-500 text-slate-950';
-                    } else if (gatewayStr.includes('LTC') || gatewayStr.includes('LITECOIN')) {
-                      assetIcon = 'Ł';
-                      assetBg = 'bg-slate-400 text-white';
-                    } else if (gatewayStr.includes('USDT') || gatewayStr.includes('TRC20')) {
+                    const fullText = `${trx.currency || ''} ${trx.gateway || ''} ${trx.description || ''}`.toUpperCase();
+                    let assetIcon = '₮';
+                    let assetBg = 'bg-teal-600 text-white';
+
+                    if (fullText.includes('BEP20')) {
+                      assetIcon = '₮';
+                      assetBg = 'bg-indigo-600 text-white';
+                    } else if (fullText.includes('USDT') || fullText.includes('TRC20') || fullText.includes('TETHER')) {
                       assetIcon = '₮';
                       assetBg = 'bg-teal-600 text-white';
+                    } else if (fullText.includes('LTC') || fullText.includes('LITECOIN')) {
+                      assetIcon = 'Ł';
+                      assetBg = 'bg-slate-500 text-white';
+                    } else if (fullText.includes('ETH') || fullText.includes('ETHEREUM')) {
+                      assetIcon = 'Ξ';
+                      assetBg = 'bg-indigo-600 text-white';
+                    } else if (fullText.includes('BTC') || fullText.includes('BITCOIN')) {
+                      assetIcon = '₿';
+                      assetBg = 'bg-amber-500 text-slate-950';
                     }
 
-                    const formattedAmount = `$${parseFloat(trx.amount || 1.40).toFixed(2)}`;
-                    const { dateStr, timeStr } = formatDateTwoLines(trx.created_at);
+                    const rawStatus = (trx.status || 'COMPLETED').toUpperCase();
+                    const isCompleted = ['COMPLETED', 'APPROVED', 'SUCCESSFUL', 'SUCCESS'].includes(rawStatus);
+                    const isPending = ['PENDING', 'PROCESSING', 'INITIATED'].includes(rawStatus);
+
+                    let statusText = 'Completed';
+                    let statusColor = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+
+                    if (rawType === 'ADMIN_CREDIT') {
+                      statusText = 'Deposit credited';
+                      statusColor = 'bg-blue-50 text-blue-600 border border-blue-200';
+                    } else if (rawType === 'ADMIN_DEBIT') {
+                      statusText = 'Deposit debited';
+                      statusColor = 'bg-red-50 text-red-600 border border-red-200';
+                    } else if (rawType === 'DEPOSIT') {
+                      if (isCompleted) {
+                        statusText = 'Deposit successful';
+                        statusColor = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+                      } else if (isPending) {
+                        statusText = 'Pending';
+                        statusColor = 'bg-amber-50 text-amber-600 border border-amber-200';
+                      } else {
+                        statusText = 'Rejected';
+                        statusColor = 'bg-red-50 text-red-600 border border-red-200';
+                      }
+                    } else if (rawType === 'WITHDRAWAL' || rawType === 'WITHDRAW') {
+                      if (isCompleted) {
+                        statusText = 'Withdrawal successful';
+                        statusColor = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+                      } else if (isPending) {
+                        statusText = 'Pending';
+                        statusColor = 'bg-amber-50 text-amber-600 border border-amber-200';
+                      } else {
+                        statusText = 'Rejected';
+                        statusColor = 'bg-red-50 text-red-600 border border-red-200';
+                      }
+                    } else {
+                      if (isCompleted) {
+                        statusText = 'Completed';
+                        statusColor = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+                      } else if (isPending) {
+                        statusText = 'Pending';
+                        statusColor = 'bg-amber-50 text-amber-600 border border-amber-200';
+                      } else {
+                        statusText = 'Rejected';
+                        statusColor = 'bg-red-50 text-red-600 border border-red-200';
+                      }
+                    }
+
+                    const formattedAmount = `${isPositive ? '+' : '-'}$${parseFloat(trx.amount || 0).toFixed(2)}`;
+                    const { dateStr, timeStr } = formatDateTwoLines(trx.created_at || trx.createdAt);
 
                     return (
                       <tr key={trx.id} className="hover:bg-slate-50/80 transition-colors">
@@ -336,8 +346,15 @@ export default function AdminTransactionLogsPage({ userId = null }) {
                           </div>
                         </td>
 
+                        {/* Status Column with Distinct Colors */}
+                        <td className="py-4 px-6 align-top text-center whitespace-nowrap">
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${statusColor}`}>
+                            {statusText}
+                          </span>
+                        </td>
+
                         {/* Date & Time Column (Formatted in 2 Lines) */}
-                        <td className="py-4 px-6 align-top text-right">
+                        <td className="py-4 px-6 align-top text-right whitespace-nowrap">
                           <div className="font-bold text-slate-800 text-xs">{dateStr}</div>
                           <div className="text-slate-500 text-[11px] font-mono mt-0.5">{timeStr}</div>
                         </td>

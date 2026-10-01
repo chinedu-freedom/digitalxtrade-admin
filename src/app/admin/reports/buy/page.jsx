@@ -5,28 +5,7 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import Pagination from '../../../../components/Pagination';
 import { Search, ShoppingCart, CheckCircle2, RefreshCw } from 'lucide-react';
 
-const mockBuyHistory = [
-  {
-    id: '1',
-    user: 'Simon Smith',
-    username: '@Uarmadale',
-    amount: '$1,000.00',
-    rate: '1 USDT = 1.00 USD',
-    totalUsd: '$1,000.00',
-    date: '2026-08-10 11:30 AM',
-    status: 'Completed',
-  },
-  {
-    id: '2',
-    user: 'Chinedu Afamefuna',
-    username: '@Sparko',
-    amount: '$500.00',
-    rate: '1 USDT = 1.00 USD',
-    totalUsd: '$500.00',
-    date: '2026-08-05 09:15 AM',
-    status: 'Completed',
-  },
-];
+const mockBuyHistory = [];
 
 export default function AdminCurrencyBuyHistoryPage() {
   const [search, setSearch] = useState('');

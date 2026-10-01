@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import api from '../../../../lib/api';
 import { Users, UserCheck, ArrowLeft, Loader2, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -29,53 +30,7 @@ export default function AdminUserReferralsDetailPage() {
 
   const [uplineInput, setUplineInput] = useState('');
 
-  const [referralsList, setReferralsList] = useState([
-    {
-      id: 'ref_1',
-      username: 'Nkujas76',
-      fullName: 'Nkululeko Enoch Resha',
-      email: 'Nkularesha8@gmail.com',
-      status: 'FREE',
-      deposit: '$0.00',
-      levelStats: 'Level 1: 0 active of 0 total',
-    },
-    {
-      id: 'ref_2',
-      username: 'Sen2701',
-      fullName: 'Mmakoma Mojapelo',
-      email: 'meladimojapelo@gmail.com',
-      status: 'ACTIVE',
-      deposit: '$57.00',
-      levelStats: 'Level 1: 0 active of 1 total',
-    },
-    {
-      id: 'ref_3',
-      username: 'Bonganasinga',
-      fullName: 'nokubonga',
-      email: 'rsagoldiie@gmail.com',
-      status: 'FREE',
-      deposit: '$0.00',
-      levelStats: 'Level 1: 0 active of 0 total',
-    },
-    {
-      id: 'ref_4',
-      username: 'Craig25',
-      fullName: 'Craig',
-      email: 'cade6817@gmail.com',
-      status: 'ACTIVE',
-      deposit: '$100.00',
-      levelStats: 'Level 1: 0 active of 1 total',
-    },
-    {
-      id: 'ref_5',
-      username: 'Fanele22',
-      fullName: 'Fanele',
-      email: 'luyanda.sdu@gmail.com',
-      status: 'FREE',
-      deposit: '$0.00',
-      levelStats: 'Level 1: 0 active of 0 total',
-    },
-  ]);
+  const [referralsList, setReferralsList] = useState([]);
 
   const fetchUserReferrals = async () => {
     if (!userId) return;
@@ -85,14 +40,43 @@ export default function AdminUserReferralsDetailPage() {
       if (res.data && res.data.success && res.data.user) {
         const u = res.data.user;
         setUser({
-          username: u.username || 'user',
-          fullName: u.full_name || 'User Name',
-          uplineUsername: u.upline?.username || u.referred_by || '',
+          username: u.username || u.email || 'user',
+          fullName: u.full_name || u.name || 'User Name',
+          uplineUsername: u.upline?.username || u.referred_by || u.referredById || '',
         });
-        setUplineInput(u.upline?.username || u.referred_by || '');
+        setUplineInput(u.upline?.username || u.referred_by || u.referredById || '');
+
+        const refs = u.referrals || u.team || u.downline || [];
+        const formattedRefs = refs.map((r, idx) => {
+          const rName = r.username || r.email || `ref_${idx+1}`;
+          const fName = r.full_name || r.name || rName;
+          const totalDep = parseFloat(r.totalDeposits || r.deposit || r.balance || 0);
+          const isActive = !r.isSuspended && (totalDep > 0 || r.status === 'Active' || r.status === 'ACTIVE');
+          return {
+            id: r.id || `ref_${idx}`,
+            username: rName,
+            fullName: fName,
+            email: r.email || 'N/A',
+            status: isActive ? 'ACTIVE' : 'FREE',
+            deposit: `$${totalDep.toFixed(2)}`,
+            levelStats: `Level 1`,
+          };
+        });
+
+        setReferralsList(formattedRefs);
+
+        const activeCount = formattedRefs.filter(r => r.status === 'ACTIVE').length;
+        setStats({
+          directActive: activeCount,
+          directTotal: formattedRefs.length,
+          nonDirectActive: 0,
+          nonDirectTotal: 0,
+        });
       }
     } catch (err) {
       console.error('Fetch user referrals error:', err);
+      setReferralsList([]);
+      setStats({ directActive: 0, directTotal: 0, nonDirectActive: 0, nonDirectTotal: 0 });
     } finally {
       setLoading(false);
     }
@@ -124,6 +108,10 @@ export default function AdminUserReferralsDetailPage() {
       toast.error('Failed to unlink referral');
     }
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>

@@ -56,7 +56,7 @@ export default function AdminAnnouncementsSettingPage() {
       ...announcements,
       {
         id: Date.now().toString(),
-        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
         title: 'New Stakelab Update',
         desc: 'Announcing new platform feature releases and high-yield staking pools for global investors.',
         img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80',

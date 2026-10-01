@@ -1,5 +1,6 @@
-import AdminActiveUsersPage from './active/page';
+import AdminUsersFilteredPage from './active/page';
 
 export default function AdminAllUsersPage() {
-  return <AdminActiveUsersPage />;
+  return <AdminUsersFilteredPage title="All Users" filterType="all" />;
 }
+

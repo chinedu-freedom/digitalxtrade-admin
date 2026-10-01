@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../../components/PageLoader';
 import Pagination from '../../../../../components/Pagination';
 import { Loader2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../../components/ui/select';
@@ -78,6 +79,10 @@ function UserLoginHistoryContent() {
     return true;
   });
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -144,7 +149,7 @@ function UserLoginHistoryContent() {
                     <td colSpan={5} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading login history</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
@@ -158,7 +163,11 @@ function UserLoginHistoryContent() {
                   filteredLogins.map((u) => {
                     const fullName = u.full_name || u.username || 'User';
                     const usernameStr = u.username ? `@${u.username}` : '@user';
-                    const loginDate = u.created_at ? new Date(u.created_at).toLocaleString('en-US', { hour12: true }) : 'Recently';
+                    const loginDate = u.created_at
+                      ? new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) +
+                        ' ' +
+                        new Date(u.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+                      : 'Recently';
 
                     return (
                       <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">

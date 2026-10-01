@@ -17,8 +17,8 @@ module.exports = {
         '3xl': '0.375rem',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
-        righteous: ['var(--font-righteous)', 'Righteous', 'cursive'],
+        sans: ['"Proxima Nova"', '"ProximaNova-Bold"', '"ProximaNova-Sbold"', 'Montserrat', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        righteous: ['"Proxima Nova"', '"ProximaNova-Bold"', '"ProximaNova-Sbold"', 'Montserrat', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       colors: {
         adminBg: '#090D16',

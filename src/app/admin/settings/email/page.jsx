@@ -12,7 +12,7 @@ export default function AdminEmailSettingsPage() {
     smtp_port: 587,
     smtp_user: '',
     smtp_pass: '',
-    from_email: 'noreply@digitalxtrade.vip',
+    from_email: 'noreply@digitalxtrade.com',
     from_name: 'DigitalXTrade Protocol',
   });
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ export default function AdminEmailSettingsPage() {
             smtp_port: res.data.settings.smtp_port || 587,
             smtp_user: res.data.settings.smtp_user || '',
             smtp_pass: res.data.settings.smtp_pass || '',
-            from_email: res.data.settings.from_email || 'noreply@digitalxtrade.vip',
+            from_email: res.data.settings.from_email || 'noreply@digitalxtrade.com',
             from_name: res.data.settings.from_name || 'DigitalXTrade Protocol',
           });
         }
@@ -133,7 +133,7 @@ export default function AdminEmailSettingsPage() {
                   required
                   value={formData.from_email}
                   onChange={(e) => setFormData({ ...formData, from_email: e.target.value })}
-                  placeholder="noreply@digitalxtrade.vip"
+                  placeholder="noreply@digitalxtrade.com"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white text-sm focus:border-blue-500 focus:outline-none transition-all"
                 />
               </div>

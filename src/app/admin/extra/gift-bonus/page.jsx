@@ -118,9 +118,11 @@ export default function AdminGiftBonusPage() {
               <tbody className="divide-y divide-slate-100 text-xs text-slate-700 font-sans">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400">
-                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#5b5bf5]" />
-                      <span className="text-xs font-semibold block mt-2">Loading gift codes...</span>
+                    <td colSpan={6} className="py-12 text-center text-slate-400 font-semibold">
+                      <div className="flex items-center justify-center gap-2">
+                        <span>Loading gift codes</span>
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
+                      </div>
                     </td>
                   </tr>
                 ) : giftCodes.length === 0 ? (
@@ -135,7 +137,11 @@ export default function AdminGiftBonusPage() {
                     const usedCount = g.used_count ?? g.claimed ?? 0;
                     const maxUses = g.max_uses ?? g.maxClaims ?? 1;
                     const st = g.status || (usedCount >= maxUses ? 'Exhausted' : 'ACTIVE');
-                    const createdDateStr = g.created_at ? new Date(g.created_at).toLocaleString('en-US', { hour12: true }) : (g.createdDate || 'N/A');
+                    const createdDateStr = g.created_at
+                      ? new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) +
+                        ' ' +
+                        new Date(g.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+                      : (g.createdDate || 'N/A');
 
                     return (
                       <tr key={g.id} className="hover:bg-slate-50/80 transition-colors">

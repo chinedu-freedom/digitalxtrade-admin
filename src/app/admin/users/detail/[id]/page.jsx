@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../../components/PageLoader';
 import api from '../../../../../lib/api';
 import {
   Wallet,
@@ -14,7 +15,6 @@ import {
   MinusCircle,
   List,
   Ban,
-  LogIn,
   Banknote,
   ChevronDown,
   ChevronUp,
@@ -32,6 +32,7 @@ import {
   Zap,
   Gift,
   AlertTriangle,
+  Megaphone,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { countries } from '../../../../../lib/countries';
@@ -46,42 +47,36 @@ export default function AdminUserDetailPage() {
     email: '',
     dialCode: '+1',
     mobile: '',
+    country: '',
+    lastLogin: 'Never',
+    lastLoginIp: 'N/A',
     uplineName: 'System Sponsor',
     uplineUsername: 'admin_ref',
     uplineId: '1',
     btcAddress: '',
-    usdtAddress: 'TUp1ejYFqchS4KkNSGGnNFyq9XPo5oeWJP',
+    usdtAddress: '',
+    usdtBep20Address: '',
     ethAddress: '',
     ltcAddress: '',
-    secretQuestion: 'First born',
-    secretAnswer: 'Gingirikani',
+    secretQuestion: '',
+    secretAnswer: '',
     adminNote: '',
-    userIps: [
-      { ip: '102.66.181.205', lastAccess: 'Sep-19-2026 11:52:21 AM (4 days 19 hours)' },
-      { ip: '102.254.68.6', lastAccess: 'Sep-16-2026 01:46:33 PM (7 days 17 hours)' },
-      { ip: '102.66.181.196', lastAccess: 'Sep-11-2026 06:41:09 PM (12 days 12 hours)' },
-      { ip: '102.253.107.22', lastAccess: 'Sep-10-2026 09:52:48 PM (13 days 9 hours)' },
-      { ip: '102.253.131.29', lastAccess: 'Sep-8-2026 03:20:45 PM (15 days 15 hours)' },
-      { ip: '102.66.182.10', lastAccess: 'Sep-5-2026 07:51:11 PM (18 days 11 hours)' },
-      { ip: '102.66.183.194', lastAccess: 'Sep-5-2026 07:58:39 AM (18 days 23 hours)' },
-      { ip: '102.66.183.193', lastAccess: 'Aug-28-2026 07:38:35 PM (26 days 11 hours)' },
-      { ip: '102.254.55.26', lastAccess: 'Jun-27-2026 04:23:01 PM (88 days 14 hours)' },
-    ],
+    userIps: [],
     btcBalance: '$0.00',
-    usdtTrc20Balance: '$13,955,797.27',
+    usdtTrc20Balance: '$0.00',
     usdtBep20Balance: '$0.00',
     ltcBalance: '$0.00',
-    mainBalance: '$13,955,797.27',
+    mainBalance: '$0.00',
     walletBalanceUsdt: '$0.00',
-    deposits: '$1,290,000.00',
+    deposits: '$0.00',
     activeDeposit: '$0.00',
-    totalEarning: '$6,450,000.00',
+    totalEarning: '$0.00',
     withdrawals: '$0.00',
     pendingWithdrawals: '$0.00',
     totalBonus: '$0.00',
     totalPenalty: '$0.00',
-    referralsCount: '2',
-    referralCommissions: '$7,505,797.27',
+    referralsCount: '0',
+    referralCommissions: '$0.00',
     transactions: '0',
     stakings: '0',
     emailVerified: true,
@@ -121,47 +116,41 @@ export default function AdminUserDetailPage() {
           email: u.email || '',
           dialCode: foundCountry.dialCode || '+1',
           mobile: rawMobile,
+          country: u.country || foundCountry.name || '',
+          lastLogin: u.last_login_formatted || (u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Never'),
+          lastLoginIp: u.lastLoginIp || u.last_login_ip || 'N/A',
           uplineName: u.upline?.name || u.upline?.full_name || 'System Sponsor',
           uplineUsername: u.upline?.username || u.referred_by || 'admin_ref',
           uplineId: u.upline?.id || u.upline_id || '1',
-          btcAddress: u.btc_address || u.btcAddress || '',
-          usdtAddress: u.usdt_address || u.usdtAddress || 'TUp1ejYFqchS4KkNSGGnNFyq9XPo5oeWJP',
-          ethAddress: u.eth_address || u.ethAddress || '',
-          ltcAddress: u.ltc_address || u.ltcAddress || '',
-          secretQuestion: u.secret_question || u.secretQuestion || 'First born',
-          secretAnswer: u.secret_answer || u.secretAnswer || 'Gingirikani',
+          btcAddress: u.bitcoinAddress || u.btc_address || u.btcAddress || '',
+          usdtAddress: u.usdtTrc20Address || u.usdt_trc20_address || u.usdt_address || u.usdtAddress || '',
+          usdtBep20Address: u.usdtBep20Address || u.usdt_bep20_address || u.ethAddress || u.eth_address || '',
+          ethAddress: u.usdtBep20Address || u.usdt_bep20_address || u.ethAddress || u.eth_address || '',
+          ltcAddress: u.litecoinAddress || u.ltc_address || u.ltcAddress || '',
+          secretQuestion: u.secret_question || u.secretQuestion || '',
+          secretAnswer: u.secret_answer || u.secretAnswer || '',
           adminNote: u.admin_note || u.adminNote || '',
-          userIps: u.user_ips || u.userIps || [
-            { ip: '102.66.181.205', lastAccess: 'Sep-19-2026 11:52:21 AM (4 days 19 hours)' },
-            { ip: '102.254.68.6', lastAccess: 'Sep-16-2026 01:46:33 PM (7 days 17 hours)' },
-            { ip: '102.66.181.196', lastAccess: 'Sep-11-2026 06:41:09 PM (12 days 12 hours)' },
-            { ip: '102.253.107.22', lastAccess: 'Sep-10-2026 09:52:48 PM (13 days 9 hours)' },
-            { ip: '102.253.131.29', lastAccess: 'Sep-8-2026 03:20:45 PM (15 days 15 hours)' },
-            { ip: '102.66.182.10', lastAccess: 'Sep-5-2026 07:51:11 PM (18 days 11 hours)' },
-            { ip: '102.66.183.194', lastAccess: 'Sep-5-2026 07:58:39 AM (18 days 23 hours)' },
-            { ip: '102.66.183.193', lastAccess: 'Aug-28-2026 07:38:35 PM (26 days 11 hours)' },
-            { ip: '102.254.55.26', lastAccess: 'Jun-27-2026 04:23:01 PM (88 days 14 hours)' },
-          ],
-          btcBalance: u.btc_balance ? `$${parseFloat(u.btc_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
-          usdtTrc20Balance: u.usdt_trc20_balance || u.balance ? `$${parseFloat(u.usdt_trc20_balance || u.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$13,955,797.27',
-          usdtBep20Balance: u.usdt_bep20_balance ? `$${parseFloat(u.usdt_bep20_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
-          ltcBalance: u.ltc_balance ? `$${parseFloat(u.ltc_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
-          mainBalance: u.balance ? `$${parseFloat(u.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$13,955,797.27',
-          walletBalanceUsdt: u.staked_balance ? `$${parseFloat(u.staked_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
-          deposits: (u.deposits || []).length > 0 ? `$${(u.deposits || []).reduce((acc, d) => acc + parseFloat(d.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$1,290,000.00',
+          userIps: u.user_ips || u.userIps || [],
+          btcBalance: `$${parseFloat(u.btc_balance ?? u.btcBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          usdtTrc20Balance: `$${parseFloat(u.usdt_trc20_balance ?? u.usdtTrc20Balance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          usdtBep20Balance: `$${parseFloat(u.usdt_bep20_balance ?? u.usdtBep20Balance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          ltcBalance: `$${parseFloat(u.ltc_balance ?? u.ltcBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          mainBalance: `$${parseFloat(u.balance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          walletBalanceUsdt: `$${parseFloat(u.staked_balance ?? u.stakedBalance ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          deposits: (u.deposits || []).length > 0 ? `$${(u.deposits || []).filter(d => d.status === 'APPROVED').reduce((acc, d) => acc + parseFloat(d.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
           activeDeposit: u.active_deposit ? `$${parseFloat(u.active_deposit).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
-          totalEarning: u.total_earning ? `$${parseFloat(u.total_earning).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$6,450,000.00',
-          withdrawals: (u.withdrawals || []).length > 0 ? `$${(u.withdrawals || []).reduce((acc, w) => acc + parseFloat(w.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          totalEarning: u.total_earning ? `$${parseFloat(u.total_earning).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
+          withdrawals: (u.withdrawals || []).length > 0 ? `$${(u.withdrawals || []).filter(w => w.status === 'APPROVED').reduce((acc, w) => acc + parseFloat(w.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
           pendingWithdrawals: u.pending_withdrawals ? `$${parseFloat(u.pending_withdrawals).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
           totalBonus: u.total_bonus ? `$${parseFloat(u.total_bonus).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
           totalPenalty: u.total_penalty ? `$${parseFloat(u.total_penalty).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
-          referralsCount: u.referrals_count || u.referrals_1st_level || '2',
-          referralCommissions: u.referral_commissions ? `$${parseFloat(u.referral_commissions).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$7,505,797.27',
+          referralsCount: u.referrals_count || u.referrals?.length ? String(u.referrals_count || u.referrals.length) : '0',
+          referralCommissions: u.referral_commissions ? `$${parseFloat(u.referral_commissions).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$0.00',
           transactions: String((u.transactions || []).length),
           stakings: String((u.stakes || []).length),
-          emailVerified: u.email_verified,
+          emailVerified: u.email_verified !== undefined ? Boolean(u.email_verified) : Boolean(u.isEmailVerified),
           twoFaEnabled: false,
-          banned: !u.is_active,
+          banned: u.is_suspended !== undefined ? Boolean(u.is_suspended) : Boolean(u.banned),
         });
       }
     } catch (err) {
@@ -177,7 +166,7 @@ export default function AdminUserDetailPage() {
 
   const [balanceModalOpen, setBalanceModalOpen] = useState(false);
   const [balanceAction, setBalanceAction] = useState('add'); // 'add' | 'subtract'
-  const [walletType, setWalletType] = useState('Main Balance');
+  const [walletType, setWalletType] = useState('USDT (TRC20) Wallet');
   const [amount, setAmount] = useState('');
   const [remark, setRemark] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
@@ -190,6 +179,7 @@ export default function AdminUserDetailPage() {
   const [resetLoginModalOpen, setResetLoginModalOpen] = useState(false);
   const [newLoginPass, setNewLoginPass] = useState('');
   const [confirmLoginPass, setConfirmLoginPass] = useState('');
+  const [showLoginPass, setShowLoginPass] = useState(false);
 
   // Reset Withdrawal Password Modal State
   const [resetWithdrawalModalOpen, setResetWithdrawalModalOpen] = useState(false);
@@ -234,16 +224,32 @@ export default function AdminUserDetailPage() {
       toast.error('Passwords do not match.');
       return;
     }
+    setSubmitting(true);
     try {
-      const res = await api.put(`/admin/users/${userId}`, { password: newLoginPass });
-      if (res.data && res.data.success) {
+      let res;
+      try {
+        res = await api.put(`/admin/users/${userId}`, { password: newLoginPass, new_password: newLoginPass });
+      } catch (err1) {
+        try {
+          res = await api.put(`/admin/users/${userId}/password`, { password: newLoginPass, new_password: newLoginPass });
+        } catch (err2) {
+          res = await api.post(`/admin/users/${userId}/reset-password`, { password: newLoginPass, new_password: newLoginPass });
+        }
+      }
+
+      if (res.data && res.data.success !== false) {
         toast.success(`Login password for @${userData.username} has been reset successfully!`);
         setResetLoginModalOpen(false);
         setNewLoginPass('');
         setConfirmLoginPass('');
+        setShowLoginPass(false);
+      } else {
+        toast.error(res.data?.message || 'Failed to reset password');
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to reset password');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -310,9 +316,55 @@ export default function AdminUserDetailPage() {
 
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
 
+  // Option 3: Asset Wallets by Currency
+  const assetWallets = [
+    {
+      id: 'usdt_trc20',
+      name: 'USDT (TRC20) Wallet',
+      symbol: 'USDT',
+      network: 'TRC20',
+      icon: '₮',
+      iconBg: 'bg-teal-500',
+      badgeClass: 'text-teal-400 bg-teal-500/10 border-teal-500/20',
+      balance: userData.usdtTrc20Balance || '$0.00',
+    },
+    {
+      id: 'usdt_bep20',
+      name: 'USDT (BEP20) Wallet',
+      symbol: 'USDT',
+      network: 'BEP20',
+      icon: '₮',
+      iconBg: 'bg-indigo-500',
+      badgeClass: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+      balance: userData.usdtBep20Balance || '$0.00',
+    },
+    {
+      id: 'bitcoin',
+      name: 'Bitcoin (BTC) Wallet',
+      symbol: 'BTC',
+      network: 'BTC Network',
+      icon: '₿',
+      iconBg: 'bg-amber-500',
+      badgeClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+      balance: userData.btcBalance || '$0.00',
+    },
+    {
+      id: 'litecoin',
+      name: 'Litecoin (LTC) Wallet',
+      symbol: 'LTC',
+      network: 'LTC Network',
+      icon: 'Ł',
+      iconBg: 'bg-slate-400',
+      badgeClass: 'text-slate-300 bg-slate-500/10 border-slate-500/20',
+      balance: userData.ltcBalance || '$0.00',
+    },
+  ];
+
+  const selectedWallet = assetWallets.find((w) => w.name === walletType) || assetWallets[0];
+
   const handleOpenBalanceModal = (actionType) => {
     setBalanceAction(actionType);
-    setWalletType('Main Balance');
+    setWalletType('USDT (TRC20) Wallet');
     setAmount('');
     setRemark('');
     setWalletDropdownOpen(false);
@@ -343,16 +395,10 @@ export default function AdminUserDetailPage() {
 
       if (res.data && res.data.success) {
         toast.success(res.data.message || `Successfully adjusted user balance!`);
-        if (res.data.user) {
-          setUserData((prev) => ({
-            ...prev,
-            mainBalance: `$${parseFloat(res.data.user.balance || 0).toFixed(2)}`,
-            walletBalanceUsdt: `$${parseFloat(res.data.user.staked_balance || 0).toFixed(2)}`,
-          }));
-        }
         setBalanceModalOpen(false);
         setAmount('');
         setRemark('');
+        fetchUserDetail();
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update user balance');
@@ -389,9 +435,14 @@ export default function AdminUserDetailPage() {
         username: userData.username,
         email: userData.email,
         mobile: userData.mobile,
+        country: userData.country,
+        bitcoinAddress: userData.btcAddress,
         btc_address: userData.btcAddress,
+        usdtTrc20Address: userData.usdtAddress,
         usdt_address: userData.usdtAddress,
-        eth_address: userData.ethAddress,
+        usdtBep20Address: userData.usdtBep20Address || userData.ethAddress,
+        usdt_bep20_address: userData.usdtBep20Address || userData.ethAddress,
+        litecoinAddress: userData.ltcAddress,
         ltc_address: userData.ltcAddress,
         secret_question: userData.secretQuestion,
         secret_answer: userData.secretAnswer,
@@ -401,6 +452,7 @@ export default function AdminUserDetailPage() {
 
       if (res.data && res.data.success) {
         toast.success('User details updated successfully!');
+        fetchUserDetail();
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update user information');
@@ -408,6 +460,10 @@ export default function AdminUserDetailPage() {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>
@@ -417,15 +473,6 @@ export default function AdminUserDetailPage() {
           <h1 className="text-xl font-bold text-slate-800 font-sans tracking-wide">
             User Detail - {userData.username}
           </h1>
-
-          {/* Login as User Button */}
-          <button
-            type="button"
-            onClick={handleLoginAsUser}
-            className="border border-indigo-500 text-indigo-600 hover:bg-indigo-50 px-4 py-1.5 rounded-md text-xs font-bold font-sans transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-          >
-            <LogIn className="w-4 h-4 text-indigo-600" /> Login as User
-          </button>
         </div>
 
         {/* Crypto Asset Balances Row (4 Cards Per Row) */}
@@ -693,16 +740,16 @@ export default function AdminUserDetailPage() {
             {/* Last Login & IP Address Security Badge */}
             <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3.5 py-1.5 text-xs font-sans">
               <span className="font-semibold text-slate-600">Last Login:</span>
-              <span className="font-bold text-slate-800 font-mono">21-Aug-2026 11:32 AM</span>
+              <span className="font-bold text-slate-800 font-mono">{userData.lastLogin || 'Never'}</span>
               <span className="text-indigo-300">|</span>
               <span className="font-semibold text-slate-600">IP:</span>
-              <span className="font-bold text-[#5b5bf5] font-mono">102.90.81.60</span>
+              <span className="font-bold text-[#5b5bf5] font-mono">{userData.lastLoginIp || 'N/A'}</span>
             </div>
           </div>
 
           <form onSubmit={handleFormSubmit} className="space-y-5">
-            {/* Row 1: Full Name, Username, Referred By (Upline) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Row 1: Full Name, Username */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
                   Full Name
@@ -726,6 +773,21 @@ export default function AdminUserDetailPage() {
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
+            </div>
+
+            {/* Row 2: Email, Referred By (Upline) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={userData.email}
+                  onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
@@ -734,7 +796,8 @@ export default function AdminUserDetailPage() {
                   </label>
                   {userData.uplineId &&
                     userData.uplineUsername &&
-                    !['n/a', 'none', ''].includes(String(userData.uplineUsername).toLowerCase()) && (
+                    userData.uplineName !== 'System Sponsor' &&
+                    !['n/a', 'none', '', 'system sponsor', 'admin_ref', 'system'].includes(String(userData.uplineUsername).toLowerCase()) && (
                       <Link
                         href={`/admin/users/detail/${userData.uplineId}`}
                         className="text-[11px] font-bold text-[#5b5bf5] hover:underline flex items-center gap-0.5"
@@ -753,48 +816,12 @@ export default function AdminUserDetailPage() {
                     value={
                       userData.uplineUsername &&
                       !['n/a', 'none', ''].includes(String(userData.uplineUsername).toLowerCase())
-                        ? userData.uplineUsername
+                        ? (userData.uplineName && userData.uplineName !== 'System Sponsor'
+                            ? `${userData.uplineName} (@${userData.uplineUsername})`
+                            : userData.uplineUsername)
                         : 'N/A'
                     }
                     className="w-full h-11 bg-transparent border-0 outline-none px-3 text-xs font-bold text-slate-700 font-sans cursor-default"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Row 2: Email & Mobile Number */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={userData.email}
-                  onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                  Mobile Number
-                </label>
-                <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white focus-within:ring-1 focus-within:ring-indigo-500">
-                  <div className="h-11 bg-slate-100 border-r border-slate-200 px-3.5 text-xs font-bold text-slate-600 flex items-center shrink-0">
-                    {userData.dialCode}
-                  </div>
-                  <input
-                    type="text"
-                    maxLength={10}
-                    value={userData.mobile}
-                    onChange={(e) => {
-                      let val = e.target.value.replace(/\D/g, '');
-                      if (val.startsWith('0')) val = val.substring(1);
-                      setUserData({ ...userData, mobile: val.slice(0, 10) });
-                    }}
-                    placeholder="e.g. 8158051119"
-                    className="w-full h-11 bg-transparent border-0 outline-none px-4 text-xs text-slate-800 font-sans"
                   />
                 </div>
               </div>
@@ -837,21 +864,21 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
 
-            {/* Row 4: Account ID (ETH) & Account ID (LTC) */}
+            {/* Row 4: Account ID (USDT BEP20) & Account ID (LTC) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 font-sans mb-1.5">
                   <span>Account ID</span>
                   <span className="inline-flex items-center gap-1 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                     <span className="w-3.5 h-3.5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">Ξ</span>
-                    ETH
+                    USDT (BEP20)
                   </span>
                 </label>
                 <input
                   type="text"
-                  value={userData.ethAddress}
-                  onChange={(e) => setUserData({ ...userData, ethAddress: e.target.value })}
-                  placeholder="Ethereum Wallet Address"
+                  value={userData.usdtBep20Address || userData.ethAddress}
+                  onChange={(e) => setUserData({ ...userData, usdtBep20Address: e.target.value, ethAddress: e.target.value })}
+                  placeholder="USDT BEP20 Wallet Address"
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
@@ -903,117 +930,36 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
 
-            {/* Row 6: Maximal Daily Withdrawal Limits (For All Currencies) */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+            {/* Row 7: Admin Note (Ticker Announcement to User) */}
+            <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/60 pb-2.5">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-sans flex items-center gap-2">
-                    <span>Maximal Daily Withdrawal Limits</span>
-                    <span className="text-[10px] bg-indigo-100 text-[#5b5bf5] font-bold px-2 py-0.5 rounded-full">
-                      All Currencies
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-slate-500 font-sans mt-0.5">
-                    Set custom maximum daily withdrawal allowance per currency for this specific user.
-                  </p>
+                  <label className="text-xs font-bold text-slate-800 font-sans uppercase tracking-wider flex items-center gap-2">
+                    <Megaphone className="w-4 h-4 text-indigo-600" />
+                    <span>Admin Note</span>
+                  </label>
                 </div>
+                {userData.adminNote && (
+                  <button
+                    type="button"
+                    onClick={() => setUserData({ ...userData, adminNote: '' })}
+                    className="text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded cursor-pointer transition-colors shrink-0 self-start sm:self-auto"
+                  >
+                    Clear Note
+                  </button>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                {/* Total Daily Limit ($) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
-                    Total Daily Limit ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={userData.maxDailyWithdrawal || ''}
-                    onChange={(e) => setUserData({ ...userData, maxDailyWithdrawal: e.target.value })}
-                    placeholder="50000.00"
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-
-                {/* BTC Daily Max ($) */}
-                <div>
-                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
-                    <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">₿</span>
-                    <span>BTC Max ($)</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={userData.maxDailyBtcWithdrawal || ''}
-                    onChange={(e) => setUserData({ ...userData, maxDailyBtcWithdrawal: e.target.value })}
-                    placeholder="20000.00"
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-
-                {/* USDT Daily Max ($) */}
-                <div>
-                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
-                    <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]">₮</span>
-                    <span>USDT Max ($)</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={userData.maxDailyUsdtWithdrawal || ''}
-                    onChange={(e) => setUserData({ ...userData, maxDailyUsdtWithdrawal: e.target.value })}
-                    placeholder="50000.00"
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-
-                {/* ETH Daily Max ($) */}
-                <div>
-                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
-                    <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">Ξ</span>
-                    <span>ETH Max ($)</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={userData.maxDailyEthWithdrawal || ''}
-                    onChange={(e) => setUserData({ ...userData, maxDailyEthWithdrawal: e.target.value })}
-                    placeholder="20000.00"
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-
-                {/* LTC Daily Max ($) */}
-                <div>
-                  <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 font-sans mb-1 uppercase tracking-wider">
-                    <span className="w-4 h-4 rounded-full bg-slate-500 text-white flex items-center justify-center text-[10px]">Ł</span>
-                    <span>LTC Max ($)</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={userData.maxDailyLtcWithdrawal || ''}
-                    onChange={(e) => setUserData({ ...userData, maxDailyLtcWithdrawal: e.target.value })}
-                    placeholder="10000.00"
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Row 7: Admin Note */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                Admin Note
-              </label>
               <textarea
                 rows={3}
                 value={userData.adminNote}
                 onChange={(e) => setUserData({ ...userData, adminNote: e.target.value })}
-                placeholder="Enter internal admin notes for this user..."
-                className="w-full bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                placeholder="e.g. Notice: You have an outstanding account bill/fee of $250.00 to pay off before withdrawal. Please contact support."
+                className="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
+
+
 
 
             {/* Row 6: Full-width Vibrant Indigo Submit Button */}
@@ -1101,36 +1047,61 @@ export default function AdminUserDetailPage() {
                   <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
                     New Login Password <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={newLoginPass}
-                    onChange={(e) => setNewLoginPass(e.target.value)}
-                    placeholder="Enter new password..."
-                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 h-11 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showLoginPass ? 'text' : 'password'}
+                      required
+                      value={newLoginPass}
+                      onChange={(e) => setNewLoginPass(e.target.value)}
+                      placeholder="Enter new password (min 6 chars)..."
+                      className="w-full bg-white border border-slate-200 rounded-lg pl-3.5 pr-10 h-11 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPass(!showLoginPass)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    >
+                      {showLoginPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
                     Confirm Login Password <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={confirmLoginPass}
-                    onChange={(e) => setConfirmLoginPass(e.target.value)}
-                    placeholder="Confirm new password..."
-                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 h-11 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showLoginPass ? 'text' : 'password'}
+                      required
+                      value={confirmLoginPass}
+                      onChange={(e) => setConfirmLoginPass(e.target.value)}
+                      placeholder="Confirm new password..."
+                      className="w-full bg-white border border-slate-200 rounded-lg pl-3.5 pr-10 h-11 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPass(!showLoginPass)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    >
+                      {showLoginPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full bg-[#5b5bf5] hover:bg-indigo-600 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                    disabled={submitting}
+                    className="w-full bg-[#5b5bf5] hover:bg-indigo-600 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
-                    Submit
+                    {submitting ? (
+                      <span className="flex items-center justify-center gap-2">
+                        Resetting Password <Loader2 className="w-4 h-4 animate-spin" />
+                      </span>
+                    ) : (
+                      'Reset Password'
+                    )}
                   </button>
                 </div>
               </form>
@@ -1247,62 +1218,86 @@ export default function AdminUserDetailPage() {
               </div>
 
               <form onSubmit={handleBalanceSubmit} className="space-y-4">
-                {/* Customized Wallet Select Dropdown (Limited to 2 Supported Balances) */}
+                {/* Dedicated Asset Wallets Dropdown (Option 3: Currency Asset Wallets) */}
                 <div className="relative">
-                  <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                    Wallet
+                  <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5 flex items-center justify-between">
+                    <span>Select Asset Wallet</span>
+                    <span className="text-[11px] font-normal text-slate-500">
+                      Current: <strong className="font-semibold text-slate-800 font-mono">{selectedWallet.balance}</strong>
+                    </span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 flex items-center justify-between text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer shadow-xs transition-all"
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 flex items-center justify-between text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer shadow-xs transition-all hover:border-slate-300"
                   >
-                    <span>
-                      {walletType === 'Staked Balance'
-                        ? `Staked Balance / Profits Wallet (${userData.walletBalanceUsdt || '$0.00'})`
-                        : `Main Balance / Staking Wallet (${userData.mainBalance || '$0.00'})`}
-                    </span>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${walletDropdownOpen ? 'rotate-180' : ''}`} />
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-5 h-5 rounded-full ${selectedWallet.iconBg} text-white font-bold flex items-center justify-center text-[11px] shadow-xs shrink-0`}>
+                        {selectedWallet.icon}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800">{selectedWallet.name}</span>
+                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                          {selectedWallet.network}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold font-mono text-slate-700 text-xs">{selectedWallet.balance}</span>
+                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${walletDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
                   </button>
 
                   {walletDropdownOpen && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl py-1 z-50 text-xs text-slate-700 font-sans animate-in fade-in zoom-in-95 duration-150">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setWalletType('Main Balance');
-                          setWalletDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2.5 font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                          walletType === 'Main Balance'
-                            ? 'bg-[#5b5bf5] text-white font-bold'
-                            : 'hover:bg-indigo-50 text-slate-700'
-                        }`}
-                      >
-                        <span>Main Balance / Staking Wallet ({userData.mainBalance || '$0.00'})</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setWalletType('Staked Balance');
-                          setWalletDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2.5 font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                          walletType === 'Staked Balance'
-                            ? 'bg-[#5b5bf5] text-white font-bold'
-                            : 'hover:bg-indigo-50 text-slate-700'
-                        }`}
-                      >
-                        <span>Staked Balance / Profits Wallet ({userData.walletBalanceUsdt || '$0.00'})</span>
-                      </button>
+                    <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-xs text-slate-700 font-sans animate-in fade-in zoom-in-95 duration-150 overflow-hidden divide-y divide-slate-100">
+                      {assetWallets.map((wallet) => {
+                        const isSelected = walletType === wallet.name;
+                        return (
+                          <button
+                            key={wallet.id}
+                            type="button"
+                            onClick={() => {
+                              setWalletType(wallet.name);
+                              setWalletDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3.5 py-2.5 font-medium transition-colors cursor-pointer flex items-center justify-between ${
+                              isSelected
+                                ? 'bg-indigo-50/80 text-indigo-950 font-bold'
+                                : 'hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className={`w-6 h-6 rounded-full ${wallet.iconBg} text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs`}>
+                                {wallet.icon}
+                              </span>
+                              <div>
+                                <div className="font-semibold text-slate-800 flex items-center gap-1.5">
+                                  {wallet.name}
+                                  <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                                    {wallet.network}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-bold font-mono ${isSelected ? 'text-[#5b5bf5]' : 'text-slate-600'}`}>
+                                {wallet.balance}
+                              </span>
+                              {isSelected && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#5b5bf5]"></span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
 
-                {/* Amount Input Group with USDT Badge */}
+                {/* Amount Input Group with Dynamic Asset Badge */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 font-sans mb-1.5">
-                    Amount <span className="text-red-500">*</span>
+                    Amount ($ USD) <span className="text-red-500">*</span>
                   </label>
                   <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white focus-within:ring-1 focus-within:ring-indigo-500">
                     <input
@@ -1314,10 +1309,23 @@ export default function AdminUserDetailPage() {
                       placeholder="Please provide positive amount"
                       className="w-full h-11 bg-transparent border-0 outline-none px-4 text-xs text-slate-800 font-sans placeholder-slate-400"
                     />
-                    <div className="h-11 bg-slate-100 border-l border-slate-200 px-4 text-xs font-bold text-slate-600 flex items-center shrink-0 select-none">
-                      USDT
+                    <div className="h-11 bg-slate-100 border-l border-slate-200 px-3.5 text-xs font-bold text-slate-700 flex items-center gap-1.5 shrink-0 select-none">
+                      <span className={`w-4 h-4 rounded-full ${selectedWallet.iconBg} text-white text-[10px] font-bold flex items-center justify-center`}>
+                        {selectedWallet.icon}
+                      </span>
+                      <span>{selectedWallet.symbol} ($)</span>
                     </div>
                   </div>
+                  {amount && parseFloat(amount) > 0 && (
+                    <p className="mt-1.5 text-[11px] text-slate-500 font-sans flex items-center gap-1">
+                      <span>Preview:</span>
+                      <span className="font-semibold text-slate-700">
+                        {balanceAction === 'add' ? 'Crediting' : 'Debiting'}{' '}
+                        <strong className="text-slate-900 font-mono">${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>{' '}
+                        {balanceAction === 'add' ? 'to' : 'from'} {selectedWallet.name}
+                      </span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Remark Textarea */}
@@ -1472,7 +1480,7 @@ export default function AdminUserDetailPage() {
                   Are you sure you want to permanently delete user <strong className="text-slate-900">@{userData.username}</strong> ({userData.email})?
                 </p>
                 <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 font-medium leading-relaxed">
-                  ⚠️ <strong>Warning:</strong> This will delete all user stakes, transaction history, deposits, withdrawals, and wallet records. This action cannot be undone!
+                <strong>Warning:</strong> This will delete all user stakes, transaction history, deposits, withdrawals, and wallet records. This action cannot be undone!
                 </div>
               </div>
 

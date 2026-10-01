@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
 import { Search, Monitor } from 'lucide-react';
 import api from '../../../../lib/api';
@@ -46,6 +47,10 @@ export default function AdminTicketsFilteredPage({
     }
     return true;
   });
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>
@@ -97,10 +102,19 @@ export default function AdminTicketsFilteredPage({
                   filteredTickets.map((t) => {
                     const ticketIdClean = (t.ticket_id || '').replace('#', '');
                     const userName = t.user ? (t.user.full_name || t.user.username || t.user.email) : 'User';
+                    const formatReplyDate = (dateVal) => {
+                      if (!dateVal) return 'Recently';
+                      const d = new Date(dateVal);
+                      if (isNaN(d.getTime())) return 'Recently';
+                      return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) +
+                        ' ' +
+                        d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                    };
+
                     const lastReplyDate = t.messages && t.messages.length > 0 && t.messages[0].created_at
-                      ? new Date(t.messages[0].created_at).toLocaleString('en-US', { hour12: true })
+                      ? formatReplyDate(t.messages[0].created_at)
                       : t.updated_at
-                      ? new Date(t.updated_at).toLocaleString('en-US', { hour12: true })
+                      ? formatReplyDate(t.updated_at)
                       : 'Recently';
 
                     return (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../components/AdminSidebarLayout';
+import PageLoader from '../../../components/PageLoader';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import api from '../../../lib/api';
 import {
@@ -51,8 +52,6 @@ export default function AdminDashboardPage() {
     pendingDepositsSum: 0,
     approvedDepositsCount: 0,
     rejectedDeposits: 0,
-    depositCharge: 0,
-    depositChargeCount: 0,
     totalWithdrawn: 0,
     todaysWithdrawal: 0,
     pendingWithdrawals: 0,
@@ -280,6 +279,10 @@ export default function AdminDashboardPage() {
     fetchDashboardData();
   }, []);
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -369,20 +372,315 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
 
-        {/* System Financial Overview & Multi-Currency Breakdown Matrix */}
+        {/* 2. Weekly Staking & Revenue Chart + Quick Actions Row (Moved UP after Cards) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Revenue & Staking Trend Chart */}
+          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="space-y-1">
+                <h3 className="font-bold text-slate-800 text-base font-sans">Weekly Deposit & Investment Trends</h3>
+                <p className="text-xs text-slate-400 font-sans">Live volume split between User Investments and Direct Wallet Deposits.</p>
+              </div>
+              <div className="flex items-center gap-4 text-xs font-semibold pt-1 sm:pt-0">
+                <span className="flex items-center gap-1.5 text-indigo-600">
+                  <span className="w-2.5 h-2.5 rounded bg-[#5b5bf5]" /> Investment
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-600">
+                  <span className="w-2.5 h-2.5 rounded bg-[#10b981]" /> Deposits
+                </span>
+              </div>
+            </div>
+
+            {/* Custom SVG Area Chart */}
+            <div className="h-64 w-full relative pt-4">
+              <svg className="w-full h-48 overflow-visible" viewBox="0 0 500 150" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="colorStaking" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#5b5bf5" stopOpacity="0.25"/>
+                    <stop offset="95%" stopColor="#5b5bf5" stopOpacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="colorDeposits" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity="0.25"/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="0" x2="500" y2="0" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="0" y1="37" x2="500" y2="37" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="0" y1="112" x2="500" y2="112" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="0" y1="150" x2="500" y2="150" stroke="#e2e8f0" strokeWidth="1.5" />
+
+                {/* Staking Area Path */}
+                <path
+                  d="M0,150 L50,140 L120,135 L200,120 L300,130 L400,110 L500,150 Z"
+                  fill="url(#colorStaking)"
+                />
+                <path
+                  d="M0,150 L50,140 L120,135 L200,120 L300,130 L400,110 L500,150"
+                  fill="none"
+                  stroke="#5b5bf5"
+                  strokeWidth="2.5"
+                />
+
+                {/* Deposits Area Path */}
+                <path
+                  d="M0,150 L70,145 L150,130 L230,140 L320,125 L420,135 L500,150 Z"
+                  fill="url(#colorDeposits)"
+                />
+                <path
+                  d="M0,150 L70,145 L150,130 L230,140 L320,125 L420,135 L500,150"
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="2.5"
+                />
+              </svg>
+
+              <div className="flex justify-between items-center text-xs text-slate-400 font-mono pt-3 px-2">
+                <span>Sun</span>
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions Panel (With 6 Quick Action Buttons) */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-3">
+            <div>
+              <h3 className="font-bold text-slate-800 text-base font-sans mb-1">Quick Admin Actions</h3>
+              <p className="text-xs text-slate-400 font-sans mb-3">Common operational shortcuts</p>
+            </div>
+            <div className="space-y-2">
+              <Link href="/admin/users/active" className="block w-full">
+                <button className="w-full flex items-center justify-between bg-[#5b5bf5] hover:bg-indigo-600 text-white rounded-xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm cursor-pointer">
+                  <span className="flex items-center gap-2.5">
+                    <Users className="w-4 h-4" /> Manage All Users
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-white" />
+                </button>
+              </Link>
+              <Link href="/admin/deposits/pending" className="block w-full">
+                <button className="w-full flex items-center justify-between bg-slate-50 hover:bg-indigo-50/60 text-slate-700 hover:text-indigo-600 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer">
+                  <span className="flex items-center gap-2.5">
+                    <HandCoins className="w-4 h-4 text-slate-400" /> Pending Deposits ({stats.pendingDeposits})
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                </button>
+              </Link>
+              <Link href="/admin/withdrawals/pending" className="block w-full">
+                <button className="w-full flex items-center justify-between bg-slate-50 hover:bg-indigo-50/60 text-slate-700 hover:text-indigo-600 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer">
+                  <span className="flex items-center gap-2.5">
+                    <Wallet className="w-4 h-4 text-slate-400" /> Pending Withdrawals ({stats.pendingWithdrawals})
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                </button>
+              </Link>
+              <Link href="/admin/investments/expiring" className="block w-full">
+                <button className="w-full flex items-center justify-between bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer">
+                  <span className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-amber-600" /> Expiring Investments
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-amber-600" />
+                </button>
+              </Link>
+              <Link href="/admin/plan/manage" className="block w-full">
+                <button className="w-full flex items-center justify-between bg-slate-50 hover:bg-indigo-50/60 text-slate-700 hover:text-indigo-600 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer">
+                  <span className="flex items-center gap-2.5">
+                    <PlusCircle className="w-4 h-4 text-slate-400" /> Create Investment
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Middle Large Cards Grid (Deposits Summary & Withdrawals Summary) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          {/* Box 1: Deposits Summary */}
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <h2 className="text-base font-bold text-slate-800 font-sans flex items-center justify-between">
+              <span>Deposits Overview</span>
+              <span className="text-xs text-slate-400 font-normal">Live</span>
+            </h2>
+
+            <div className="space-y-3">
+              {/* Total Deposited */}
+              <Link
+                href="/admin/deposits"
+                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <HandCoins className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">
+                      ${Number(stats.totalDeposited || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-slate-400">Total Deposited</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Today's Deposit */}
+              <Link
+                href="/admin/deposits"
+                className="p-3 rounded-xl border border-blue-100 bg-blue-50/40 flex items-center justify-between hover:bg-blue-100/60 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-blue-900">
+                      ${Number(stats.todaysDeposit || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-blue-600 font-medium">Today's Deposit</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-blue-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Pending Deposits Amount & Count */}
+              <Link
+                href="/admin/deposits/pending"
+                className="p-3 rounded-xl border border-amber-100 bg-amber-50/40 flex items-center justify-between hover:bg-amber-100/60 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">
+                      ${Number(stats.pendingDepositsSum || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ({stats.pendingDeposits})
+                    </div>
+                    <div className="text-[11px] text-amber-600 font-medium">Pending Deposits</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Rejected Deposits */}
+              <Link
+                href="/admin/deposits/rejected"
+                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <XCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">{stats.rejectedDeposits}</div>
+                    <div className="text-[11px] text-slate-400">Rejected Deposits</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Box 2: Withdrawals Summary */}
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <h2 className="text-base font-bold text-slate-800 font-sans flex items-center justify-between">
+              <span>Withdrawals Overview</span>
+              <span className="text-xs text-slate-400 font-normal">Live</span>
+            </h2>
+
+            <div className="space-y-3">
+              {/* Total Withdrawn */}
+              <Link
+                href="/admin/withdrawals"
+                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Wallet className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">
+                      ${Number(stats.totalWithdrawn || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-slate-400">Total Withdrawn</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Today's Withdrawal */}
+              <Link
+                href="/admin/withdrawals"
+                className="p-3 rounded-xl border border-red-100 bg-red-50/40 flex items-center justify-between hover:bg-red-100/60 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-red-900">
+                      ${Number(stats.todaysWithdrawal || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[11px] text-red-600 font-medium">Today's Withdrawal</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-red-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Pending Withdrawals Amount & Count */}
+              <Link
+                href="/admin/withdrawals/pending"
+                className="p-3 rounded-xl border border-amber-100 bg-amber-50/40 flex items-center justify-between hover:bg-amber-100/60 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">
+                      ${Number(stats.pendingWithdrawalsSum || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ({stats.pendingWithdrawals})
+                    </div>
+                    <div className="text-[11px] text-amber-600 font-medium">Pending Withdrawals</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Rejected Withdrawals */}
+              <Link
+                href="/admin/withdrawals/rejected"
+                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <XCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">{stats.rejectedWithdrawals}</div>
+                    <div className="text-[11px] text-slate-400">Rejected Withdrawals</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. System Financial Overview & Multi-Currency Breakdown Matrix (Bitcoin Table LAST) */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
               <h2 className="text-base font-bold text-slate-800 font-sans flex items-center gap-2">
-                <Coins className="w-5 h-5 text-[#5b5bf5]" /> System Financial & Asset Breakdown
+               System Financial & Asset Breakdown
               </h2>
               <p className="text-xs text-slate-500 font-sans">
                 Real-time breakdown of earnings, member funds, active deposits, balances, and payouts per asset
               </p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 self-start sm:self-auto">
-              ● Financial Health Live
-            </span>
+        
           </div>
 
           <div className="overflow-x-auto w-full">
@@ -469,306 +767,6 @@ export default function AdminDashboardPage() {
                 </tr>
               </tfoot>
             </table>
-          </div>
-        </div>
-
-        {/* Middle Large Cards Grid (Deposits Summary & Withdrawals Summary Full Width) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-          {/* Box 1: Deposits Summary */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-slate-800 font-sans flex items-center justify-between">
-              <span>Deposits Overview</span>
-              <span className="text-xs text-slate-400 font-normal">Live</span>
-            </h2>
-
-            <div className="space-y-3">
-              {/* Total Deposited */}
-              <Link
-                href="/admin/deposits"
-                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <HandCoins className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-800">
-                      ${Number(stats.totalDeposited || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[11px] text-slate-400">Total Deposited</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              {/* Today's Deposit */}
-              <Link
-                href="/admin/deposits"
-                className="p-3 rounded-xl border border-blue-100 bg-blue-50/40 flex items-center justify-between hover:bg-blue-100/60 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-blue-900">
-                      ${Number(stats.todaysDeposit || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[11px] text-blue-600 font-medium">Today's Deposit</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-blue-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              {/* Pending Deposits Amount & Count */}
-              <Link
-                href="/admin/deposits/pending"
-                className="p-3 rounded-xl border border-amber-100 bg-amber-50/40 flex items-center justify-between hover:bg-amber-100/60 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-800">
-                      ${Number(stats.pendingDepositsSum || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ({stats.pendingDeposits})
-                    </div>
-                    <div className="text-[11px] text-amber-600 font-medium">Pending Deposits</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-
-              {/* Rejected Deposits */}
-              <Link
-                href="/admin/deposits/rejected"
-                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                    <XCircle className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-800">{stats.rejectedDeposits}</div>
-                    <div className="text-[11px] text-slate-400">Rejected Deposits</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Box 2: Withdrawals Summary */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-slate-800 font-sans flex items-center justify-between">
-              <span>Withdrawals Overview</span>
-              <span className="text-xs text-slate-400 font-normal">Live</span>
-            </h2>
-
-            <div className="space-y-3">
-              {/* Total Withdrawn */}
-              <Link
-                href="/admin/withdrawals"
-                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Wallet className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-800">
-                      ${Number(stats.totalWithdrawn || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[11px] text-slate-400">Total Withdrawn</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              {/* Today's Withdrawal */}
-              <Link
-                href="/admin/withdrawals"
-                className="p-3 rounded-xl border border-red-100 bg-red-50/40 flex items-center justify-between hover:bg-red-100/60 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-red-900">
-                      ${Number(stats.todaysWithdrawal || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[11px] text-red-600 font-medium">Today's Withdrawal</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-red-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              {/* Pending Withdrawals Amount & Count */}
-              <Link
-                href="/admin/withdrawals/pending"
-                className="p-3 rounded-xl border border-amber-100 bg-amber-50/40 flex items-center justify-between hover:bg-amber-100/60 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-800">
-                      ${Number(stats.pendingWithdrawalsSum || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} ({stats.pendingWithdrawals})
-                    </div>
-                    <div className="text-[11px] text-amber-600 font-medium">Pending Withdrawals</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-
-              {/* Rejected Withdrawals */}
-              <Link
-                href="/admin/withdrawals/rejected"
-                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between hover:bg-slate-100/80 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                    <XCircle className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-800">{stats.rejectedWithdrawals}</div>
-                    <div className="text-[11px] text-slate-400">Rejected Withdrawals</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
-        </div>
-
-        {/* 3. Weekly Staking & Revenue Chart + Quick Actions Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Revenue & Staking Trend Chart */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-              <div className="space-y-1">
-                <h3 className="font-bold text-slate-800 text-base font-sans">Weekly Activity & Staking Trends</h3>
-                <p className="text-xs text-slate-400 font-sans">Live volume split between Staking Investments and Direct Wallet Deposits.</p>
-              </div>
-              <div className="flex items-center gap-4 text-xs font-semibold pt-1 sm:pt-0">
-                <span className="flex items-center gap-1.5 text-indigo-600">
-                  <span className="w-2.5 h-2.5 rounded bg-[#5b5bf5]" /> Staking
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-600">
-                  <span className="w-2.5 h-2.5 rounded bg-[#10b981]" /> Deposits
-                </span>
-              </div>
-            </div>
-
-            {/* Custom SVG Area Chart */}
-            <div className="h-64 w-full relative pt-4">
-              <svg className="w-full h-48 overflow-visible" viewBox="0 0 500 150" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="colorStaking" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#5b5bf5" stopOpacity="0.25"/>
-                    <stop offset="95%" stopColor="#5b5bf5" stopOpacity="0"/>
-                  </linearGradient>
-                  <linearGradient id="colorDeposits" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity="0.25"/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity="0"/>
-                  </linearGradient>
-                </defs>
-                <line x1="0" y1="0" x2="500" y2="0" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="0" y1="37" x2="500" y2="37" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="0" y1="112" x2="500" y2="112" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="0" y1="150" x2="500" y2="150" stroke="#e2e8f0" strokeWidth="1.5" />
-
-                {/* Staking Area Path */}
-                <path
-                  d="M0,150 L50,140 L120,135 L200,120 L300,130 L400,110 L500,150 Z"
-                  fill="url(#colorStaking)"
-                />
-                <path
-                  d="M0,150 L50,140 L120,135 L200,120 L300,130 L400,110 L500,150"
-                  fill="none"
-                  stroke="#5b5bf5"
-                  strokeWidth="2.5"
-                />
-
-                {/* Deposits Area Path */}
-                <path
-                  d="M0,150 L70,145 L150,130 L230,140 L320,125 L420,135 L500,150 Z"
-                  fill="url(#colorDeposits)"
-                />
-                <path
-                  d="M0,150 L70,145 L150,130 L230,140 L320,125 L420,135 L500,150"
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="2.5"
-                />
-              </svg>
-
-              <div className="flex justify-between items-center text-xs text-slate-400 font-mono pt-3 px-2">
-                <span>Sun</span>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions Panel */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="font-bold text-slate-800 text-base font-sans mb-1">Quick Admin Actions</h3>
-              <p className="text-xs text-slate-400 mb-1.5 font-sans">Common operational shortcuts</p>
-            </div>
-            <div className="space-y-2.5">
-              <Link href="/admin/users/active" className="block w-full">
-                <button className="w-full flex items-center justify-between bg-[#5b5bf5] hover:bg-indigo-600 text-white rounded-xl px-4 py-3 text-xs font-bold transition-all shadow-sm cursor-pointer">
-                  <span className="flex items-center gap-2.5">
-                    <Users className="w-4 h-4" /> Manage All Users
-                  </span>
-                  <ArrowUpRight className="w-4 h-4 text-white" />
-                </button>
-              </Link>
-              <Link href="/admin/deposits/pending" className="block w-full">
-                <button className="w-full flex items-center justify-between bg-slate-50 hover:bg-indigo-50/60 text-slate-700 hover:text-indigo-600 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer">
-                  <span className="flex items-center gap-2.5">
-                    <HandCoins className="w-4 h-4 text-slate-400" /> Pending Deposits ({stats.pendingDeposits})
-                  </span>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
-                </button>
-              </Link>
-              <Link href="/admin/withdrawals/pending" className="block w-full">
-                <button className="w-full flex items-center justify-between bg-slate-50 hover:bg-indigo-50/60 text-slate-700 hover:text-indigo-600 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer">
-                  <span className="flex items-center gap-2.5">
-                    <Wallet className="w-4 h-4 text-slate-400" /> Pending Withdrawals ({stats.pendingWithdrawals})
-                  </span>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
-                </button>
-              </Link>
-              <Link href="/admin/investments/expiring" className="block w-full">
-                <button className="w-full flex items-center justify-between bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer">
-                  <span className="flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-amber-600" /> Expiring Investments
-                  </span>
-                  <ArrowUpRight className="w-4 h-4 text-amber-600" />
-                </button>
-              </Link>
-              <Link href="/admin/plan/manage" className="block w-full">
-                <button className="w-full flex items-center justify-between bg-slate-50 hover:bg-indigo-50/60 text-slate-700 hover:text-indigo-600 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer">
-                  <span className="flex items-center gap-2.5">
-                    <PlusCircle className="w-4 h-4 text-slate-400" /> Create Investment
-                  </span>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
-                </button>
-              </Link>
-            </div>
           </div>
         </div>
       </div>

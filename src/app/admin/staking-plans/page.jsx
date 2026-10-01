@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../components/AdminSidebarLayout';
+import PageLoader from '../../../components/PageLoader';
 import { Plus, Edit, EyeOff, CheckCircle2, BarChart2, X, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '../../../lib/api';
@@ -20,21 +21,23 @@ export default function AdminStakingPlansPage() {
   const fetchPlans = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/staking-plans');
-      if (res.data && res.data.success && Array.isArray(res.data.plans)) {
-        const formatted = res.data.plans.map((p) => {
-          const minAmt = parseFloat(p.min_amount || 10);
-          const maxAmt = parseFloat(p.max_amount || 5000);
-          const dailyRate = parseFloat(p.daily_return_percent || 1.5);
+      let res;
+      try {
+        res = await api.get('/admin/staking-plans');
+      } catch (e) {
+        res = await api.get('/staking/plans');
+      }
+      const rawPlans = res.data?.plans || res.data?.stakingPlans || res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      if (Array.isArray(rawPlans)) {
+        const formatted = rawPlans.map((p) => {
+          const minAmt = parseFloat(p.min_amount || p.minAmount || 10);
+          const maxAmt = parseFloat(p.max_amount || p.maxAmount || 5000);
+          const dailyRate = parseFloat(p.daily_return_percent || p.percent || p.dailyPercent || 1.5);
           const step = Math.round((maxAmt - minAmt) / 3) || 100;
 
           let planStatus = 'Active';
           const rawSt = (p.status || p.badge || '').toUpperCase();
-          if (rawSt === 'COMING_SOON' || rawSt === 'COMING SOON') {
-            planStatus = 'Coming Soon';
-          } else if (rawSt === 'UNAVAILABLE' || rawSt === 'DISABLED' || p.is_active === false) {
-            planStatus = 'Unavailable';
-          } else if (rawSt === 'INACTIVE') {
+          if (['INACTIVE', 'UNAVAILABLE', 'COMING_SOON', 'COMING SOON', 'DISABLED'].includes(rawSt) || p.is_active === false) {
             planStatus = 'Inactive';
           } else {
             planStatus = 'Active';
@@ -42,16 +45,20 @@ export default function AdminStakingPlansPage() {
 
           return {
             ...p,
-            id: p.id,
-            name: p.title,
+            id: p.id || p._id,
+            name: p.title || p.name || 'Investment Plan',
             tier: p.tier || 'Flexible Tier',
-            duration: `${p.duration_days} Days`,
-            days: p.duration_days,
-            duration_days: p.duration_days,
-            is_fixed_deposit: p.is_fixed_deposit !== false,
+            duration: `${p.duration_days || p.durationDays || 30} Days`,
+            days: p.duration_days || p.durationDays || 30,
+            duration_days: p.duration_days || p.durationDays || 30,
+            min_amount: minAmt,
+            max_amount: maxAmt,
+            daily_return_percent: dailyRate,
             capital_return: p.capital_return !== false,
             is_compounding: p.is_compounding !== false,
             status: planStatus,
+            payment_period: p.payment_period || p.paymentPeriod || 'Daily',
+            paymentPeriod: p.payment_period || p.paymentPeriod || 'Daily',
             segments: [
               { range: `${minAmt.toLocaleString()} USDT – ${(minAmt + step).toLocaleString()} USDT`, rate: `${dailyRate.toFixed(2)}%` },
               { range: `${(minAmt + step + 1).toLocaleString()} USDT – ${(minAmt + step * 2).toLocaleString()} USDT`, rate: `${(dailyRate * 1.5).toFixed(2)}%` },
@@ -82,10 +89,14 @@ export default function AdminStakingPlansPage() {
     if (!target) return;
 
     const nextIsActive = target.status !== 'Active';
-    const nextStatusText = nextIsActive ? 'Active' : 'Unavailable';
+    const nextStatusText = nextIsActive ? 'Active' : 'Inactive';
 
     try {
-      await api.put(`/admin/staking-plans/${id}`, { is_active: nextIsActive });
+      try {
+        await api.put(`/admin/staking-plans/${id}`, { is_active: nextIsActive, status: nextStatusText });
+      } catch (err1) {
+        await api.put(`/staking/plans/${id}`, { is_active: nextIsActive, status: nextStatusText });
+      }
       toast.success(`Plan "${target.name}" status updated to ${nextStatusText}!`);
       setPlans(plans.map((p) => (p.id === id ? { ...p, status: nextStatusText } : p)));
     } catch (err) {
@@ -97,7 +108,11 @@ export default function AdminStakingPlansPage() {
     if (!deleteTarget) return;
     const { id, name } = deleteTarget;
     try {
-      await api.delete(`/admin/staking-plans/${id}`);
+      try {
+        await api.delete(`/admin/staking-plans/${id}`);
+      } catch (err1) {
+        await api.delete(`/staking/plans/${id}`);
+      }
       toast.success(`Plan "${name}" deleted successfully!`);
       setPlans(plans.filter((p) => p.id !== id));
     } catch (err) {
@@ -106,6 +121,10 @@ export default function AdminStakingPlansPage() {
       setDeleteTarget(null);
     }
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>
@@ -136,8 +155,7 @@ export default function AdminStakingPlansPage() {
                   <th className="py-3.5 px-4 text-center">Deposit Range ($)</th>
                   <th className="py-3.5 px-4 text-center">Return Rate</th>
                   <th className="py-3.5 px-4 text-center">Duration</th>
-                  <th className="py-3.5 px-4 text-center">Access</th>
-                  <th className="py-3.5 px-5">Plan Rules & Rules</th>
+                  <th className="py-3.5 px-5">Plan Rules</th>
                   <th className="py-3.5 px-4 text-center">Status</th>
                   <th className="py-3.5 px-5 text-right">Action</th>
                 </tr>
@@ -145,16 +163,16 @@ export default function AdminStakingPlansPage() {
               <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-slate-500 font-medium">
+                    <td colSpan={7} className="py-12 text-center text-slate-500 font-medium">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading Investment Plans</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
                 ) : plans.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-slate-400 font-medium">
+                    <td colSpan={7} className="py-12 text-center text-slate-400 font-medium">
                       No investment plans found.
                     </td>
                   </tr>
@@ -188,7 +206,7 @@ export default function AdminStakingPlansPage() {
                           {plan.daily_return_percent || plan.percent || '1.5'}%
                         </div>
                         <div className="text-[10px] font-bold text-indigo-600 uppercase">
-                          {plan.payment_period || 'Daily'} Payouts
+                          {plan.payment_period || plan.paymentPeriod || 'Daily'} Payouts
                         </div>
                       </td>
 
@@ -203,19 +221,6 @@ export default function AdminStakingPlansPage() {
                         )}
                       </td>
 
-                      {/* Access */}
-                      <td className="py-4 px-4 text-center whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-block ${
-                            plan.package_access === 'PRIVATE'
-                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                              : 'bg-blue-100 text-blue-800 border border-blue-300'
-                          }`}
-                        >
-                          {plan.package_access || 'PUBLIC'}
-                        </span>
-                      </td>
-
                       {/* Rules & Badges */}
                       <td className="py-4 px-5">
                         <div className="flex flex-wrap gap-1.5 text-[10px] font-bold">
@@ -225,14 +230,12 @@ export default function AdminStakingPlansPage() {
                           <span className={`px-2 py-0.5 rounded border whitespace-nowrap ${plan.is_compounding !== false ? 'bg-teal-50 text-teal-700 border-teal-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                             Compounding: {plan.is_compounding !== false ? 'YES' : 'NO'}
                           </span>
+                       
                           {(plan.hold_earnings_days > 0 || plan.delay_earning_days > 0) && (
                             <span className="px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 whitespace-nowrap">
                               Hold: {plan.hold_earnings_days || 0}d | Delay: {plan.delay_earning_days || 0}d
                             </span>
                           )}
-                          <span className="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-600 whitespace-nowrap">
-                            Wallets: {plan.allow_deposit_wallet !== false ? 'Deposit' : ''}{plan.allow_deposit_wallet !== false && plan.allow_profit_wallet !== false ? ' + ' : ''}{plan.allow_profit_wallet !== false ? 'Profit' : ''}
-                          </span>
                         </div>
                       </td>
 

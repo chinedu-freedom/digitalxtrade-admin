@@ -3,29 +3,30 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
-import { Search, Loader2, Wallet, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
 import api from '../../../../lib/api';
 
 export default function AdminDepositsFilteredPage({
-  title = 'Deposits & External Processings Log',
+  title = 'Pending Deposits',
   filterStatus,
   statusFilter,
 }) {
-  const activeStatus = String(statusFilter || filterStatus || 'ALL').toUpperCase();
+  const activeStatus = String(statusFilter || filterStatus || 'PENDING').toUpperCase();
 
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchUser, setSearchUser] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('All');
-  const [selectedType, setSelectedType] = useState('Transfer from external processings');
   const [selectedDateFilter, setSelectedDateFilter] = useState('All');
 
   const fetchDeposits = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/deposits');
+      const endpoint = activeStatus !== 'ALL' ? `/admin/deposits?status=${activeStatus}` : '/admin/deposits';
+      const res = await api.get(endpoint);
       if (res.data.success) {
         setDeposits(res.data.deposits || []);
       }
@@ -38,7 +39,7 @@ export default function AdminDepositsFilteredPage({
 
   useEffect(() => {
     fetchDeposits();
-  }, []);
+  }, [activeStatus]);
 
   const filteredDeposits = deposits.filter((d) => {
     if (activeStatus !== 'ALL') {
@@ -46,7 +47,7 @@ export default function AdminDepositsFilteredPage({
       if (activeStatus === 'APPROVED' && statusUpper !== 'APPROVED' && statusUpper !== 'SUCCESS' && statusUpper !== 'COMPLETED') {
         return false;
       }
-      if (activeStatus === 'PENDING' && statusUpper !== 'PENDING' && statusUpper !== 'INITIATED') {
+      if (activeStatus === 'PENDING' && statusUpper !== 'PENDING') {
         return false;
       }
       if (activeStatus === 'REJECTED' && statusUpper !== 'REJECTED' && statusUpper !== 'FAILED' && statusUpper !== 'CANCELLED') {
@@ -55,7 +56,7 @@ export default function AdminDepositsFilteredPage({
       if (activeStatus === 'SUCCESSFUL' && statusUpper !== 'APPROVED' && statusUpper !== 'SUCCESS' && statusUpper !== 'COMPLETED') {
         return false;
       }
-      if (activeStatus === 'INITIATED' && statusUpper !== 'INITIATED' && statusUpper !== 'PENDING') {
+      if (activeStatus === 'INITIATED' && statusUpper !== 'INITIATED') {
         return false;
       }
     }
@@ -110,18 +111,6 @@ export default function AdminDepositsFilteredPage({
     return true;
   });
 
-  // Calculate Deposit Totals for Metric Summary Cards
-  const totalDepositSum = deposits.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-  const approvedDepositSum = deposits
-    .filter((d) => d.status === 'APPROVED' || d.status === 'SUCCESS' || d.status === 'COMPLETED')
-    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-  const pendingDepositSum = deposits
-    .filter((d) => d.status === 'PENDING' || d.status === 'INITIATED')
-    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-  const rejectedDepositSum = deposits
-    .filter((d) => d.status === 'REJECTED' || d.status === 'FAILED')
-    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-
   const formatDateTwoLines = (dateString) => {
     if (!dateString) return { dateStr: 'Sep-23-2026', timeStr: '05:39:36 PM' };
     const d = new Date(dateString);
@@ -146,6 +135,10 @@ export default function AdminDepositsFilteredPage({
     };
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto font-sans">
@@ -154,56 +147,9 @@ export default function AdminDepositsFilteredPage({
           {title}
         </h1>
 
-        {/* Metric Summary Cards Grid (Total Deposit, Approved, Pending, Rejected) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Deposit */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Deposit</div>
-              <div className="text-lg font-bold text-slate-900 font-righteous mt-1">${totalDepositSum.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold">
-              <Wallet className="w-5 h-5" />
-            </div>
-          </div>
-
-          {/* Card 2: Approved Deposit */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approved Deposit</div>
-              <div className="text-lg font-bold text-emerald-600 font-righteous mt-1">${approvedDepositSum.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center font-bold">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-          </div>
-
-          {/* Card 3: Pending Deposit */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Deposit</div>
-              <div className="text-lg font-bold text-amber-500 font-righteous mt-1">${pendingDepositSum.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center font-bold">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-
-          {/* Card 4: Rejected Deposit */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rejected Deposit</div>
-              <div className="text-lg font-bold text-red-500 font-righteous mt-1">${rejectedDepositSum.toFixed(2)}</div>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 border border-red-100 flex items-center justify-center font-bold">
-              <XCircle className="w-5 h-5" />
-            </div>
-          </div>
-        </div>
-
         {/* Filter Controls */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
             {/* Search Username / Email */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1">
@@ -223,37 +169,19 @@ export default function AdminDepositsFilteredPage({
               </div>
             </div>
 
-            {/* Type Dropdown Filter */}
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Transaction Type
-              </label>
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="h-10 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-normal">
-                  <SelectValue placeholder="Select Type" />
-                </SelectTrigger>
-                <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
-                  <SelectItem value="Transfer from external processings" className="hover:bg-slate-100">
-                    Transfer from external processings
-                  </SelectItem>
-                  <SelectItem value="All Transactions" className="hover:bg-slate-100">
-                    All Transactions
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
 
             {/* eCurrencies Dropdown Filter */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                eCurrency / Gateway
+                eCurrency
               </label>
               <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
                 <SelectTrigger className="h-10 bg-white border-slate-200 text-slate-800 rounded-lg text-xs font-normal">
-                  <SelectValue placeholder="All eCurrencies" />
+                  <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
-                  <SelectItem value="All" className="hover:bg-slate-100">All eCurrencies</SelectItem>
+                  <SelectItem value="All" className="hover:bg-slate-100">All</SelectItem>
                   <SelectItem value="TRC20" className="hover:bg-slate-100">USDT (TRC20)</SelectItem>
                   <SelectItem value="BEP20" className="hover:bg-slate-100">USDT (BEP20)</SelectItem>
                   <SelectItem value="BTC" className="hover:bg-slate-100">Bitcoin (BTC)</SelectItem>
@@ -307,7 +235,7 @@ export default function AdminDepositsFilteredPage({
                     <td colSpan={7} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading deposit logs</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
@@ -319,24 +247,30 @@ export default function AdminDepositsFilteredPage({
                   </tr>
                 ) : (
                   filteredDeposits.map((d) => {
-                    const userName = d.user?.username || d.username || 'Mpumi';
+                    const userName = d.user?.username || d.username || d.user?.email || 'User';
                     const fullName = d.user?.full_name || d.fullName || d.user?.name || userName;
-                    const userIdVal = d.user_id || d.user?.id || 'usr_101';
-                    const planTitle = d.plan || d.plan_title || d.plan_name || 'FOUNDATION PLAN';
-                    const trxId = d.trx || d.transaction_id || '';
-                    const registeredUser = d.registered_username || d.registered_user || (d.username ? `${d.username} (R6X9N4T8)` : '');
-                    const netAmt = parseFloat(d.amount || 500.00);
+                    const userIdVal = d.user_id || d.user?.id || '';
+                    const planTitle = d.plan || d.plan_title || d.plan_name || d.package_name || 'FOUNDATION PLAN';
 
-                    const gatewayName = (d.gateway_code || d.payment_method || d.currency || 'USDT').toUpperCase();
+                    const rawTrx = d.trx || d.transaction_id || d.tx_hash || d.txHash || d.hash || d.reference || d.trx_id;
+                    const trxId = rawTrx ? String(rawTrx) : (d.id ? `TRX-${d.id}` : 'N/A');
+
+                    const rawRegUser = d.registered_username || d.registered_user || d.user?.username || d.username || d.user?.email;
+                    const registeredUser = rawRegUser ? String(rawRegUser) : userName;
+
+                    const netAmt = parseFloat(d.amount || 0);
+
+                    const rawGateway = d.gateway_code || d.payment_method || d.currency || d.gateway || 'USDT TRC20';
+                    const gatewayName = String(rawGateway).toUpperCase();
                     let assetIcon = '₮';
                     let assetBg = 'bg-teal-600 text-white';
                     if (gatewayName.includes('ETH') || gatewayName.includes('BEP20')) {
                       assetIcon = 'Ξ';
                       assetBg = 'bg-indigo-600 text-white';
-                    } else if (gatewayName.includes('BTC')) {
+                    } else if (gatewayName.includes('BTC') || gatewayName.includes('BITCOIN')) {
                       assetIcon = '₿';
                       assetBg = 'bg-amber-500 text-slate-950';
-                    } else if (gatewayName.includes('LTC')) {
+                    } else if (gatewayName.includes('LTC') || gatewayName.includes('LITECOIN')) {
                       assetIcon = 'Ł';
                       assetBg = 'bg-slate-400 text-white';
                     }
@@ -376,17 +310,18 @@ export default function AdminDepositsFilteredPage({
                         {/* Transaction Details Column */}
                         <td className="py-4 px-4 align-top text-xs space-y-1 max-w-[320px]">
                           <div className="text-slate-800 font-medium font-mono break-all">
-                            <span className="font-bold text-slate-700 font-sans">Transaction ID::</span> {trxId}
+                            <span className="font-bold text-slate-700 font-sans">Transaction ID:</span> {trxId}
                           </div>
                           <div className="text-slate-800 font-medium font-sans">
-                            <span className="font-bold text-slate-700">Registered Username::</span> {registeredUser}
+                            <span className="font-bold text-slate-700">Registered Username:</span> {registeredUser}
                           </div>
                         </td>
 
-                        {/* Currency Icon Badge Column */}
+                        {/* Currency Name & Icon Badge Column */}
                         <td className="py-4 px-4 align-top text-center">
-                          <div className="flex items-center justify-center">
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-xs ${assetBg}`}>
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="font-bold text-xs text-slate-800 whitespace-nowrap">{gatewayName}</span>
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-xs shrink-0 ${assetBg}`}>
                               {assetIcon}
                             </span>
                           </div>

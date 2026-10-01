@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import RichTextEditor from '../../../../components/RichTextEditor';
 import api from '../../../../lib/api';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminDepositWithdrawalSettingsPage() {
+  const [loading, setLoading] = useState(true);
   const [dailyWithdrawLimit, setDailyWithdrawLimit] = useState('5');
   const [maxDailyWithdrawalAmount, setMaxDailyWithdrawalAmount] = useState('50000');
   const [maxDailyBtcWithdrawal, setMaxDailyBtcWithdrawal] = useState('20000');
@@ -16,7 +18,6 @@ export default function AdminDepositWithdrawalSettingsPage() {
   const [maxDailyLtcWithdrawal, setMaxDailyLtcWithdrawal] = useState('10000');
   const [minDeposit, setMinDeposit] = useState('10');
   const [maxDeposit, setMaxDeposit] = useState('1000000');
-  const [depositCharge, setDepositCharge] = useState('0');
   const [minPayout, setMinPayout] = useState('10');
   const [maxPayout, setMaxPayout] = useState('50000');
   const [payoutCharge, setPayoutCharge] = useState('0');
@@ -37,14 +38,14 @@ export default function AdminDepositWithdrawalSettingsPage() {
         if (s.maxDailyLtcWithdrawal !== undefined) setMaxDailyLtcWithdrawal(String(s.maxDailyLtcWithdrawal));
         if (s.minDeposit !== undefined) setMinDeposit(String(s.minDeposit));
         if (s.maxDeposit !== undefined) setMaxDeposit(String(s.maxDeposit));
-        if (s.depositCharge !== undefined) setDepositCharge(String(s.depositCharge));
         if (s.minPayout !== undefined) setMinPayout(String(s.minPayout));
         if (s.maxPayout !== undefined) setMaxPayout(String(s.maxPayout));
         if (s.payoutCharge !== undefined) setPayoutCharge(String(s.payoutCharge));
         if (s.rechargeNotice !== undefined) setRechargeNotice(s.rechargeNotice);
         if (s.withdrawNotice !== undefined) setWithdrawNotice(s.withdrawNotice);
       }
-    }).catch(() => null);
+    }).catch(() => null)
+    .finally(() => setLoading(false));
   }, []);
 
   const handleSubmit = async (e) => {
@@ -61,7 +62,6 @@ export default function AdminDepositWithdrawalSettingsPage() {
           maxDailyLtcWithdrawal,
           minDeposit,
           maxDeposit,
-          depositCharge,
           minPayout,
           maxPayout,
           payoutCharge,
@@ -79,6 +79,10 @@ export default function AdminDepositWithdrawalSettingsPage() {
     }
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -91,7 +95,7 @@ export default function AdminDepositWithdrawalSettingsPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Input Fields Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {/* Daily Withdrawal Limit */}
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5 font-sans">
@@ -133,21 +137,6 @@ export default function AdminDepositWithdrawalSettingsPage() {
                   required
                   value={maxDeposit}
                   onChange={(e) => setMaxDeposit(e.target.value)}
-                  className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans shadow-sm"
-                />
-              </div>
-
-              {/* Deposit Charge (%) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5 font-sans">
-                  Deposit Charge (%)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  value={depositCharge}
-                  onChange={(e) => setDepositCharge(e.target.value)}
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans shadow-sm"
                 />
               </div>

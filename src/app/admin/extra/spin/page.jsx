@@ -6,32 +6,7 @@ import Pagination from '../../../../components/Pagination';
 import { Sparkles, Save, RotateCw } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-const mockSpinLogs = [
-  {
-    id: '1',
-    user: 'Daniel Swags',
-    username: '@furqanmehar',
-    reward: '$10.00 USDT',
-    spinDate: '2026-08-20 02:15 PM',
-    status: 'Won',
-  },
-  {
-    id: '2',
-    user: 'Chinedu Afamefuna',
-    username: '@Sparko',
-    reward: '$50.00 USDT',
-    spinDate: '2026-08-19 11:30 AM',
-    status: 'Won',
-  },
-  {
-    id: '3',
-    user: 'Esmaeil Jonas',
-    username: '@DaneshsabzIran',
-    reward: '$0.00 USDT',
-    spinDate: '2026-08-18 09:10 AM',
-    status: 'Better Luck Next Time',
-  },
-];
+const mockSpinLogs = [];
 
 export default function AdminSpinWheelPage() {
   const [isEnabled, setIsEnabled] = useState(true);

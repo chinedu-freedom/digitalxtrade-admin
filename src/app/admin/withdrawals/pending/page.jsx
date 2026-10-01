@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
 import { Search, Monitor, Copy, Loader2, CheckCircle2, XCircle, Trash2, Landmark, Clock } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
@@ -218,6 +219,10 @@ export default function AdminWithdrawalsFilteredPage({
     };
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto font-sans">
@@ -382,7 +387,7 @@ export default function AdminWithdrawalsFilteredPage({
                     <td colSpan={4} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading withdrawals data</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>

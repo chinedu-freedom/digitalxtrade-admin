@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
-import { Search, Loader2, ArrowUpDown, CheckCircle, Ban, AlertTriangle, Trash2, CheckSquare, Users, UserCheck, Wallet, Layers } from 'lucide-react';
+import { Search, Loader2, CheckCircle, Ban, AlertTriangle, Trash2, CheckSquare, Users, UserCheck, Wallet, Layers } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
@@ -12,7 +13,6 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('username_asc');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -20,11 +20,11 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
     try {
       setLoading(true);
       const res = await api.get('/admin/users');
-      if (res.data.success) {
-        setUsers(res.data.users || []);
-      }
+      const rawUsers = res.data?.users || res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      setUsers(Array.isArray(rawUsers) ? rawUsers : []);
     } catch (err) {
-      console.error('Failed to fetch admin users:', err);
+      console.error('Failed to fetch admin users from server:', err);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -36,19 +36,35 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
 
   // Filter users based on category and search query
   const filteredUsers = users.filter((u) => {
+    const isActive = u.is_active !== undefined 
+      ? Boolean(u.is_active) 
+      : u.status !== undefined 
+      ? u.status === 'active' || u.status === 1 || u.status === '1'
+      : true;
+
+    const isSuspended = Boolean(u.is_suspended || u.banned || u.status === 'suspended' || u.status === 'banned');
+
+    const isEmailVerified = u.email_verified !== undefined
+      ? Boolean(u.email_verified)
+      : u.is_email_verified !== undefined
+      ? Boolean(u.is_email_verified)
+      : u.email_verified_at != null;
+
+    const balanceVal = parseFloat(u.balance || u.wallet_balance || u.main_balance || 0);
+
     // Apply Category Filter
-    if (filterType === 'active' && !u.is_active) return false;
-    if (filterType === 'banned' && u.is_active) return false;
-    if (filterType === 'email-unverified' && u.email_verified) return false;
-    if (filterType === 'with-balance' && parseFloat(u.balance || 0) <= 0) return false;
+    if (filterType === 'active' && (!isActive || isSuspended)) return false;
+    if (filterType === 'banned' && (isActive && !isSuspended)) return false;
+    if (filterType === 'email-unverified' && isEmailVerified) return false;
+    if (filterType === 'with-balance' && balanceVal <= 0) return false;
 
     // Apply Search Filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      const nameStr = String(u.name || u.full_name || '').toLowerCase();
+      const nameStr = String(u.name || u.full_name || u.fullName || '').toLowerCase();
       const userStr = String(u.username || '').toLowerCase();
       const emailStr = String(u.email || '').toLowerCase();
-      const mobileStr = String(u.mobile || '').toLowerCase();
+      const mobileStr = String(u.mobile || u.phone || '').toLowerCase();
       return nameStr.includes(q) || userStr.includes(q) || emailStr.includes(q) || mobileStr.includes(q);
     }
     return true;
@@ -56,43 +72,17 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
 
   // Calculate Summary Totals for Users
   const totalUserCount = users.length;
-  const activeUserCount = users.filter((u) => u.is_active).length;
-  const totalUserBalances = users.reduce((acc, u) => acc + parseFloat(u.balance || 0), 0);
-  const totalStakedAssets = users.reduce((acc, u) => acc + parseFloat(u.staked_balance || u.assets || 0), 0);
+  const activeUserCount = users.filter((u) => {
+    const isActive = u.is_active !== undefined ? Boolean(u.is_active) : u.status !== 'disabled';
+    const isSuspended = Boolean(u.is_suspended || u.banned || u.status === 'suspended');
+    return isActive && !isSuspended;
+  }).length;
+  const totalUserBalances = users.reduce((acc, u) => acc + parseFloat(u.balance || u.wallet_balance || u.main_balance || 0), 0);
+  const totalStakedAssets = users.reduce((acc, u) => acc + parseFloat(u.staked_balance || u.activeDeposit || u.assets || u.staked || 0), 0);
 
-  // Sort users based on selected sorting option
+  // Default sort: newest registered users first
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    const getVal = (obj, field) => {
-      switch (field) {
-        case 'username':
-          return String(obj.username || '').toLowerCase();
-        case 'registration':
-          return new Date(obj.created_at || 0).getTime();
-        case 'balance':
-          return parseFloat(obj.balance || 0);
-        case 'funded':
-          return parseFloat(obj.total_deposit || obj.funded || 0);
-        case 'withdrew':
-          return parseFloat(obj.total_withdrawal || obj.withdrew || 0);
-        case 'commissions':
-          return parseFloat(obj.referral_commissions || obj.commissions || 0);
-        case 'assets':
-          return parseFloat(obj.staked_balance || obj.assets || 0);
-        case 'earnings':
-          return parseFloat(obj.total_earning || obj.earnings || 0);
-        default:
-          return 0;
-      }
-    };
-
-    const [field, dir] = sortBy.split('_');
-    const valA = getVal(a, field);
-    const valB = getVal(b, field);
-
-    if (typeof valA === 'string') {
-      return dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-    }
-    return dir === 'asc' ? valA - valB : valB - valA;
+    return new Date(b.created_at || b.createdAt || 0).getTime() - new Date(a.created_at || a.createdAt || 0).getTime();
   });
 
   const handleToggleSelectAllBtn = () => {
@@ -126,10 +116,10 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
     try {
       setActionLoading(true);
       await Promise.all(
-        selectedUsers.map((id) => api.put(`/admin/users/${id}`, { is_active: true }).catch(() => null))
+        selectedUsers.map((id) => api.put(`/admin/users/${id}`, { is_active: true, is_suspended: false, status: 'active' }).catch(() => null))
       );
       setUsers((prev) =>
-        prev.map((u) => (selectedUsers.includes(u.id) ? { ...u, is_active: true } : u))
+        prev.map((u) => (selectedUsers.includes(u.id) ? { ...u, is_active: true, is_suspended: false, status: 'active' } : u))
       );
       toast.success(`Set ${selectedUsers.length} user(s) to ACTIVE successfully!`);
       setSelectedUsers([]);
@@ -148,10 +138,10 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
     try {
       setActionLoading(true);
       await Promise.all(
-        selectedUsers.map((id) => api.put(`/admin/users/${id}`, { is_active: false }).catch(() => null))
+        selectedUsers.map((id) => api.put(`/admin/users/${id}`, { is_active: false, status: 'disabled' }).catch(() => null))
       );
       setUsers((prev) =>
-        prev.map((u) => (selectedUsers.includes(u.id) ? { ...u, is_active: false } : u))
+        prev.map((u) => (selectedUsers.includes(u.id) ? { ...u, is_active: false, status: 'disabled' } : u))
       );
       toast.warning(`Set ${selectedUsers.length} user(s) to DISABLED.`);
       setSelectedUsers([]);
@@ -170,10 +160,10 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
     try {
       setActionLoading(true);
       await Promise.all(
-        selectedUsers.map((id) => api.put(`/admin/users/${id}`, { is_active: false, is_suspended: true }).catch(() => null))
+        selectedUsers.map((id) => api.put(`/admin/users/${id}`, { is_active: false, is_suspended: true, status: 'suspended' }).catch(() => null))
       );
       setUsers((prev) =>
-        prev.map((u) => (selectedUsers.includes(u.id) ? { ...u, is_active: false, is_suspended: true } : u))
+        prev.map((u) => (selectedUsers.includes(u.id) ? { ...u, is_active: false, is_suspended: true, status: 'suspended' } : u))
       );
       toast.warning(`Set ${selectedUsers.length} user(s) to SUSPENDED.`);
       setSelectedUsers([]);
@@ -187,6 +177,9 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
   const handleMassDelete = async () => {
     if (selectedUsers.length === 0) {
       toast.error('Please select at least one user first');
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to delete ${selectedUsers.length} selected user(s)?`)) {
       return;
     }
     try {
@@ -203,6 +196,10 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
       setActionLoading(false);
     }
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>
@@ -266,42 +263,10 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
             <h1 className="text-xl font-bold text-slate-800 tracking-wide">
               {title}
             </h1>
-            <Link
-              href="/admin/users/add-transaction"
-              className="bg-[#5b5bf5] hover:bg-indigo-600 text-white text-xs font-extrabold px-3 py-1.5 rounded-lg transition-all shadow-xs flex items-center gap-1.5"
-            >
-              + ADD TRANSACTION
-            </Link>
           </div>
 
-          {/* Controls: Search Bar & Sorting Dropdown */}
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            {/* Sorting Dropdown */}
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm focus-within:ring-1 focus-within:ring-indigo-500">
-              <ArrowUpDown className="w-4 h-4 text-slate-400 shrink-0" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent border-0 outline-none text-xs font-bold text-slate-700 cursor-pointer py-1"
-              >
-                <option value="username_asc">Username ↑</option>
-                <option value="username_desc">Username ↓</option>
-                <option value="registration_asc">Registration ↑</option>
-                <option value="registration_desc">Registration ↓</option>
-                <option value="balance_asc">Balance ↑</option>
-                <option value="balance_desc">Balance ↓</option>
-                <option value="funded_asc">Funded ↑</option>
-                <option value="funded_desc">Funded ↓</option>
-                <option value="withdrew_asc">Withdrew ↑</option>
-                <option value="withdrew_desc">Withdrew ↓</option>
-                <option value="commissions_asc">Commissions ↑</option>
-                <option value="commissions_desc">Commissions ↓</option>
-                <option value="assets_asc">Assets ↑</option>
-                <option value="assets_desc">Assets ↓</option>
-                <option value="earnings_asc">Earnings ↑</option>
-                <option value="earnings_desc">Earnings ↓</option>
-              </select>
-            </div>
+          {/* Controls: Search Bar */}
+          <div className="flex items-center gap-3 w-full md:w-auto">
 
             {/* Search Bar Input Group */}
             <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm focus-within:ring-1 focus-within:ring-indigo-500 transition-all flex-1 md:flex-none">
@@ -407,7 +372,7 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
                     <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading users data</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
@@ -419,24 +384,34 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
                   </tr>
                 ) : (
                   sortedUsers.map((u) => {
-                    const fullName = u.full_name || u.name || 'Nolitha';
-                    const usernameStr = u.username || 'Ndawana';
-                    const sinceStr = u.created_at
-                      ? new Date(u.created_at).toLocaleDateString('en-US', {
+                    const fullName = u.full_name || u.fullName || u.name || 'N/A';
+                    const usernameStr = u.username || u.email || 'N/A';
+                    const sinceStr = u.created_at || u.createdAt
+                      ? new Date(u.created_at || u.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
                           day: '2-digit',
                           year: 'numeric',
+                        }) +
+                        ' ' +
+                        new Date(u.created_at || u.createdAt).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: true,
                         })
-                      : 'Sep-24-2026';
-                    const uplineUsername = u.upline?.username || u.referred_by || 'Succ141';
+                      : 'N/A';
+                    const uplineUsername = u.upline?.username || u.referred_by || u.upline_username || u.uplineName;
                     const uplineId = u.upline?.id || u.upline_id;
 
-                    const balanceVal = parseFloat(u.balance || 0);
-                    const fundedVal = parseFloat(u.total_deposit || u.funded || 0);
-                    const withdrawVal = parseFloat(u.total_withdrawal || u.withdrew || 0);
-                    const commissionVal = parseFloat(u.referral_commissions || u.commissions || 0);
-                    const assetsVal = parseFloat(u.staked_balance || u.assets || 0);
-                    const earningsVal = parseFloat(u.total_earning || u.earnings || 0);
+                    const balanceVal = parseFloat(u.balance || u.wallet_balance || u.main_balance || 0);
+                    const fundedVal = parseFloat(u.total_deposit || u.funded || u.totalDeposits || 0);
+                    const withdrawVal = parseFloat(u.total_withdrawal || u.withdrew || u.totalWithdrawals || 0);
+                    const commissionVal = parseFloat(u.referral_commissions || u.commissions || u.ref_commissions || 0);
+                    const assetsVal = parseFloat(u.staked_balance || u.assets || u.activeDeposit || u.staked || 0);
+                    const earningsVal = parseFloat(u.total_earning || u.earnings || u.total_profit || 0);
+
+                    const isActive = u.is_active !== undefined ? Boolean(u.is_active) : u.status === 'active' || u.status === 1 || u.status === '1';
+                    const isSuspended = Boolean(u.is_suspended || u.banned || u.status === 'suspended' || u.status === 'banned');
 
                     return (
                       <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
@@ -457,14 +432,14 @@ export default function AdminUsersFilteredPage({ title = 'Active Users', filterT
                             </Link>
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase shadow-xs ${
-                                u.is_suspended
+                                isSuspended
                                   ? 'bg-amber-400 text-amber-950'
-                                  : u.is_active !== false
+                                  : isActive
                                   ? 'bg-emerald-500 text-white'
                                   : 'bg-red-500 text-white'
                               }`}
                             >
-                              {u.is_suspended ? 'Suspended' : u.is_active !== false ? 'Active' : 'Disabled'}
+                              {isSuspended ? 'Suspended' : isActive ? 'Active' : 'Disabled'}
                             </span>
                           </div>
 

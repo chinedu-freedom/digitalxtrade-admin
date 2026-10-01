@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AdminSidebarLayout from '../../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../../components/PageLoader';
 import { Check, X, Copy, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '../../../../../lib/api';
@@ -36,7 +37,11 @@ export default function AdminWithdrawDetailsPage() {
             method: found.currency || 'USDT (TRC20)',
             walletAddress: found.wallet_address || 'N/A',
             trxId: found.id,
-            date: found.created_at ? new Date(found.created_at).toLocaleString('en-US', { hour12: true }) : 'Recently',
+            date: found.created_at
+              ? new Date(found.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) +
+                ' ' +
+                new Date(found.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+              : 'Recently',
             amount: `$${numAmt.toFixed(2)}`,
             charge: `$${numCharge.toFixed(2)}`,
             payable: `$${numNet.toFixed(2)}`,
@@ -92,6 +97,10 @@ export default function AdminWithdrawDetailsPage() {
     toast.success('Wallet address copied to clipboard!');
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -105,7 +114,7 @@ export default function AdminWithdrawDetailsPage() {
         {loading ? (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400 font-semibold flex items-center justify-center gap-2">
             <span>Loading withdrawal details</span>
-            <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
           </div>
         ) : !withdrawData ? (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-500 font-semibold">

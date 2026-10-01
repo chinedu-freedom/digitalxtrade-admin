@@ -6,32 +6,7 @@ import Pagination from '../../../../components/Pagination';
 import { CalendarCheck, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-const mockCheckinLogs = [
-  {
-    id: '1',
-    user: 'Simon Smith',
-    username: '@Uarmadale',
-    day: 'Day 1',
-    reward: '$1.00 USDT',
-    checkinTime: '2026-08-21 08:30 AM',
-  },
-  {
-    id: '2',
-    user: 'Daniel Swags',
-    username: '@furqanmehar',
-    day: 'Day 3',
-    reward: '$3.00 USDT',
-    checkinTime: '2026-08-21 07:15 AM',
-  },
-  {
-    id: '3',
-    user: 'Chinedu Afamefuna',
-    username: '@Sparko',
-    day: 'Day 7',
-    reward: '$10.00 USDT',
-    checkinTime: '2026-08-20 09:40 PM',
-  },
-];
+const mockCheckinLogs = [];
 
 export default function AdminDailyCheckinPage() {
   const [isEnabled, setIsEnabled] = useState(true);

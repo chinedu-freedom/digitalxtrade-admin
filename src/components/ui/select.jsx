@@ -39,7 +39,7 @@ const findLabelInChildren = (node, targetValue) => {
   return '';
 };
 
-export function Select({ value, onValueChange, defaultValue, children }) {
+export function Select({ value, onValueChange, defaultValue, disabled = false, children }) {
   const [selectedValue, setSelectedValue] = useState(value !== undefined ? value : defaultValue || '');
   const [selectedLabel, setSelectedLabel] = useState('');
   const [open, setOpen] = useState(false);
@@ -70,6 +70,7 @@ export function Select({ value, onValueChange, defaultValue, children }) {
   }, []);
 
   const handleSelect = (newValue, labelText) => {
+    if (disabled) return;
     setSelectedValue(newValue);
     if (labelText) setSelectedLabel(labelText);
     if (onValueChange) {
@@ -79,7 +80,7 @@ export function Select({ value, onValueChange, defaultValue, children }) {
   };
 
   return (
-    <SelectContext.Provider value={{ selectedValue, selectedLabel, setSelectedLabel, handleSelect, open, setOpen }}>
+    <SelectContext.Provider value={{ selectedValue, selectedLabel, setSelectedLabel, handleSelect, open, setOpen, disabled }}>
       <div ref={containerRef} className="relative inline-block w-full">
         {children}
       </div>
@@ -87,13 +88,16 @@ export function Select({ value, onValueChange, defaultValue, children }) {
   );
 }
 
-export function SelectTrigger({ className = '', children }) {
-  const { open, setOpen } = useContext(SelectContext);
+export function SelectTrigger({ className = '', disabled: triggerDisabled, children }) {
+  const { open, setOpen, disabled: contextDisabled } = useContext(SelectContext);
+  const disabled = triggerDisabled !== undefined ? triggerDisabled : contextDisabled;
+
   return (
     <button
       type="button"
-      onClick={() => setOpen(!open)}
-      className={`w-full flex items-center justify-between px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all cursor-pointer select-none font-sans ${className}`}
+      disabled={disabled}
+      onClick={() => !disabled && setOpen(!open)}
+      className={`w-full flex items-center justify-between px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0085d0]/20 focus:border-[#0085d0] transition-all select-none font-sans ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
     >
       {children}
       <ChevronDown className={`w-4 h-4 ml-2 text-slate-400 transition-transform duration-200 shrink-0 ${open ? 'rotate-180' : ''}`} />
@@ -148,7 +152,7 @@ export function SelectContent({ className = '', searchable = true, searchPlaceho
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full bg-white border border-slate-200 text-slate-800 text-xs rounded-lg pl-8 pr-7 py-2 focus:outline-none focus:border-indigo-500 placeholder-slate-400 font-sans"
+              className="w-full bg-white border border-slate-200 text-slate-800 text-xs rounded-lg pl-8 pr-7 py-2 focus:outline-none focus:border-[#0085d0] focus:ring-2 focus:ring-[#0085d0]/20 placeholder-slate-400 font-sans font-medium"
               onClick={(e) => e.stopPropagation()}
             />
             {searchQuery && (
@@ -196,8 +200,8 @@ export function SelectItem({ value, children, className = '' }) {
       onClick={() => handleSelect(value, labelText)}
       className={`px-4 py-2.5 text-xs font-semibold cursor-pointer transition-colors flex items-center justify-between font-sans ${
         isSelected
-          ? 'bg-[#5b5bf5] text-white font-bold'
-          : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'
+          ? 'bg-[#0085d0] text-white font-bold'
+          : 'text-slate-700 hover:bg-slate-50 hover:text-[#0085d0]'
       } ${className}`}
     >
       <span className="truncate">{children}</span>

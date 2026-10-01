@@ -3,101 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
+import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
 import { Search, Loader2, Share2, DollarSign, Users, TrendingUp } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
 import api from '../../../../lib/api';
 
-const defaultCommissionsList = [
-  {
-    id: 'comm_1',
-    username: '1001',
-    fromUser: 'Zandile22',
-    amount: 11.02,
-    currency: 'USDT',
-    createdAt: '2026-09-23T17:39:36Z',
-  },
-  {
-    id: 'comm_2',
-    username: 'Asiphe',
-    fromUser: 'Marshezi',
-    amount: 2.80,
-    currency: 'ETH',
-    createdAt: '2026-09-23T14:57:26Z',
-  },
-  {
-    id: 'comm_3',
-    username: '082105ab',
-    fromUser: 'Matlotleng64',
-    amount: 130.00,
-    currency: 'ETH',
-    createdAt: '2026-09-23T09:50:06Z',
-  },
-  {
-    id: 'comm_4',
-    username: 'Florence25',
-    fromUser: 'Simang',
-    amount: 3.60,
-    currency: 'USDT',
-    createdAt: '2026-09-22T19:56:08Z',
-  },
-  {
-    id: 'comm_5',
-    username: 'Za414',
-    fromUser: 'monama87',
-    amount: 24.00,
-    currency: 'USDT',
-    createdAt: '2026-09-21T12:17:16Z',
-  },
-  {
-    id: 'comm_6',
-    username: '082105ab',
-    fromUser: 'Nosanda11',
-    amount: 4.00,
-    currency: 'ETH',
-    createdAt: '2026-09-19T19:47:29Z',
-  },
-  {
-    id: 'comm_7',
-    username: 'Succ141',
-    fromUser: 'Rose12',
-    amount: 3.00,
-    currency: 'USDT',
-    createdAt: '2026-09-19T14:45:00Z',
-  },
-  {
-    id: 'comm_8',
-    username: '1001',
-    fromUser: 'Millicent89',
-    amount: 90.00,
-    currency: 'USDT',
-    createdAt: '2026-09-18T19:46:11Z',
-  },
-  {
-    id: 'comm_9',
-    username: 'Pearl13',
-    fromUser: 'Gracious',
-    amount: 7.55,
-    currency: 'USDT',
-    createdAt: '2026-09-18T19:36:03Z',
-  },
-  {
-    id: 'comm_10',
-    username: 'g9s',
-    fromUser: 'Teleka2',
-    amount: 110.00,
-    currency: 'USDT',
-    createdAt: '2026-09-17T21:40:41Z',
-  },
-  {
-    id: 'comm_11',
-    username: 'Pearl13',
-    fromUser: 'Sakhile',
-    amount: 24.00,
-    currency: 'USDT',
-    createdAt: '2026-09-17T18:12:00Z',
-  },
-];
+
 
 export default function AdminReferralCommissionsLogPage() {
   const [commissions, setCommissions] = useState([]);
@@ -108,15 +20,20 @@ export default function AdminReferralCommissionsLogPage() {
   const fetchCommissions = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/transactions?type=referral_commission');
-      if (res.data && res.data.success && res.data.transactions && res.data.transactions.length > 0) {
-        setCommissions(res.data.transactions);
+      const res = await api.get('/admin/transactions');
+      if (res.data && res.data.success) {
+        const rawList = res.data.transactions || res.data.data || [];
+        const filteredList = rawList.filter((item) => {
+          const typeUpper = String(item.type || item.transaction_type || '').toUpperCase();
+          return typeUpper.includes('REFERRAL') || typeUpper.includes('COMMISSION') || typeUpper.includes('AFFILIATE') || item.from_user || item.fromUser;
+        });
+        setCommissions(filteredList);
       } else {
-        setCommissions(defaultCommissionsList);
+        setCommissions([]);
       }
     } catch (err) {
       console.error('Failed to fetch admin referral commissions log:', err);
-      setCommissions(defaultCommissionsList);
+      setCommissions([]);
     } finally {
       setLoading(false);
     }
@@ -188,6 +105,10 @@ export default function AdminReferralCommissionsLogPage() {
       timeStr: `${formattedHours}:${minutes}:${seconds} ${ampm}`,
     };
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <AdminSidebarLayout>
@@ -284,7 +205,7 @@ export default function AdminReferralCommissionsLogPage() {
                     <td colSpan={3} className="py-12 text-center text-slate-400 font-semibold">
                       <div className="flex items-center justify-center gap-2">
                         <span>Loading referral commissions log</span>
-                        <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+                        <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
                       </div>
                     </td>
                   </tr>
@@ -296,8 +217,8 @@ export default function AdminReferralCommissionsLogPage() {
                   </tr>
                 ) : (
                   filteredCommissions.map((row) => {
-                    const uName = row.username || row.user?.username || '1001';
-                    const fromName = row.fromUser || row.from_user || 'Zandile22';
+                    const uName = row.username || row.user?.username || row.user?.full_name || 'User';
+                    const fromName = row.fromUser || row.from_user || row.from_username || 'Referred Member';
                     const amtVal = parseFloat(row.amount || 0);
 
                     const currStr = (row.currency || 'USDT').toUpperCase();
