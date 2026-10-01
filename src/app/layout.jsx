@@ -1,11 +1,9 @@
 import './globals.css';
 import { Inter, Righteous } from 'next/font/google';
-import Script from 'next/script';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AdminAuthProvider } from '../context/AdminAuthContext';
 import FaviconGuard from '../components/FaviconGuard';
-import WhatsAppWidget from '../components/WhatsAppWidget';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -55,9 +53,7 @@ export default function RootLayout({ children }) {
             pauseOnHover
             theme="light"
           />
-          <WhatsAppWidget phoneNumber="447345115732" message="Message us" />
         </AdminAuthProvider>
-        <Script src="//code.tidio.co/oh2aiv1xpfjoqs6m4fuxcxcj6irlrnkr.js" strategy="lazyOnload" />
       </body>
     </html>
   );

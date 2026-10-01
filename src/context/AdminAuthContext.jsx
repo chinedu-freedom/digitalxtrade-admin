@@ -64,7 +64,10 @@ export const AdminAuthProvider = ({ children }) => {
           if (res.data.token) {
             localStorage.setItem('stakelab_admin_token', res.data.token);
             const isLocal = window.location.hostname.includes('localhost');
-            document.cookie = `stakelab_admin_token=${res.data.token}; path=/; max-age=604800; SameSite=Lax${!isLocal ? '; Secure' : ''}`;
+            const maxAge = remember ? 86400 : 3600; // 24 hours if Remember Me is checked, 1 hour if unchecked
+            const domainAttr = !isLocal ? '; domain=.everstake.cx' : '';
+            document.cookie = `stakelab_admin_token=${res.data.token}; path=/; max-age=${maxAge}; SameSite=Lax${!isLocal ? '; Secure' : ''}`;
+            document.cookie = `sec-admin-token=${res.data.token}; path=/; max-age=${maxAge}; SameSite=Lax${!isLocal ? '; Secure' : ''}`;
           }
           localStorage.setItem('stakelab_admin', JSON.stringify(adminData));
         }
@@ -131,8 +134,12 @@ export const AdminAuthProvider = ({ children }) => {
       localStorage.removeItem('stakelab_admin');
       localStorage.removeItem('stakelab_admin_token');
       localStorage.removeItem('digital_admin_token');
+      const isLocal = window.location.hostname.includes('localhost');
+      const domainAttr = !isLocal ? '; domain=.everstake.cx' : '';
+      document.cookie = `stakelab_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
+      document.cookie = `sec-admin-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`;
       document.cookie = 'stakelab_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      document.cookie = 'digital_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = 'sec-admin-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
     setAdmin(null);
     toast.info('Logged out successfully');
