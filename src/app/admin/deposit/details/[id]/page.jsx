@@ -327,11 +327,6 @@ export default function AdminDepositDetailsPage() {
                   </div>
 
                   <div>
-                    <div className="text-slate-500 text-[11px] font-medium">Gateway Charge / Fee</div>
-                    <div className="font-bold font-mono text-slate-600 mt-0.5">{depositData.charge}</div>
-                  </div>
-
-                  <div>
                     <div className="text-slate-500 text-[11px] font-medium">Final Credited Amount</div>
                     <div className="font-extrabold font-righteous text-emerald-600 text-base mt-0.5">{depositData.finalAmount}</div>
                   </div>
