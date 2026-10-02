@@ -79,11 +79,11 @@ export default function AdminCreatePlanPage() {
         is_active: status === 'ACTIVE' || status === 'COMING_SOON',
         payment_period: paymentPeriod,
         paymentPeriod: paymentPeriod,
-        duration_days: durInt,
-        durationDays: durInt,
-        durationHours: null,
-        duration_unit: 'Days',
-        durationUnit: 'Days',
+        duration_days: durationUnit === 'Hours' ? Math.ceil(durInt / 24) : durInt,
+        durationDays: durationUnit === 'Hours' ? Math.ceil(durInt / 24) : durInt,
+        durationHours: durationUnit === 'Hours' ? durInt : null,
+        duration_unit: durationUnit,
+        durationUnit: durationUnit,
         without_time_limit: false,
         tiers: [{
           name: planLabel || 'Plan 1',
@@ -222,9 +222,14 @@ export default function AdminCreatePlanPage() {
                     placeholder="e.g. 30"
                     className="w-full h-11 bg-transparent border-0 outline-none px-4 text-slate-800 text-xs font-sans placeholder-slate-400 font-mono"
                   />
-                  <div className="h-11 bg-slate-100 border-l border-slate-200 px-4 text-xs font-bold text-slate-700 flex items-center shrink-0 select-none">
-                    Days
-                  </div>
+                  <select
+                    value={durationUnit}
+                    onChange={(e) => setDurationUnit(e.target.value)}
+                    className="h-11 bg-slate-100 border-l border-slate-200 px-3 text-xs font-bold text-slate-700 outline-none cursor-pointer"
+                  >
+                    <option value="Days">Days</option>
+                    <option value="Hours">Hours</option>
+                  </select>
                 </div>
               </div>
 

@@ -47,18 +47,20 @@ export default function AdminStakingPlansPage() {
             ...p,
             id: p.id || p._id,
             name: p.title || p.name || 'Investment Plan',
-            tier: p.tier || 'Flexible Tier',
-            duration: `${p.duration_days || p.durationDays || 30} Days`,
+            duration: p.durationHours ? `${p.durationHours} Hours` : `${p.duration_days || p.durationDays || 30} Days`,
             days: p.duration_days || p.durationDays || 30,
             duration_days: p.duration_days || p.durationDays || 30,
+            durationHours: p.durationHours,
             min_amount: minAmt,
             max_amount: maxAmt,
             daily_return_percent: dailyRate,
             capital_return: p.capital_return !== false,
             is_compounding: p.is_compounding !== false,
             status: planStatus,
-            payment_period: p.payment_period || p.paymentPeriod || 'Daily',
-            paymentPeriod: p.payment_period || p.paymentPeriod || 'Daily',
+            payment_period: p.payment_period || p.paymentPeriod || (p.durationHours ? 'Hourly' : 'Daily'),
+            paymentPeriod: p.payment_period || p.paymentPeriod || (p.durationHours ? 'Hourly' : 'Daily'),
+            hold_earnings_days: p.hold_earnings_days ?? p.holdEarningsDays ?? 0,
+            delay_earning_days: p.delay_earning_days ?? p.delayEarningDays ?? 0,
             segments: [
               { range: `${minAmt.toLocaleString()} USDT – ${(minAmt + step).toLocaleString()} USDT`, rate: `${dailyRate.toFixed(2)}%` },
               { range: `${(minAmt + step + 1).toLocaleString()} USDT – ${(minAmt + step * 2).toLocaleString()} USDT`, rate: `${(dailyRate * 1.5).toFixed(2)}%` },
@@ -217,7 +219,7 @@ export default function AdminStakingPlansPage() {
                             ∞ Lifetime
                           </span>
                         ) : (
-                          <span>{plan.duration_days || plan.days || 30} Days</span>
+                          <span>{plan.durationHours ? `${plan.durationHours} Hours` : `${plan.duration_days || plan.days || 30} Days`}</span>
                         )}
                       </td>
 

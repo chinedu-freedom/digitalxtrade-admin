@@ -96,7 +96,7 @@ function AdminLoginContent() {
                     setEmail(e.target.value);
                     if (errors.form) setErrors({});
                   }}
-                  placeholder="admin or admin@digitalxtrade.com"
+                  placeholder="Enter admin email or username"
                   className="w-full h-12 bg-[#0c1424] border-0 outline-none focus:outline-none rounded-md px-4 text-white placeholder-slate-500 font-sans text-sm focus:ring-1 focus:ring-[#0085d0] transition-all shadow-inner"
                 />
               </div>
