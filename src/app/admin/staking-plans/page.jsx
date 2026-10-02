@@ -47,10 +47,9 @@ export default function AdminStakingPlansPage() {
             ...p,
             id: p.id || p._id,
             name: p.title || p.name || 'Investment Plan',
-            duration: p.durationHours ? `${p.durationHours} Hours` : `${p.duration_days || p.durationDays || 30} Days`,
+            duration: `${p.duration_days || p.durationDays || 30} Days`,
             days: p.duration_days || p.durationDays || 30,
             duration_days: p.duration_days || p.durationDays || 30,
-            durationHours: p.durationHours,
             min_amount: minAmt,
             max_amount: maxAmt,
             daily_return_percent: dailyRate,
@@ -219,7 +218,7 @@ export default function AdminStakingPlansPage() {
                             ∞ Lifetime
                           </span>
                         ) : (
-                          <span>{plan.durationHours ? `${plan.durationHours} Hours` : `${plan.duration_days || plan.days || 30} Days`}</span>
+                          <span>{plan.duration_days || plan.days || 30} Days</span>
                         )}
                       </td>
 

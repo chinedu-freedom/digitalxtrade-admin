@@ -63,14 +63,8 @@ export default function AdminEditPlanPage() {
           setPlanLabel(target.planLabel || target.tier || 'Plan 1');
           setPaymentPeriod(target.payment_period || target.paymentPeriod || 'Daily');
 
-          if (target.durationHours) {
-            setDurationUnit('Hours');
-            setDuration(target.durationHours.toString());
-          } else {
-            setDurationUnit('Days');
-            const durDays = target.duration_days ?? target.durationDays ?? 30;
-            setDuration(durDays > 0 ? durDays.toString() : '30');
-          }
+          const durDays = target.duration_days ?? target.durationDays ?? (target.durationHours ? Math.ceil(target.durationHours / 24) : 30);
+          setDuration(durDays > 0 ? durDays.toString() : '30');
 
           let currentStatus = (target.status || target.badge || 'ACTIVE').toUpperCase();
           if (['STARTER', 'RUNNING', 'ACTIVE'].includes(currentStatus)) {
@@ -112,7 +106,7 @@ export default function AdminEditPlanPage() {
     }
 
     if (!duration || parseInt(duration) <= 0) {
-      toast.error(`Please specify a valid Duration in ${durationUnit}.`);
+      toast.error('Please specify a valid Duration in Days.');
       return;
     }
 
@@ -146,11 +140,11 @@ export default function AdminEditPlanPage() {
         is_active: status === 'ACTIVE' || status === 'COMING_SOON',
         payment_period: paymentPeriod,
         paymentPeriod: paymentPeriod,
-        duration_days: durationUnit === 'Hours' ? Math.ceil(durInt / 24) : durInt,
-        durationDays: durationUnit === 'Hours' ? Math.ceil(durInt / 24) : durInt,
-        durationHours: durationUnit === 'Hours' ? durInt : null,
-        duration_unit: durationUnit,
-        durationUnit: durationUnit,
+        duration_days: durInt,
+        durationDays: durInt,
+        durationHours: null,
+        duration_unit: 'Days',
+        durationUnit: 'Days',
         without_time_limit: false,
         tiers: [{
           name: planLabel || 'Plan 1',
@@ -294,14 +288,9 @@ export default function AdminEditPlanPage() {
                       placeholder="e.g. 30"
                       className="w-full h-11 bg-transparent border-0 outline-none px-4 text-slate-800 text-xs font-sans placeholder-slate-400 font-mono"
                     />
-                    <select
-                      value={durationUnit}
-                      onChange={(e) => setDurationUnit(e.target.value)}
-                      className="h-11 bg-slate-100 border-l border-slate-200 px-3 text-xs font-bold text-slate-700 outline-none cursor-pointer"
-                    >
-                      <option value="Days">Days</option>
-                      <option value="Hours">Hours</option>
-                    </select>
+                    <div className="h-11 bg-slate-100 border-l border-slate-200 px-4 text-xs font-bold text-slate-700 flex items-center shrink-0 select-none">
+                      Days
+                    </div>
                   </div>
                 </div>
 
