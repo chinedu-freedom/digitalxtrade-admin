@@ -302,6 +302,15 @@ export default function AdminSidebarLayout({ children }) {
         { label: 'Referral Commissions', path: '/admin/reports/referrals' },
       ],
     },
+    {
+      label: 'Gift Bonus',
+      icon: Gift,
+      matchPaths: ['/admin/gift-bonus', '/admin/extra/gift-bonus'],
+      submenu: [
+        { label: 'Bonus Codes', path: '/admin/gift-bonus/bonus' },
+        { label: 'Usage History', path: '/admin/gift-bonus/uses-list' },
+      ],
+    },
     { label: 'Manage Referral', path: '/admin/referral', icon: Share2 },
     { label: 'System Setting', path: '/admin/settings', icon: Settings },
     { label: 'Logout', action: 'logout', icon: LogOut },

@@ -41,7 +41,7 @@ export default function AdminGiftBonusUsesListPage() {
         {/* Page Header Title */}
         <div>
           <h1 className="text-xl font-bold text-slate-800 font-sans tracking-wide flex items-center gap-2">
-            <History className="w-6 h-6 text-[#5b5bf5]" /> Gift Code Usage History
+            <History className="w-6 h-6 text-[#0085d0]" /> Gift Code Usage History
           </h1>
           <p className="text-xs text-slate-500 mt-1 font-sans">
             Real-time audit log of all claimed gift codes and user bonus redemptions
@@ -49,14 +49,14 @@ export default function AdminGiftBonusUsesListPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative w-full sm:w-80">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by code, user or email..."
-              className="w-full h-10 bg-slate-50 border border-slate-200 rounded-lg pl-3.5 pr-10 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans"
+              className="w-full h-10 bg-slate-50 border border-slate-200 rounded-lg pl-3.5 pr-10 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0085d0] font-sans"
             />
             <Search className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
           </div>
@@ -67,11 +67,11 @@ export default function AdminGiftBonusUsesListPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           {loading ? (
             <div className="p-12 text-center text-slate-400 font-semibold flex items-center justify-center gap-2 text-xs">
               <span>Loading usage logs</span>
-              <Loader2 className="w-5 h-5 animate-spin text-[#5b5bf5]" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#0085d0]" />
             </div>
           ) : filteredClaims.length === 0 ? (
             <div className="p-12 text-center text-slate-400 text-xs font-semibold">
@@ -93,7 +93,7 @@ export default function AdminGiftBonusUsesListPage() {
                     <tr key={item.id} className="hover:bg-slate-50/80 text-slate-700">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-indigo-50 text-[#5b5bf5] flex items-center justify-center font-bold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-sky-50 text-[#0085d0] flex items-center justify-center font-bold shrink-0">
                             <UserCheck className="w-4 h-4" />
                           </div>
                           <div>
@@ -102,7 +102,7 @@ export default function AdminGiftBonusUsesListPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-indigo-600">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#0085d0]">
                         {item.code}
                       </td>
                       <td className="py-3.5 px-4 font-extrabold text-emerald-600">
