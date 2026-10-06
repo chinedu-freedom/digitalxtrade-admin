@@ -5,7 +5,8 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import PageLoader from '../../../../components/PageLoader';
 import RichTextEditor from '../../../../components/RichTextEditor';
 import api from '../../../../lib/api';
-import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Loader2, Wallet, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminDepositWithdrawalSettingsPage() {
@@ -87,9 +88,20 @@ export default function AdminDepositWithdrawalSettingsPage() {
     <AdminSidebarLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
         {/* Page Header Title */}
-        <h1 className="text-xl font-bold text-slate-800 font-sans tracking-wide">
-          Deposit & Withdrawal Settings
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-xl font-bold text-slate-800 font-sans tracking-wide">
+            Deposit & Withdrawal Settings
+          </h1>
+
+          <Link
+            href="/admin/setting/company-wallets"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold transition-colors shadow-sm self-start sm:self-auto"
+          >
+            <Wallet className="w-4 h-4 text-indigo-600" />
+            <span>Manage Company Deposit Wallets</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
         {/* Setting Form Container */}
         <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">

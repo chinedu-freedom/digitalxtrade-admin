@@ -312,7 +312,18 @@ export default function AdminSidebarLayout({ children }) {
       ],
     },
     { label: 'Manage Referral', path: '/admin/referral', icon: Share2 },
-    { label: 'System Setting', path: '/admin/settings', icon: Settings },
+    {
+      label: 'System Setting',
+      icon: Settings,
+      matchPaths: ['/admin/settings', '/admin/system-setting', '/admin/setting'],
+      submenu: [
+        { label: 'All Settings', path: '/admin/settings' },
+        { label: 'Deposit Wallets', path: '/admin/setting/company-wallets' },
+        { label: 'Deposit & Withdrawal', path: '/admin/setting/deposit-withdrawal' },
+        { label: 'General Setting', path: '/admin/setting/general' },
+        { label: 'Email Config', path: '/admin/settings/email' },
+      ],
+    },
     { label: 'Logout', action: 'logout', icon: LogOut },
   ];
 

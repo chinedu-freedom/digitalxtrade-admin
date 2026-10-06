@@ -24,9 +24,16 @@ import {
   Code2,
   Network,
   Search,
+  Wallet,
 } from 'lucide-react';
 
 const systemSettingCards = [
+  {
+    title: 'Company Deposit Wallets',
+    description: 'Configure manual receiving crypto addresses (BTC, USDT TRC20, USDT BEP20, LTC) with automated fallback protection.',
+    icon: Wallet,
+    link: '/admin/setting/company-wallets',
+  },
   {
     title: 'General Setting',
     description: 'Configure site title, logo, favicon branding and registration bonus.',
