@@ -256,7 +256,7 @@ export default function AdminDashboardPage() {
           totalUsers: totalUsersCount || prev.totalUsers,
           activeUsers: activeUsersCount || prev.activeUsers,
           todayUsers: todayUsersCount || prev.todayUsers,
-          investmentPackages: activePackagesCount || prev.investmentPackages || 6,
+          investmentPackages: activePackagesCount ?? 0,
           totalUsersBalance: totalUsersBalanceVal || prev.totalUsersBalance,
           totalDeposited: totalDepSum || prev.totalDeposited,
           todaysDeposit: todaysDepSum || prev.todaysDeposit,
@@ -364,7 +364,7 @@ export default function AdminDashboardPage() {
               <div>
                 <div className="text-[11px] font-semibold text-slate-500">Investment Packages</div>
                 <div className="text-lg font-bold text-slate-800 mt-0.5">
-                  {stats.investmentPackages || stats.activeStakingCount || 6}
+                  {stats.investmentPackages ?? stats.activeStakingCount ?? 0}
                 </div>
               </div>
             </div>
