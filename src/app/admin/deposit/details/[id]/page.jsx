@@ -16,6 +16,7 @@ export default function AdminDepositDetailsPage() {
   const [depositData, setDepositData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [targetWallet, setTargetWallet] = useState('deposit'); // 'deposit' | 'profit'
 
   const fetchDepositDetails = async () => {
     if (!depositId) return;
@@ -107,18 +108,24 @@ export default function AdminDepositDetailsPage() {
     if (!depositId) return;
     try {
       setProcessing(true);
+      let res;
       try {
-        await api.post(`/admin/deposits/${depositId}/approve`);
+        res = await api.post(`/admin/deposits/${depositId}/approve`, { targetWallet });
       } catch (e1) {
         try {
-          await api.put(`/admin/deposits/${depositId}`, { status: 'APPROVED' });
+          res = await api.put(`/admin/deposits/${depositId}`, { status: 'APPROVED', targetWallet });
         } catch (e2) {
-          await api.post(`/deposits/${depositId}/approve`);
+          res = await api.post(`/deposits/${depositId}/approve`, { targetWallet });
         }
       }
 
-      setDepositData((prev) => (prev ? { ...prev, status: 'APPROVED' } : prev));
-      toast.success(`Deposit of ${depositData?.paymentAmount || 'funds'} approved successfully!`);
+      const targetLabel = targetWallet === 'profit' ? 'Profit Balance (Earnings)' : 'Deposit Balance (Capital)';
+      setDepositData((prev) => (prev ? {
+        ...prev,
+        status: 'APPROVED',
+        remarks: `Credited to ${targetLabel}`
+      } : prev));
+      toast.success(res?.data?.message || `Deposit of ${depositData?.paymentAmount || 'funds'} approved and credited to ${targetLabel}!`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to approve deposit');
     } finally {
@@ -364,25 +371,110 @@ export default function AdminDepositDetailsPage() {
                 </div>
               </div>
 
-              {/* Action Buttons Bar if Pending or Initiated */}
+              {/* Target Balance Direction Selector if Pending or Initiated */}
               {(depositData.status === 'PENDING' || depositData.status === 'INITIATED') && (
-                <div className="flex items-center gap-3 pt-6 border-t border-slate-200">
-                  <button
-                    type="button"
-                    disabled={processing}
-                    onClick={handleApprove}
-                    className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-lg text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed"
-                  >
-                    {processing ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Check className="w-5 h-5" />} Approve Deposit
-                  </button>
-                  <button
-                    type="button"
-                    disabled={processing}
-                    onClick={handleReject}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-lg text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed"
-                  >
-                    {processing ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <X className="w-5 h-5" />} Reject Deposit
-                  </button>
+                <div className="pt-6 border-t border-slate-200 space-y-4">
+                  <div className="bg-slate-50 border border-slate-200/90 rounded-xl p-4 sm:p-5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                      <div>
+                        <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                          <span>Direct Confirmed Funds To User Balance:</span>
+                        </label>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Choose which balance wallet will be credited with {depositData.paymentAmount} upon approval.
+                        </p>
+                      </div>
+                      <span className="text-[11px] font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200 self-start sm:self-auto">
+                        Selected: <strong className={targetWallet === 'profit' ? 'text-emerald-600' : 'text-[#0085d0]'}>{targetWallet === 'profit' ? 'Profit Balance' : 'Deposit Balance'}</strong>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                      {/* Option 1: Deposit Balance (Capital) */}
+                      <label
+                        onClick={() => setTargetWallet('deposit')}
+                        className={`flex items-start gap-3.5 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                          targetWallet === 'deposit'
+                            ? 'border-[#0085d0] bg-blue-50/70 shadow-sm'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="targetWallet"
+                          value="deposit"
+                          checked={targetWallet === 'deposit'}
+                          onChange={() => setTargetWallet('deposit')}
+                          className="mt-1 text-[#0085d0] focus:ring-[#0085d0]"
+                        />
+                        <div className="space-y-0.5">
+                          <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <span>Deposit Balance (Capital)</span>
+                            <span className="text-[10px] bg-blue-100 text-[#0085d0] font-bold px-1.5 py-0.5 rounded">Standard</span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-relaxed">
+                            Credits user's investment capital balance. Used to generate daily active trading yields.
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Option 2: Profit Balance (Earnings) */}
+                      <label
+                        onClick={() => setTargetWallet('profit')}
+                        className={`flex items-start gap-3.5 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                          targetWallet === 'profit'
+                            ? 'border-emerald-600 bg-emerald-50/70 shadow-sm'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="targetWallet"
+                          value="profit"
+                          checked={targetWallet === 'profit'}
+                          onChange={() => setTargetWallet('profit')}
+                          className="mt-1 text-emerald-600 focus:ring-emerald-600"
+                        />
+                        <div className="space-y-0.5">
+                          <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <span>Profit Balance (Earnings)</span>
+                            <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">Withdrawable</span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-relaxed">
+                            Credits user's profit earnings directly. Immediately withdrawable by user without early capital fee.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons Bar */}
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      disabled={processing}
+                      onClick={handleApprove}
+                      className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-lg text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed"
+                    >
+                      {processing ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      ) : (
+                        <Check className="w-5 h-5" />
+                      )}
+                      <span>
+                        Approve to {targetWallet === 'profit' ? 'Profit Balance' : 'Deposit Balance'}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={processing}
+                      onClick={handleReject}
+                      className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-lg text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed"
+                    >
+                      {processing ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <X className="w-5 h-5" />} Reject Deposit
+                    </button>
+                  </div>
                 </div>
               )}
             </>

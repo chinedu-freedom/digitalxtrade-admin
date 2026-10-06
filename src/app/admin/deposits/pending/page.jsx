@@ -5,8 +5,9 @@ import Link from 'next/link';
 import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import PageLoader from '../../../../components/PageLoader';
 import Pagination from '../../../../components/Pagination';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Check, X, Wallet } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/select';
+import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminDepositsFilteredPage({
@@ -21,6 +22,11 @@ export default function AdminDepositsFilteredPage({
   const [searchUser, setSearchUser] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('All');
   const [selectedDateFilter, setSelectedDateFilter] = useState('All');
+
+  // Quick Approval Modal State
+  const [approveModalDeposit, setApproveModalDeposit] = useState(null);
+  const [modalTargetWallet, setModalTargetWallet] = useState('deposit');
+  const [approving, setApproving] = useState(false);
 
   const fetchDeposits = async () => {
     try {
@@ -40,6 +46,27 @@ export default function AdminDepositsFilteredPage({
   useEffect(() => {
     fetchDeposits();
   }, [activeStatus]);
+
+  const handleQuickApprove = async () => {
+    if (!approveModalDeposit) return;
+    try {
+      setApproving(true);
+      const res = await api.post(`/admin/deposits/${approveModalDeposit.id}/approve`, {
+        targetWallet: modalTargetWallet
+      });
+      const targetLabel = modalTargetWallet === 'profit' ? 'Profit Balance (Earnings)' : 'Deposit Balance (Capital)';
+      toast.success(res.data?.message || `Deposit approved and credited to ${targetLabel}!`);
+      // Update local state so status updates or pending item disappears
+      setDeposits((prev) =>
+        prev.map((d) => (d.id === approveModalDeposit.id ? { ...d, status: 'APPROVED' } : d))
+      );
+      setApproveModalDeposit(null);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to approve deposit');
+    } finally {
+      setApproving(false);
+    }
+  };
 
   const filteredDeposits = deposits.filter((d) => {
     if (activeStatus !== 'ALL') {
@@ -327,14 +354,29 @@ export default function AdminDepositsFilteredPage({
                           </div>
                         </td>
 
-                        {/* Action Column with Green DETAILS Button */}
+                        {/* Action Column with DETAILS and APPROVE Buttons */}
                         <td className="py-4 px-4 align-top text-center">
-                          <Link
-                            href={`/admin/deposit/details/${d.id}`}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase px-3 py-1.5 rounded-md inline-block transition-all shadow-sm cursor-pointer"
-                          >
-                            DETAILS
-                          </Link>
+                          <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                            <Link
+                              href={`/admin/deposit/details/${d.id}`}
+                              className="bg-slate-700 hover:bg-slate-800 text-white font-bold text-[10px] uppercase px-2.5 py-1.5 rounded-md inline-block transition-all shadow-sm cursor-pointer"
+                            >
+                              DETAILS
+                            </Link>
+                            {String(d.status || '').toUpperCase() === 'PENDING' && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setApproveModalDeposit(d);
+                                  setModalTargetWallet('deposit');
+                                }}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase px-2.5 py-1.5 rounded-md inline-flex items-center gap-1 transition-all shadow-sm cursor-pointer"
+                              >
+                                <Check className="w-3 h-3" />
+                                APPROVE
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -353,6 +395,149 @@ export default function AdminDepositsFilteredPage({
             onPageChange={(page) => console.log('Page:', page)}
           />
         </div>
+
+        {/* Quick Approve Modal */}
+        {approveModalDeposit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              {/* Modal Header */}
+              <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                    <Check className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 font-sans">
+                      Confirm & Direct Deposit
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      Deposit #{approveModalDeposit.id?.slice(0, 8)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setApproveModalDeposit(null)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-4">
+                {/* Deposit Summary Box */}
+                <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 space-y-2 text-xs font-sans">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">User:</span>
+                    <strong className="text-slate-900 font-semibold">
+                      {approveModalDeposit.user?.username || approveModalDeposit.username || approveModalDeposit.user?.email}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Amount:</span>
+                    <strong className="text-emerald-600 font-bold text-sm">
+                      ${parseFloat(approveModalDeposit.amount || 0).toFixed(2)}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Currency / Gateway:</span>
+                    <strong className="text-slate-800">
+                      {approveModalDeposit.gateway_code || approveModalDeposit.payment_method || approveModalDeposit.currency || 'Crypto'}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Target Wallet Radio Choice */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                    Choose Destination Balance:
+                  </label>
+
+                  <div className="space-y-2">
+                    <label
+                      onClick={() => setModalTargetWallet('deposit')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        modalTargetWallet === 'deposit'
+                          ? 'border-[#0085d0] bg-blue-50/70'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="modalTargetWallet"
+                        value="deposit"
+                        checked={modalTargetWallet === 'deposit'}
+                        onChange={() => setModalTargetWallet('deposit')}
+                        className="mt-0.5 text-[#0085d0] focus:ring-[#0085d0]"
+                      />
+                      <div className="text-xs">
+                        <span className="font-bold text-slate-900">Deposit Balance (Capital)</span>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Adds funds to user's investment capital balance (yields daily returns).
+                        </p>
+                      </div>
+                    </label>
+
+                    <label
+                      onClick={() => setModalTargetWallet('profit')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        modalTargetWallet === 'profit'
+                          ? 'border-emerald-600 bg-emerald-50/70'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="modalTargetWallet"
+                        value="profit"
+                        checked={modalTargetWallet === 'profit'}
+                        onChange={() => setModalTargetWallet('profit')}
+                        className="mt-0.5 text-emerald-600 focus:ring-emerald-600"
+                      />
+                      <div className="text-xs">
+                        <span className="font-bold text-slate-900">Profit Balance (Earnings)</span>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Adds funds directly to user's withdrawable profit earnings.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  disabled={approving}
+                  onClick={() => setApproveModalDeposit(null)}
+                  className="px-4 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={approving}
+                  onClick={handleQuickApprove}
+                  className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-md disabled:opacity-50"
+                >
+                  {approving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Approving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Approve & Credit
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminSidebarLayout>
   );
