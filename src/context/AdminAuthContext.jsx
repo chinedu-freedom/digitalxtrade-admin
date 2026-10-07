@@ -4,9 +4,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { getApiBaseUrl } from '../lib/api';
 
 const AdminAuthContext = createContext();
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export const AdminAuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
@@ -62,7 +62,7 @@ export const AdminAuthProvider = ({ children }) => {
       }
 
       try {
-        const res = await axios.get(`${API_BASE_URL}/auth/admin/me`, {
+        const res = await axios.get(`${getApiBaseUrl()}/auth/admin/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -104,7 +104,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const login = async (usernameOrEmail, password, remember = false) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/admin/login`, {
+      const res = await axios.post(`${getApiBaseUrl()}/auth/admin/login`, {
         username: usernameOrEmail,
         email: usernameOrEmail,
         password,
@@ -143,7 +143,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const requestPasswordReset = async (email) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+      const res = await axios.post(`${getApiBaseUrl()}/auth/forgot-password`, { email });
       toast.success(res.data?.message || 'OTP code sent to admin email!');
       return { success: true, message: res.data?.message };
     } catch (e) {
@@ -155,7 +155,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const verifyOtp = async (email, otp) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/verify-otp`, { email, otp });
+      const res = await axios.post(`${getApiBaseUrl()}/auth/verify-otp`, { email, otp });
       toast.success(res.data?.message || 'OTP verified successfully!');
       return { success: true, message: res.data?.message };
     } catch (e) {
@@ -167,7 +167,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const resetPassword = async (email, password) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/reset-password`, { email, password });
+      const res = await axios.post(`${getApiBaseUrl()}/auth/reset-password`, { email, password });
       toast.success(res.data?.message || 'Admin password reset successfully!');
       return { success: true, message: res.data?.message };
     } catch (e) {
