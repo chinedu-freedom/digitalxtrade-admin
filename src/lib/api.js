@@ -6,12 +6,15 @@ export const getApiBaseUrl = () => {
     const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
     if (!isLocal) {
       const envUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
-        return 'https://digitalxtrade.com/api';
+      if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1') || envUrl === 'https://digitalxtrade.com/api') {
+        return 'https://api.digitalxtrade.com/api';
       }
     }
   }
   let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  if (url === 'https://digitalxtrade.com/api') {
+    url = 'https://api.digitalxtrade.com/api';
+  }
   url = url.trim().replace(/\/+$/, '');
   if (!url.endsWith('/api')) {
     url = `${url}/api`;
