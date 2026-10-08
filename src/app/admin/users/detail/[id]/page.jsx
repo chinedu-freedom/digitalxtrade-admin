@@ -18,6 +18,7 @@ import {
   Banknote,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
   X,
   Loader2,
   Eye,
@@ -82,6 +83,7 @@ export default function AdminUserDetailPage() {
     emailVerified: true,
     twoFaEnabled: false,
     banned: false,
+    maxDailyWithdraw: '50000.00',
     maxDailyWithdrawal: '50000.00',
     maxDailyBtcWithdrawal: '20000.00',
     maxDailyUsdtWithdrawal: '50000.00',
@@ -151,6 +153,11 @@ export default function AdminUserDetailPage() {
           emailVerified: u.email_verified !== undefined ? Boolean(u.email_verified) : Boolean(u.isEmailVerified),
           twoFaEnabled: false,
           banned: u.is_suspended !== undefined ? Boolean(u.is_suspended) : Boolean(u.banned),
+          maxDailyWithdraw: u.maxDailyWithdraw !== undefined && u.maxDailyWithdraw !== null
+            ? String(u.maxDailyWithdraw)
+            : (u.max_daily_withdraw !== undefined && u.max_daily_withdraw !== null
+              ? String(u.max_daily_withdraw)
+              : (u.maxDailyWithdrawal !== undefined ? String(u.maxDailyWithdrawal) : '50000.00')),
         });
       }
     } catch (err) {
@@ -426,6 +433,23 @@ export default function AdminUserDetailPage() {
     }
   };
 
+
+  const handleSaveMaxDailyWithdraw = async () => {
+    try {
+      const amount = parseFloat(userData.maxDailyWithdraw);
+      const finalVal = isNaN(amount) ? 0 : amount;
+      const res = await api.put(`/admin/users/${userId}`, {
+        maxDailyWithdraw: finalVal,
+        max_daily_withdraw: finalVal,
+      });
+      if (res.data?.success) {
+        toast.success(`Max daily withdrawal for @${userData.username} set to ${finalVal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`);
+        fetchUserDetail();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update max daily withdrawal limit');
+    }
+  };
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -447,6 +471,8 @@ export default function AdminUserDetailPage() {
         secret_question: userData.secretQuestion,
         secret_answer: userData.secretAnswer,
         admin_note: userData.adminNote,
+        maxDailyWithdraw: parseFloat(userData.maxDailyWithdraw) || 0,
+        max_daily_withdraw: parseFloat(userData.maxDailyWithdraw) || 0,
         email_verified: userData.emailVerified,
       });
 
@@ -927,6 +953,69 @@ export default function AdminUserDetailPage() {
                   placeholder="e.g. Gingirikani"
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-xs text-slate-800 font-sans focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
+              </div>
+            </div>
+
+            {/* Max Daily Withdraw Section Card (Matches Reference Header) */}
+            <div className="rounded-xl overflow-hidden border border-amber-300/90 shadow-sm">
+              {/* Peach Header Bar */}
+              <div className="bg-[#fed7aa] px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-amber-950/85 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                    <ChevronLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </div>
+                  <span className="text-sm sm:text-base font-extrabold text-amber-950 tracking-tight font-sans">
+                    Max Daily Withdraw:
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-amber-900 bg-amber-200/60 px-2.5 py-0.5 rounded-full border border-amber-300">
+                  Current: ${parseFloat(userData.maxDailyWithdraw || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="bg-amber-50/70 p-4 sm:p-5 space-y-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 font-mono">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      step="any"
+                      value={userData.maxDailyWithdraw}
+                      onChange={(e) => setUserData({ ...userData, maxDailyWithdraw: e.target.value })}
+                      placeholder="50000.00"
+                      className="w-full h-11 bg-white border border-amber-300 rounded-lg pl-8 pr-4 text-xs font-bold text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveMaxDailyWithdraw}
+                    className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold px-5 py-2.5 rounded-lg shadow-sm transition-all cursor-pointer whitespace-nowrap uppercase tracking-wider"
+                  >
+                    Save Limit
+                  </button>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-2 flex-wrap pt-1">
+                  <span className="text-[11px] font-bold text-slate-600">Quick Presets:</span>
+                  {[1000, 5000, 10000, 25000, 50000, 0].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setUserData({ ...userData, maxDailyWithdraw: String(preset) })}
+                      className="px-2.5 py-1 text-[11px] font-bold rounded bg-white hover:bg-amber-100 text-amber-950 border border-amber-300 shadow-2xs transition-colors cursor-pointer"
+                    >
+                      {preset === 0 ? 'Unlimited ($0)' : `${preset.toLocaleString()}`}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="text-[11px] text-slate-600 font-medium">
+                  Controls the maximum total USD withdrawal limit allowed for @{userData.username} per 24-hour day. Withdrawals exceeding this sum are rejected automatically. Set to 0 for unlimited withdrawals.
+                </p>
               </div>
             </div>
 
