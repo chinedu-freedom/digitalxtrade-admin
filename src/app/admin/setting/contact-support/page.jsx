@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
 
 export default function AdminContactSupportLinksPage() {
-  const [whatsappSupport, setWhatsappSupport] = useState('https://wa.me/1234567890');
+  const [whatsappSupport, setWhatsappSupport] = useState('https://wa.me/447353852870');
   const [telegramChannel, setTelegramChannel] = useState('https://t.me/everstake_channel');
   const [whatsappGroupModal, setWhatsappGroupModal] = useState('https://chat.whatsapp.com/everstake_group');
 
