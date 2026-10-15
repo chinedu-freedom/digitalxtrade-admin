@@ -314,15 +314,9 @@ export default function AdminSidebarLayout({ children }) {
     { label: 'Manage Referral', path: '/admin/referral', icon: Share2 },
     {
       label: 'System Setting',
+      path: '/admin/system-setting',
       icon: Settings,
       matchPaths: ['/admin/settings', '/admin/system-setting', '/admin/setting'],
-      submenu: [
-        { label: 'All Settings', path: '/admin/settings' },
-        { label: 'Deposit Wallets', path: '/admin/setting/company-wallets' },
-        { label: 'Deposit & Withdrawal', path: '/admin/setting/deposit-withdrawal' },
-        { label: 'General Setting', path: '/admin/setting/general' },
-        { label: 'Email Config', path: '/admin/settings/email' },
-      ],
     },
     { label: 'Logout', action: 'logout', icon: LogOut },
   ];
@@ -375,9 +369,11 @@ export default function AdminSidebarLayout({ children }) {
           <nav className="p-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.path;
               const hasSubmenu = Boolean(item.submenu);
               const isSubOpen = openSubmenu === item.label;
+              const isActive =
+                pathname === item.path ||
+                Boolean(item.matchPaths && item.matchPaths.some((mp) => pathname === mp || pathname.startsWith(mp)));
 
               if (hasSubmenu) {
                 const isParentActive =

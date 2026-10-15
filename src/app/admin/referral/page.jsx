@@ -9,9 +9,9 @@ import api from '../../../lib/api';
 export default function AdminManageReferralPage() {
   const [enabled, setEnabled] = useState(true);
   const [levels, setLevels] = useState([
-    { level: 1, percent: '10.00' },
-    { level: 2, percent: '5.00' },
-    { level: 3, percent: '3.00' },
+    { level: 1, percent: '6.00' },
+    { level: 2, percent: '2.50' },
+    { level: 3, percent: '1.00' },
   ]);
 
   const [loading, setLoading] = useState(true);
@@ -56,10 +56,17 @@ export default function AdminManageReferralPage() {
         levels: levels.map((d) => ({ level: d.level, percent: parseFloat(d.percent || 0) })),
       });
       if (res.data && res.data.success) {
-        toast.success('Referral commission updated successfully!');
+        toast.success('Referral commission updated successfully in database!');
+        if (res.data.referralSettings) {
+          const s = res.data.referralSettings;
+          setEnabled(Boolean(s.enabled));
+          if (Array.isArray(s.levels) && s.levels.length >= 3) {
+            setLevels(s.levels.slice(0, 3).map((d) => ({ level: d.level, percent: String(d.percent) })));
+          }
+        }
       }
     } catch (err) {
-      toast.error('Failed to update referral settings');
+      toast.error(err.response?.data?.message || 'Failed to update referral settings');
     } finally {
       setSaving(false);
     }
@@ -69,12 +76,15 @@ export default function AdminManageReferralPage() {
     const nextState = !enabled;
     setEnabled(nextState);
     try {
-      await api.post('/admin/referral-settings', {
+      const res = await api.post('/admin/referral-settings', {
         enabled: nextState,
         levels: levels.map((d) => ({ level: d.level, percent: parseFloat(d.percent || 0) })),
       });
-      toast.success(`Referral commission ${nextState ? 'enabled' : 'disabled'} successfully`);
+      if (res.data && res.data.success) {
+        toast.success(`Referral commission ${nextState ? 'enabled' : 'disabled'} successfully in database`);
+      }
     } catch (err) {
+      setEnabled(!nextState); // Rollback on error
       toast.error('Failed to update status');
     }
   };
