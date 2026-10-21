@@ -21,7 +21,7 @@ export default function AdminDepositWithdrawalSettingsPage() {
   const [maxDeposit, setMaxDeposit] = useState('1000000');
   const [minPayout, setMinPayout] = useState('10');
   const [maxPayout, setMaxPayout] = useState('50000');
-  const [payoutCharge, setPayoutCharge] = useState('0');
+  const [payoutCharge, setPayoutCharge] = useState('5');
   const [submitting, setSubmitting] = useState(false);
 
   const [rechargeNotice, setRechargeNotice] = useState('');
@@ -196,6 +196,9 @@ export default function AdminDepositWithdrawalSettingsPage() {
                   onChange={(e) => setPayoutCharge(e.target.value)}
                   className="w-full h-11 bg-white border border-slate-200 rounded-lg px-3.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans shadow-sm"
                 />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Platform fee deducted from user payouts (e.g. 5 for 5%). Set 0 for zero fee.
+                </p>
               </div>
             </div>
 

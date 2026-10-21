@@ -405,9 +405,9 @@ export default function AdminWithdrawalsFilteredPage({
                     const userBalance = parseFloat(w.user?.balance || 7.08).toFixed(2);
                     const userActiveDeposit = parseFloat(w.user?.active_deposit || 135.42).toFixed(2);
 
-                    const requestAmt = parseFloat(w.amount || 46.00);
-                    const feeAmt = parseFloat(w.charge || 2.30);
-                    const netAmt = parseFloat(w.net_amount || (requestAmt - feeAmt));
+                    const requestAmt = parseFloat(w.amount || 0);
+                    const feeAmt = w.charge !== undefined && w.charge !== null ? parseFloat(w.charge) : 0.00;
+                    const netAmt = w.net_amount !== undefined && w.net_amount !== null ? parseFloat(w.net_amount) : (requestAmt - feeAmt);
 
                     const gatewayStr = (w.currency || 'USDT').toUpperCase();
                     let assetIcon = '₮';
