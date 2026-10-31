@@ -47,9 +47,20 @@ export default function AdminTransactionLogsPage({ userId = null }) {
       }
     }
 
-    const isMinus = ['WITHDRAWAL', 'ADMIN_DEBIT', 'STAKE', 'DEBIT'].includes((t.type || '').toUpperCase());
-    if (type === 'Plus' && isMinus) return false;
-    if (type === 'Minus' && !isMinus) return false;
+    const rawType = (t.type || '').toUpperCase();
+    const isDeposit = rawType === 'DEPOSIT' || rawType === 'ADMIN_CREDIT' || (rawType.includes('DEPOSIT') && !rawType.includes('CANCEL')) || rawType.includes('CREDIT');
+    const isWithdrawal = rawType === 'WITHDRAWAL' || rawType === 'WITHDRAW' || rawType === 'ADMIN_DEBIT' || rawType.includes('WITHDRAW') || rawType === 'DEBIT';
+    const isYield = rawType === 'STAKE_PROFIT' || rawType === 'PROFIT' || rawType === 'YIELD';
+    const isStaking = rawType === 'STAKE' || rawType === 'STAKE_CANCEL' || rawType === 'CAPITAL_RETURN';
+    const isBonus = rawType === 'BONUS';
+    const isCommission = rawType.includes('COMMISSION') || rawType.includes('REFERRAL');
+
+    if (type === 'Plus' && !isDeposit) return false;
+    if (type === 'Minus' && !isWithdrawal) return false;
+    if (type === 'Yield' && !isYield) return false;
+    if (type === 'Staking' && !isStaking) return false;
+    if (type === 'Bonus' && !isBonus) return false;
+    if (type === 'Commission' && !isCommission) return false;
 
     if (selectedDateFilter !== 'All') {
       const itemDate = new Date(t.created_at);
@@ -155,8 +166,12 @@ export default function AdminTransactionLogsPage({ userId = null }) {
                 </SelectTrigger>
                 <SelectContent searchable={false} className="bg-white border-slate-200 text-slate-800 shadow-lg">
                   <SelectItem value="All" className="text-slate-800 hover:bg-slate-100">All</SelectItem>
-                  <SelectItem value="Plus" className="text-slate-800 hover:bg-slate-100">Plus (+)</SelectItem>
-                  <SelectItem value="Minus" className="text-slate-800 hover:bg-slate-100">Minus (-)</SelectItem>
+                  <SelectItem value="Plus" className="text-slate-800 hover:bg-slate-100">Plus (+) - Deposits</SelectItem>
+                  <SelectItem value="Minus" className="text-slate-800 hover:bg-slate-100">Minus (-) - Withdrawals</SelectItem>
+                  <SelectItem value="Yield" className="text-slate-800 hover:bg-slate-100">Yield Payouts</SelectItem>
+                  <SelectItem value="Staking" className="text-slate-800 hover:bg-slate-100">Staking Investments</SelectItem>
+                  <SelectItem value="Bonus" className="text-slate-800 hover:bg-slate-100">Bonuses & Rewards</SelectItem>
+                  <SelectItem value="Commission" className="text-slate-800 hover:bg-slate-100">Referral Commissions</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -227,14 +242,20 @@ export default function AdminTransactionLogsPage({ userId = null }) {
                       prefixLabel = 'Admin Credit';
                     } else if (rawType === 'ADMIN_DEBIT') {
                       prefixLabel = 'Admin Debit';
-                    } else if (rawType.includes('DEPOSIT') || rawType.includes('CREDIT')) {
+                    } else if (rawType === 'DEPOSIT' || (rawType.includes('DEPOSIT') && !rawType.includes('CANCEL')) || rawType.includes('CREDIT')) {
                       prefixLabel = 'Deposit';
-                    } else if (rawType.includes('WITHDRAW') || rawType.includes('DEBIT')) {
+                    } else if (rawType === 'WITHDRAWAL' || rawType === 'WITHDRAW' || rawType.includes('WITHDRAW')) {
                       prefixLabel = 'Withdrawal';
+                    } else if (rawType === 'STAKE_PROFIT' || rawType === 'PROFIT' || rawType === 'YIELD') {
+                      prefixLabel = 'Yield Payout';
+                    } else if (rawType === 'STAKE_CANCEL' || rawType === 'CAPITAL_RETURN') {
+                      prefixLabel = 'Return';
+                    } else if (rawType === 'STAKE') {
+                      prefixLabel = 'Staking';
+                    } else if (rawType === 'BONUS') {
+                      prefixLabel = 'Bonus';
                     } else if (rawType.includes('COMMISSION') || rawType.includes('REFERRAL')) {
                       prefixLabel = 'Commission';
-                    } else if (rawType.includes('STAKE')) {
-                      prefixLabel = 'Staking';
                     } else {
                       prefixLabel = 'Details';
                     }

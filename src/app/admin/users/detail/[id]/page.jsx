@@ -97,7 +97,7 @@ export default function AdminUserDetailPage() {
     if (!userId) return;
     try {
       setLoading(true);
-      const res = await api.get(`/admin/users/${userId}`);
+      const res = await api.get(`/admin/users/${userId}?_t=${Date.now()}`);
       if (res.data.success && res.data.user) {
         const u = res.data.user;
         const nameParts = (u.full_name || '').split(' ');
@@ -443,15 +443,19 @@ export default function AdminUserDetailPage() {
         max_daily_withdraw: finalVal,
       });
       if (res.data?.success) {
-        toast.success(`Max daily withdrawal for @${userData.username} set to ${finalVal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`);
-        fetchUserDetail();
+        toast.success(`Max daily withdrawal for @${userData.username} set to $${finalVal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`);
+        setUserData((prev) => ({
+          ...prev,
+          maxDailyWithdraw: String(finalVal),
+        }));
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update max daily withdrawal limit');
     }
   };
+
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setSubmitting(true);
     try {
       const res = await api.put(`/admin/users/${userId}`, {
@@ -478,7 +482,27 @@ export default function AdminUserDetailPage() {
 
       if (res.data && res.data.success) {
         toast.success('User details updated successfully!');
-        fetchUserDetail();
+        if (res.data.user) {
+          const u = res.data.user;
+          setUserData((prev) => ({
+            ...prev,
+            email: u.email || prev.email,
+            username: u.username || prev.username,
+            fullName: u.fullName || u.full_name || prev.fullName,
+            country: u.country !== undefined ? u.country : prev.country,
+            mobile: u.mobile !== undefined ? u.mobile : prev.mobile,
+            adminNote: u.adminNote !== undefined ? u.adminNote : prev.adminNote,
+            secretQuestion: u.secretQuestion !== undefined ? u.secretQuestion : prev.secretQuestion,
+            secretAnswer: u.secretAnswer !== undefined ? u.secretAnswer : prev.secretAnswer,
+            btcAddress: u.bitcoinAddress ?? prev.btcAddress,
+            usdtAddress: u.usdtTrc20Address ?? prev.usdtAddress,
+            usdtBep20Address: u.usdtBep20Address ?? prev.usdtBep20Address,
+            ethAddress: u.usdtBep20Address ?? prev.ethAddress,
+            ltcAddress: u.litecoinAddress ?? prev.ltcAddress,
+            emailVerified: u.email_verified !== undefined ? Boolean(u.email_verified) : (u.isEmailVerified !== undefined ? Boolean(u.isEmailVerified) : prev.emailVerified),
+          }));
+        }
+        await fetchUserDetail();
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update user information');
@@ -760,9 +784,20 @@ export default function AdminUserDetailPage() {
         {/* Information Form Card Container */}
         <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-bold text-slate-800 font-sans">
-              Information of {userData.fullName}
-            </h2>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-sm font-bold text-slate-800 font-sans">
+                Information of {userData.fullName}
+              </h2>
+              <button
+                type="button"
+                onClick={handleFormSubmit}
+                disabled={submitting}
+                className="bg-[#5b5bf5] hover:bg-indigo-600 disabled:opacity-50 text-white font-bold px-3 py-1.5 rounded-md text-[11px] uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+              >
+                {submitting ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                <span>Save Changes</span>
+              </button>
+            </div>
             {/* Last Login & IP Address Security Badge */}
             <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-lg px-3.5 py-1.5 text-xs font-sans">
               <span className="font-semibold text-slate-600">Last Login:</span>
@@ -1051,13 +1086,20 @@ export default function AdminUserDetailPage() {
 
 
 
-            {/* Row 6: Full-width Vibrant Indigo Submit Button */}
             <div className="pt-3">
               <button
                 type="submit"
-                className="w-full bg-[#5b5bf5] hover:bg-indigo-600 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md shadow-indigo-500/20"
+                disabled={submitting}
+                className="w-full bg-[#5b5bf5] hover:bg-indigo-600 disabled:opacity-50 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 cursor-pointer"
               >
-                Submit
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving User Profile...</span>
+                  </>
+                ) : (
+                  <span>Save Changes (Update User Profile)</span>
+                )}
               </button>
             </div>
           </form>
