@@ -141,51 +141,12 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  const requestPasswordReset = async (email) => {
-    try {
-      const res = await axios.post(`${getApiBaseUrl()}/auth/forgot-password`, { email });
-      toast.success(res.data?.message || 'OTP code sent to admin email!');
-      return { success: true, message: res.data?.message };
-    } catch (e) {
-      const msg = e.response?.data?.message || 'Failed to send OTP code';
-      toast.error(msg);
-      return { success: false, message: msg };
-    }
-  };
-
-  const verifyOtp = async (email, otp) => {
-    try {
-      const res = await axios.post(`${getApiBaseUrl()}/auth/verify-otp`, { email, otp });
-      toast.success(res.data?.message || 'OTP verified successfully!');
-      return { success: true, message: res.data?.message };
-    } catch (e) {
-      const msg = e.response?.data?.message || 'Invalid OTP code';
-      toast.error(msg);
-      return { success: false, message: msg };
-    }
-  };
-
-  const resetPassword = async (email, password) => {
-    try {
-      const res = await axios.post(`${getApiBaseUrl()}/auth/reset-password`, { email, password });
-      toast.success(res.data?.message || 'Admin password reset successfully!');
-      return { success: true, message: res.data?.message };
-    } catch (e) {
-      const msg = e.response?.data?.message || 'Failed to reset password';
-      toast.error(msg);
-      return { success: false, message: msg };
-    }
-  };
-
   return (
     <AdminAuthContext.Provider
       value={{
         admin,
         loading,
         login,
-        requestPasswordReset,
-        verifyOtp,
-        resetPassword,
         logout,
       }}
     >

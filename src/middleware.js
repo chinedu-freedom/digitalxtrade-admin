@@ -22,9 +22,6 @@ export function middleware(req) {
   const isPublicPath =
     pathname === '/' ||
     pathname === '/admin/login' ||
-    pathname === '/admin/forgot-password' ||
-    pathname === '/admin/reset-password' ||
-    pathname === '/admin/verify-otp' ||
     pathname === '/login';
 
   // Prevent logged-in admin from visiting login/auth pages

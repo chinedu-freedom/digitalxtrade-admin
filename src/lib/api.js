@@ -60,7 +60,7 @@ api.interceptors.response.use(
     const isExpired = status === 401 || status === 403 || msg.includes('jwt expired') || msg.includes('Invalid admin token');
 
     if (isExpired && typeof window !== 'undefined') {
-      const authPages = ['/admin/login', '/admin/forgot-password', '/admin/reset-password', '/admin/verify-otp'];
+      const authPages = ['/admin/login'];
       const isAuthPage = authPages.some((path) => window.location.pathname.startsWith(path));
 
       localStorage.removeItem('stakelab_admin_token');

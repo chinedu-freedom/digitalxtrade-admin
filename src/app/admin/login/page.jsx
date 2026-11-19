@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import { Eye, EyeOff } from 'lucide-react';
@@ -128,8 +127,8 @@ function AdminLoginContent() {
                 </div>
               </div>
 
-              {/* Checkbox & Forgot Password */}
-              <div className="flex items-center justify-between pt-1">
+              {/* Checkbox */}
+              <div className="flex items-center pt-1">
                 <label className="flex items-center space-x-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -138,15 +137,8 @@ function AdminLoginContent() {
                     id="keepMeLoggedIn"
                     className="w-4 h-4 rounded border-[#1c2844] bg-[#0c1424] text-[#0085d0] focus:ring-0 accent-[#0085d0] cursor-pointer"
                   />
-                  <span className="text-xs text-slate-300 font-medium">Remember me </span>
+                  <span className="text-xs text-slate-300 font-medium">Remember me</span>
                 </label>
-
-                <Link
-                  href="/admin/forgot-password"
-                  className="text-xs text-[#0085d0] font-semibold hover:underline"
-                >
-                  Forgot password?
-                </Link>
               </div>
 
               {/* Submit Button */}

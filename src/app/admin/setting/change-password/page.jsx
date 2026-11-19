@@ -5,8 +5,10 @@ import AdminSidebarLayout from '../../../../components/AdminSidebarLayout';
 import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '../../../../lib/api';
+import { useAdminAuth } from '../../../../context/AdminAuthContext';
 
 export default function AdminChangePasswordPage() {
+  const { admin } = useAdminAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -34,7 +36,12 @@ export default function AdminChangePasswordPage() {
 
     try {
       setSubmitting(true);
-      const res = await api.post('/admin/password', { currentPassword, newPassword });
+      const res = await api.post('/admin/password', {
+        currentPassword,
+        newPassword,
+        email: admin?.email,
+        id: admin?.id,
+      });
       if (res.data && res.data.success) {
         toast.success(res.data.message || 'Admin password updated successfully!');
         setCurrentPassword('');
@@ -135,9 +142,17 @@ export default function AdminChangePasswordPage() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-[#5b5bf5] hover:bg-indigo-600 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md shadow-indigo-500/20 cursor-pointer"
+                disabled={submitting}
+                className="w-full bg-[#5b5bf5] hover:bg-indigo-600 disabled:opacity-50 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md shadow-indigo-500/20 cursor-pointer flex items-center justify-center gap-2"
               >
-                Submit
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Updating Password...</span>
+                  </>
+                ) : (
+                  'Submit'
+                )}
               </button>
             </div>
           </form>
